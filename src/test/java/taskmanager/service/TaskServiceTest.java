@@ -15,4 +15,13 @@ public class TaskServiceTest {
         taskService.addTask(task);
         assertEquals(1, taskService.listTasks().size());
     }
+
+    @Test
+    public void testRemoveTask() {
+        TaskService taskService = new TaskService();
+        Task task = new Task("test", "This is a test task", LocalDate.now(), false);
+        taskService.addTask(task);
+        taskService.deleteTask(task);
+        assertEquals(0, taskService.listTasks().size());
+    }
 }
