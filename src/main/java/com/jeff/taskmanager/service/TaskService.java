@@ -15,6 +15,13 @@ public class TaskService {
         return tasks;
     }
 
+    
+
+    /**
+     * This method retrieves a task by its title and set it as completed.
+     * @param title The title of the task to retrieve.
+     * @return The task with the specified title, or null if not found.
+     */
     public boolean completeTask(String title) {
         return tasks.stream()
                 .filter(t-> t.getTitle().equalsIgnoreCase(title))
