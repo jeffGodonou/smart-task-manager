@@ -1,6 +1,8 @@
 package com.jeff.taskmanager.service;
 
 import  com.jeff.taskmanager.model.Task;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,11 +13,38 @@ public class TaskService {
         tasks.add(task);
     }
 
+    public void deleteTask(Task task) {
+        tasks.remove(task);
+    }
+
     public List <Task> listTasks() {
         return tasks;
     }
 
-    
+    public void updateTaskDescription(String title, String description) {
+        tasks.stream()
+            .filter(t -> t.getTitle().equalsIgnoreCase(title))
+            .findFirst()
+            .map( t -> {
+                t.setDescription(description);
+                return description;
+            });
+    }
+
+    /***
+     * This method update the due Date (to be reviewed)
+     * @param title
+     * @param dueDate
+     */
+    public void updateTaskDueDate(String title, LocalDate dueDate) {
+        tasks.stream()
+            .filter(t -> t.getTitle().equalsIgnoreCase(title))
+            .findFirst()
+            .map(t -> {
+                t.setDueDate(dueDate);
+                return dueDate;
+            });
+    }
 
     /**
      * This method retrieves a task by its title and set it as completed.
@@ -31,4 +60,5 @@ public class TaskService {
                     return true;
                 }).orElse(false);
     }
+
 }
