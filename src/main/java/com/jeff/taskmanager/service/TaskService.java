@@ -45,6 +45,21 @@ public class TaskService {
                 return dueDate;
             });
     }
+ 
+    /** 
+     * This method update the priority of a task (to be reviewed)
+     * @param title
+     * @param priority
+     */
+    public void updateTaskPriority(String title, String priority) {
+        tasks.stream()
+            .filter(t -> t.getTitle().equalsIgnoreCase(title))
+            .findFirst()
+            .map(t -> {
+                t.setPriority(priority);
+                return priority;
+            });
+    }
 
     /**
      * This method retrieves a task by its title and set it as completed.

@@ -65,9 +65,9 @@ public class App extends Application {
                 priorityBox.getItems().addAll("Low", "Medium", "High");
 
                 priorityBox.setOnAction(event -> {
-                    // Task task = getTableView().getItems().get(getIndex());
-                    // task.setPriority(priorityBox.getValue());
-                    // taskService.updateTask(task);
+                    Task task = getTableView().getItems().get(getIndex());
+                    task.setPriority(priorityBox.getValue());
+                    taskService.updateTaskPriority(task.getTitle(), task.getPriority());
                 });
             }
    

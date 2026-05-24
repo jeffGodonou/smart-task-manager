@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public class Task {
     private String title;
     private String description;
+    private String priority;
     private LocalDate dueDate;
     private boolean isCompleted;
 
@@ -13,6 +14,7 @@ public class Task {
         this.description = description;
         this.dueDate = dueDate;
         this.isCompleted = isCompleted;
+        this.priority = "Medium"; // Default priority
     }
 
     public String getTitle() {
@@ -31,6 +33,10 @@ public class Task {
         this.description = description;
     }
 
+    public String getPriority() {
+        return priority;
+    }
+
     public LocalDate getDueDate() {
         return dueDate;
     }
@@ -45,5 +51,9 @@ public class Task {
 
     public void setCompleted(boolean completed) {
         isCompleted = completed;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 }
