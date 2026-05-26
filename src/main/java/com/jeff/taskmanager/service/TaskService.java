@@ -1,64 +1,120 @@
 package com.jeff.taskmanager.service;
 
-import  com.jeff.taskmanager.model.Task;
+import com.jeff.taskmanager.model.Task;
+import com.jeff.taskmanager.repository.TaskRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TaskService {
-    private List<Task> tasks = new ArrayList<>();
+    private final TaskRepository taskRepository;
 
-    public void addTask(Task task) {
-        tasks.add(task);
+    // Default constructor - keeps existing behavior if someone uses no-arg
+    public TaskService() {
+        this.taskRepository = new TaskRepository();
     }
 
-    public void deleteTask(Task task) {
-        tasks.remove(task);
-    }
-
-    public List <Task> listTasks() {
-        return tasks;
-    }
-
-    public void updateTaskDescription(String title, String description) {
-        tasks.stream()
-            .filter(t -> t.getTitle().equalsIgnoreCase(title))
-            .findFirst()
-            .map( t -> {
-                t.setDescription(description);
-                return description;
-            });
+    // Constructor injection - useful for tests and flexibility
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
     /***
-     * This method update the due Date (to be reviewed)
-     * @param title
-     * @param dueDate
+     * Add a task
      */
-    public void updateTaskDueDate(String title, LocalDate dueDate) {
-        tasks.stream()
-            .filter(t -> t.getTitle().equalsIgnoreCase(title))
-            .findFirst()
-            .map(t -> {
-                t.setDueDate(dueDate);
-                return dueDate;
-            });
+    public void addTask(Task task) {
+        taskRepository.save(task);
+    }
+
+    /***
+     * Delete a task
+     */
+    public void deleteTask(Task task) {
+        taskRepository.delete(task);
+    }
+
+    /***
+     * List tasks
+     */
+    public List<Task> listTasks() {
+        return taskRepository.findAll();
     }
 
     /**
-     * This method retrieves a task by its title and set it as completed.
-     * @param title The title of the task to retrieve.
-     * @return The task with the specified title, or null if not found.
+     * Update description by id
      */
-    public boolean completeTask(String title) {
-        return tasks.stream()
-                .filter(t-> t.getTitle().equalsIgnoreCase(title))
-                .findFirst()
+    public boolean updateTaskDescription(Long id, String description) {
+        return taskRepository.findByID(id)
                 .map(t -> {
-                    t.setCompleted(true);
+                    t.setDescription(description);
+                    taskRepository.save(t);
                     return true;
                 }).orElse(false);
     }
 
+    /**
+     * Update due date by id
+     */
+    public boolean updateTaskDueDate(Long id, LocalDate dueDate) {
+        return taskRepository.findByID(id)
+                .map(t -> {
+                    t.setDueDate(dueDate);
+                    taskRepository.save(t);
+                    return true;
+                }).orElse(false);
+    }
+
+    /**
+     * Update priority by id
+     */
+    public boolean updateTaskPriority(Long id, String priority) {
+        return taskRepository.findByID(id)
+                .map(t -> {
+                    t.setPriority(priority);
+                    taskRepository.save(t);
+                    return true;
+                }).orElse(false);
+    }
+
+    /**
+     * Complete task by id
+     */
+    public boolean completeTask(Long id) {
+        return taskRepository.findByID(id)
+                .map(t -> {
+                    t.setCompleted(true);
+                    taskRepository.save(t);
+                    return true;
+                }).orElse(false);
+    }
+
+    // Backwards-compatible methods using title (delegates to repository)
+    public void updateTaskDescription(String title, String description) {
+        taskRepository.findByTitle(title).ifPresent(t -> {
+            t.setDescription(description);
+            taskRepository.save(t);
+        });
+    }
+
+    public void updateTaskDueDate(String title, LocalDate dueDate) {
+        taskRepository.findByTitle(title).ifPresent(t -> {
+            t.setDueDate(dueDate);
+            taskRepository.save(t);
+        });
+    }
+
+    public void updateTaskPriority(String title, String priority) {
+        taskRepository.findByTitle(title).ifPresent(t -> {
+            t.setPriority(priority);
+            taskRepository.save(t);
+        });
+    }
+
+    public boolean completeTask(String title) {
+        return taskRepository.findByTitle(title).map(t -> {
+            t.setCompleted(true);
+            taskRepository.save(t);
+            return true;
+        }).orElse(false);
+    }
 }
