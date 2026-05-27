@@ -45,6 +45,9 @@ public class App extends Application {
         // Define the table view to display tasks
         TableView<Task> tableView = new TableView<>();
 
+        // load persisted tasks into the TableView at startup
+        tableView.getItems().addAll(taskService.listTasks());
+
         TableColumn<Task, String> titleColumn = new TableColumn<>("Title");
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         
