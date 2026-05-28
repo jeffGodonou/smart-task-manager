@@ -1,0 +1,61 @@
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+
+.task-row:hover {
+  background: #f5f5f5;
+}
+
+.task-row[data-completed="true"] .task-title {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.task-content {
+  flex: 1;
+  text-align: left;
+}
+
+.task-title {
+  font-weight: 500;
+  margin: 0 0 4px 0;
+}
+
+.task-description {
+  font-size: 0.9em;
+  color: #666;
+  margin: 4px 0;
+}
+
+.task-due-date {
+  font-size: 0.85em;
+  color: #999;
+  margin: 4px 0 0 0;
+}
+
+.task-delete {
+  padding: 6px 12px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+}
+
+.task-delete:hover {
+  background: #c52020;
+}
