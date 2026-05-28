@@ -1,26 +1,54 @@
-# Smart Task Manager
+Smart Task Manager
+A task management REST API built with Java and Spring Boot, following a clean layered architecture with JPA persistence, TDD practices, and an automated CI/CD pipeline via GitHub Actions.
 
-A simple Java-based task manager to learn backend and frontend development, testing, and deployment practices.
+Tech Stack
 
-## Learning Goals
-- Understand layered architecture (`api`, `service`, `repo`, `model`).
-- Implement persistence using JPA/Hibernate and an in-memory H2 profile.
-- Build RESTful APIs with Spring Boot.
-- Create a modern React frontend with Kanban and calendar views.
-- Add authentication (OAuth2/JWT) and simple sync APIs.
-- Add unit, integration, and E2E tests with CI.
+Language: Java 25.0
+Framework: Spring Boot
+Build tool: Maven
+Persistence: JPA / Hibernate · H2 (in-memory for dev)
+Testing: JUnit 5 / Mockito · TDD
+CI/CD: GitHub Actions
 
-## Quick Start
-1. Build and run backend:
 
-```bash
+Architecture
+The project follows a standard layered architecture:
+src/
+└── main/java/com/jeff/taskmanager
+    ├── util/               # Domain utilities
+    ├── api/                # REST controllers — handles HTTP requests and responses
+    ├── service/            # Business logic layer
+    ├── repository/         # Data access layer (JPA repositories)
+    └── model/              # Domain entities
+
+Getting Started
+Prerequisites
+
+Java 17+
+Maven (or use the included mvnw wrapper)
+
+Run locally
+bash# Clone the repo
+git clone https://github.com/jeffGodonou/smart-task-manager.git
+cd smart-task-manager
+
+# Build and run
 ./mvnw clean package
 java -jar target/smart-task-manager-1.0-SNAPSHOT.jar
-```
+The API will be available at http://localhost:8080
+Run tests
+bash./mvnw test
 
-2. Frontend (optional):
+API Endpoints
+MethodEndpointDescriptionGET/tasksGet all tasksGET/tasks/{id}Get a task by IDPOST/tasksCreate a new taskPUT/tasks/{id}Update a taskDELETE/tasks/{id}Delete a task
 
-- Navigate to `frontend/` and run `npm install && npm start`.
+Roadmap
+See ROADMAP.md for planned features and milestones, including:
 
-## Roadmap
-See ROADMAP.md for milestones and learning checkpoints.
+React frontend with Kanban and calendar views
+OAuth2 / JWT authentication
+Integration and E2E tests
+
+
+Author
+Jeff Godonou — github.com/jeffGodonou
