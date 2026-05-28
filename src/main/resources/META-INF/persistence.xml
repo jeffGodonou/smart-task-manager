@@ -6,7 +6,7 @@
              version="3.1">
 
     <persistence-unit name="task-manager-unit" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.jpa.HibernateJpaProvider</provider>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         
         <!-- Entity classes -->
         <class>com.jeff.taskmanager.model.Task</class>

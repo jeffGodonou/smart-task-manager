@@ -1,0 +1,22 @@
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.task-list.loading,
+.task-list.error,
+.task-list.empty {
+  text-align: center;
+  color: #999;
+  padding: 32px 16px;
+}
+
+.task-list.error {
+  color: #c52525;
+  background: #ffebee;
+}
