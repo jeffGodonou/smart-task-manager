@@ -28,13 +28,14 @@ Java 17+
 Maven (or use the included mvnw wrapper)
 
 Run locally
-bash# Clone the repo
+```bash# Clone the repo
 git clone https://github.com/jeffGodonou/smart-task-manager.git
 cd smart-task-manager
 
 # Build and run
 ./mvnw clean package
 java -jar target/smart-task-manager-1.0-SNAPSHOT.jar
+```
 The API will be available at http://localhost:8080
 Run tests
 bash./mvnw test
