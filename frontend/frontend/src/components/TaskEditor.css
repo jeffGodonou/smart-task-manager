@@ -1,0 +1,48 @@
+/* Inputs */
+.task-title,
+.task-description {
+  font-size: 0.9em;
+  color: #666;
+  margin: 4px 0;
+  width: 100%;
+  display: block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.task-due-date {
+  font-size: 0.85em;
+  color: #999;
+  margin: 4px 0 0 0;
+  display: block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.task-title:focus,
+.task-description:focus,
+.task-due-date:focus {
+  outline: 2px solid #43ca37;
+  border-color: transparent;
+}
+
+/* Button — pick one: task-add OR task-create, match your component */
+.task-create {
+  padding: 6px 12px;
+  background: #43ca37;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+}
+
+.task-create:hover {
+  background: #376e12;
+}
+
+.task-create:active {
+  background: #2d5a0f;
+}
