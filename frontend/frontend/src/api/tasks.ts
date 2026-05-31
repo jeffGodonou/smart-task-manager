@@ -15,7 +15,7 @@ export async function listTasks(): Promise<Task[]> {
     return response.ok ? response.json() : [] ;
 }
 
-export async function createTask(task: Task): Promise<boolean> {
+export async function createTask(task: Task): Promise<Task> {
     const response = await fetch(base, {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
@@ -31,7 +31,7 @@ export async function deleteTask ( id: string): Promise<void> {
     if(!response.ok) throw new Error(`Failed to delete tasks: ${response.status}`);
 }
 
-export async function updateTask( id: string, updates: Partial<Task>): Promise<boolean> {
+export async function updateTask( id: string, updates: Partial<Task>): Promise<Task> {
     const response = await fetch(`${base}/${id}`, {
         method: 'PUT',
         headers: {'Content-Type':'application/json'},
