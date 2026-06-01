@@ -12,7 +12,7 @@ type TaskStore = {
     toggleComplete: (id: string, current: boolean) => Promise<void>;
 };
 
-export const useTaskStore = create<TaskStore> ((set, get) => ({
+export const useTaskStore = create<TaskStore> ((set) => ({
     tasks: [],
     isLoading: false,
     error: null,

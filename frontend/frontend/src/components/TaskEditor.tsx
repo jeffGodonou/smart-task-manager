@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { createTask, type Task } from "../api/tasks";
+import { useForm } from "react-hook-form";
+import { taskSchema, type TaskFormData } from "../validation/taskSchema";
+import { useTaskStore } from "../store/TaskStore";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 /**
  * TaskEditor Component
@@ -8,45 +10,51 @@ import { createTask, type Task } from "../api/tasks";
  * - Create a new Task
  */
 
-type TaskEditorProps = {
-  onTaskCreated: (task: Task) => void;
-};
+export default function TaskEditor() {
+  const addTask = useTaskStore(state => state.addTask);
+  const error = useTaskStore(state => state.error);
 
-export default function TaskEditor({ onTaskCreated }: TaskEditorProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');  
-  const [dueDate, setDueDate] = useState('');          
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<TaskFormData>({
+    resolver: zodResolver(taskSchema),
+  });
 
-  const handleAdd = async () => {
-    const task: Task = { title, description, dueDate };
-    await createTask(task);   // fixed: now awaited
-    onTaskCreated(task);
-  };
+  const onSubmit = async (data: TaskFormData) => {
+    await addTask(data)
+    reset();
+  }
 
   return (
     <div className="task-editor" data-completed={false}>
+      {error && <p className="task-error">{error}</p>}
       <div className="task-content">
         <input
           className="task-title"
           type="text"
-          value={title}                                  
-          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title"
+          {...register('title')}
         />
+        {errors.title && <span className="field-error">{errors.title?.message}</span>}
         <input
           className="task-description"
           type="text"
-          value={description}                            
-          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Description"
+          {...register('description')}
         />
+        {errors.description && <span className="field-error">{errors.description.message}</span>}
         <input
           className="task-due-date"
           type="date"
-          value={dueDate}                               
-          onChange={(e) => setDueDate(e.target.value)}
+          {...register('dueDate')}
         />
+        {errors.dueDate && <span className="field-error">{errors.dueDate.message}</span>}
       </div>
-      <button className="task-create" onClick={handleAdd} aria-label="Add">
-        Add
+      <button className="task-create" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
+        {isSubmitting ?'Adding...' : 'Add'}
       </button>
     </div>
   );

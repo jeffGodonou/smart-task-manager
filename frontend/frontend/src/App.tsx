@@ -6,7 +6,7 @@ import TaskEditor from './components/TaskEditor';
 import type { Task } from './api/tasks';
 
 function App() {
-  const [tasks, setTasks] = React.useState<Task[]>([]);
+  const [task, setTasks] = React.useState<Task[]>([]);
 
   return (
     <>
@@ -15,7 +15,7 @@ function App() {
           <h1>Smart Task Manager</h1>
         </header>
         <main>
-          <TaskEditor onTaskCreated={task => setTasks(prev => [task, ...prev])}/>
+          <TaskEditor/>
           <TaskList onTasksChange={setTasks} />
         </main>
       </div>
