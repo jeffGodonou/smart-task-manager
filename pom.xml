@@ -56,6 +56,11 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.15.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.15.2</version>
+        </dependency>
 
         <!-- JPA / Hibernate -->
         <dependency>
@@ -94,6 +99,14 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.jeff.taskmanager.App</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.jeff.taskmanager.api.BackendApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
