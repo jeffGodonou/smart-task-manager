@@ -1,4 +1,4 @@
-const base = '/api/tasks';
+const base = 'http://localhost:8080/api/tasks';
 
 export interface Task {
     id?: string;
