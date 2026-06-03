@@ -22,8 +22,8 @@ public class TaskService {
     /***
      * Add a task
      */
-    public void addTask(Task task) {
-        taskRepository.save(task);
+    public Task addTask(Task task) {
+        return taskRepository.save(task);
     }
 
     /***
@@ -31,6 +31,26 @@ public class TaskService {
      */
     public void deleteTask(Task task) {
         taskRepository.delete(task);
+    }
+
+    public void deleteTaskById(Long id) {
+        taskRepository.findByID(id).ifPresent(taskRepository::delete);
+    }
+
+    public Task getTaskById(Long id) {
+        return taskRepository.findByID(id).orElse(null);
+    }
+
+    public Task updateTask(Long id, Task source) {
+        return taskRepository.findByID(id)
+                .map(existing -> {
+                    existing.setTitle(source.getTitle());
+                    existing.setDescription(source.getDescription());
+                    existing.setPriority(source.getPriority());
+                    existing.setDueDate(source.getDueDate());
+                    existing.setCompleted(source.isCompleted());
+                    return taskRepository.save(existing);
+                }).orElse(null);
     }
 
     /***

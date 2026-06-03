@@ -1,4 +1,4 @@
-const base = '/api/tasks';
+const base = 'http://localhost:8080/api/tasks';
 
 export interface Task {
     id?: string;
@@ -8,32 +8,36 @@ export interface Task {
     isCompleted?: boolean;
 }
 
-export async function listTasks(): Promise<any[]> {
+export async function listTasks(): Promise<Task[]> {
     const response = await fetch(base);
-
+    if(!response.ok) throw new Error(`Failed to load tasks: ${response.status}`);
+    
     return response.ok ? response.json() : [] ;
 }
 
-export async function createTask(task: Task): Promise<boolean | any> {
+export async function createTask(task: Task): Promise<Task> {
     const response = await fetch(base, {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify(task)
     });
-
-    return response.json;
+    if(!response.ok) throw new Error(`Failed to create task: ${response.status}`);
+    
+    return response.json();
 }
 
-export async function deleteTask ( id: string) {
-    await fetch(`${base}/${id}`, {method: `DELETE`});
+export async function deleteTask ( id: string): Promise<void> {
+    const response = await fetch(`${base}/${id}`, {method: `DELETE`});
+    if(!response.ok) throw new Error(`Failed to delete tasks: ${response.status}`);
 }
 
-export async function updateTask( id: string, attribute: any): Promise<boolean | any> {
+export async function updateTask( id: string, updates: Partial<Task>): Promise<Task> {
     const response = await fetch(`${base}/${id}`, {
         method: 'PUT',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify(attribute)
+        body: JSON.stringify(updates)
     })
-
+    if(!response.ok) throw new Error(`Failed to update task: ${response.status}`);
+    
     return response.json();
 }

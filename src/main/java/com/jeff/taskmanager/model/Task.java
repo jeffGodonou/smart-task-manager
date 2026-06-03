@@ -2,6 +2,7 @@ package com.jeff.taskmanager.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "tasks")
@@ -18,9 +19,11 @@ public class Task {
     private String priority;
     
     @Column(name="due_date")
+        @JsonProperty("dueDate")
     private LocalDate dueDate;
 
     @Column(name="is_completed")
+        @JsonProperty("isCompleted")
     private boolean isCompleted;
 
     public Task() {}
