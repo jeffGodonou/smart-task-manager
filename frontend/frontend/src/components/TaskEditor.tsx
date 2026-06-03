@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { taskSchema, type TaskFormData } from "../validation/taskSchema";
 import { useTaskStore } from "../store/TaskStore";
 import { zodResolver } from "@hookform/resolvers/zod";
+import './TaskEditor.css';
 
 /**
  * TaskEditor Component

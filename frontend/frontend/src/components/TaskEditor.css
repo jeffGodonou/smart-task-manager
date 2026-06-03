@@ -1,10 +1,18 @@
+.task-editor {
+  display: flex;
+  flex:content;
+  flex-direction: column;
+  align-items:baseline;
+  align-content: space-between;
+}
+
 /* Inputs */
 .task-title,
 .task-description {
   font-size: 0.9em;
   color: #666;
-  margin: 4px 0;
-  width: 100%;
+  margin: 4px 0 0 0;
+  width: 150%;
   display: block;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -12,7 +20,7 @@
 }
 
 .task-due-date {
-  font-size: 0.85em;
+  font-size: 0.9em;
   color: #999;
   margin: 4px 0 0 0;
   display: block;
@@ -32,6 +40,7 @@
 .task-create {
   padding: 6px 12px;
   background: #43ca37;
+  margin: 8px 8px 8px 8px;
   color: white;
   border: none;
   border-radius: 4px;
