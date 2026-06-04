@@ -3,6 +3,7 @@ import { taskSchema, type TaskFormData } from "../validation/taskSchema";
 import { useTaskStore } from "../store/TaskStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import './TaskEditor.css';
+import { useEffect } from "react";
 
 /**
  * TaskEditor Component
@@ -14,6 +15,11 @@ import './TaskEditor.css';
 export default function TaskEditor() {
   const addTask = useTaskStore(state => state.addTask);
   const error = useTaskStore(state => state.error);
+  const fetchTasks = useTaskStore(state => state.fetchTasks);
+
+  useEffect (() => {
+    fetchTasks();
+  }, [fetchTasks]);
 
   const {
     register,
@@ -27,10 +33,11 @@ export default function TaskEditor() {
   const onSubmit = async (data: TaskFormData) => {
     await addTask(data)
     reset();
+    await fetchTasks();
   }
 
   return (
-    <div className="task-editor" data-completed={false}>
+    <form className="task-editor" data-completed={false} onSubmit={handleSubmit(onSubmit)}>
       {error && <p className="task-error">{error}</p>}
       <div className="task-content">
         <input
@@ -54,9 +61,9 @@ export default function TaskEditor() {
         />
         {errors.dueDate && <span className="field-error">{errors.dueDate.message}</span>}
       </div>
-      <button className="task-create" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
+      <button className="task-create" type="submit" disabled={isSubmitting}>
         {isSubmitting ?'Adding...' : 'Add'}
       </button>
-    </div>
+    </form>
   );
 }
