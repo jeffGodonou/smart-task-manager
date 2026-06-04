@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Task } from '../api/tasks';
-import KanbanCard from './KanbanCard';
+import KanbanCard from './KanbanCard.tsx';
 
 export default function KanbanColumn({ title, status, tasks, onMove }:{title:string,status:Task['status'],tasks:Task[],onMove:(id:string|undefined,newStatus:Task['status'])=>void}){
   return (
