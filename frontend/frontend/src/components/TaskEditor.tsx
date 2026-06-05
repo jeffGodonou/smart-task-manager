@@ -41,21 +41,21 @@ export default function TaskEditor() {
       {error && <p className="task-error">{error}</p>}
       <div className="task-content">
         <input
-          className="task-title"
+          className="editor-title"
           type="text"
           placeholder="Title"
           {...register('title')}
         />
         {errors.title && <span className="field-error">{errors.title?.message}</span>}
         <input
-          className="task-description"
+          className="editor-description"
           type="text"
           placeholder="Description"
           {...register('description')}
         />
         {errors.description && <span className="field-error">{errors.description.message}</span>}
         <input
-          className="task-due-date"
+          className="editor-due-date"
           type="date"
           {...register('dueDate')}
         />
