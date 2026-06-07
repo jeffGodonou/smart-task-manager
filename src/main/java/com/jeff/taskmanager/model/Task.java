@@ -2,6 +2,8 @@ package com.jeff.taskmanager.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
@@ -26,6 +28,7 @@ public class Task {
     
     @Column(name="due_date")
         @JsonProperty("dueDate")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
 
     @Column(name="is_completed")
