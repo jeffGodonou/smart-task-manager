@@ -6,6 +6,7 @@ export interface Task {
     description?: string;
     dueDate?: string;
     isCompleted?: boolean;
+    status?: 'TODO' | 'IN_PROGRESS' | 'DONE';
 }
 
 export async function listTasks(): Promise<Task[]> {

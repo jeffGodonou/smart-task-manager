@@ -49,8 +49,21 @@ public class TaskService {
                     existing.setPriority(source.getPriority());
                     existing.setDueDate(source.getDueDate());
                     existing.setCompleted(source.isCompleted());
+                    existing.setStatus(source.getStatus());
                     return taskRepository.save(existing);
                 }).orElse(null);
+    }
+
+    /***
+     * Update status by id
+     */
+    public boolean updateTaskStatus(Long id, Task.Status status) {
+        return taskRepository.findByID(id)
+                .map(t -> {
+                    t.setStatus(status);
+                    taskRepository.save(t);
+                    return true;
+                }).orElse(false);
     }
 
     /***

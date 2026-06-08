@@ -7,31 +7,34 @@
 }
 
 /* Inputs */
-.task-title,
-.task-description {
-  font-size: 0.9em;
-  color: #666;
-  margin: 4px 0 0 0;
-  width: 150%;
+.editor-title,
+.editor-description {
+  font-size: 0.95em;
+  color: #333;
+  margin: 8px 0 0 0;
+  width: 100%;
   display: block;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 4px 8px;
+  border-radius: 6px;
+  padding: 10px 12px;
+  box-sizing: border-box;
 }
 
-.task-due-date {
-  font-size: 0.9em;
-  color: #999;
-  margin: 4px 0 0 0;
+.editor-due-date {
+  font-size: 0.95em;
+  color: #333;
+  margin: 8px 0 0 0;
   display: block;
+  width: 100%;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 4px 8px;
+  border-radius: 6px;
+  padding: 10px 12px;
+  box-sizing: border-box;
 }
 
-.task-title:focus,
-.task-description:focus,
-.task-due-date:focus {
+.editor-title:focus,
+.editor-description:focus,
+.editor-due-date:focus {
   outline: 2px solid #43ca37;
   border-color: transparent;
 }
