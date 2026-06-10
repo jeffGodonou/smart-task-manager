@@ -7,7 +7,7 @@ import { getDay } from 'date-fns/getDay';
 import { enUS } from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-import { listTasks, updateTask } from '../api/tasks';
+import { createTask, listTasks, updateTask } from '../api/tasks';
 import type { Task } from '../api/tasks';
 
 const locales = { 'en-US': enUS };
@@ -64,12 +64,18 @@ export default function CalendarView() {
   }
 
   // When user selects an empty slot: show tasks on that day or create new (example)
-  function onSelectSlot(slotInfo: any) {
+  async function onSelectSlot(slotInfo: any) {
     // slotInfo.start is a Date; convert to YYYY-MM-DD to create a new task or prefill editor
     const iso = slotInfo.start.toISOString().slice(0,10);
     const title = window.prompt('Create task title for ' + iso);
     if (!title) return;
-    // you can use your createTask() API here to persist; omitted for brevity
+    
+    try {
+      await createTask({title: title, dueDate: iso});
+    } catch (e) {
+      console.error(e)
+      alert('Failed to create a task')
+    }
   }
 
   return (
