@@ -6,6 +6,7 @@ import TaskEditor from './components/TaskEditor';
 import type { Task } from './api/tasks';
 import KanbanBoard from './components/KanbanBoard';
 import CalendarView from './components/CalendarView';
+//import TaskStats from './components/TaskStats';
 
 function App() {
   const [task, setTasks] = React.useState<Task[]>([]);
