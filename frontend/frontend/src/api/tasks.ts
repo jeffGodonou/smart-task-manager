@@ -32,13 +32,20 @@ export async function deleteTask ( id: string): Promise<void> {
     if(!response.ok) throw new Error(`Failed to delete tasks: ${response.status}`);
 }
 
-export async function updateTask( id: string, updates: Partial<Task>): Promise<Task> {
+export async function updateTask(id: string, updates: Partial<Task>): Promise<Task> {
+    const currentResponse = await fetch(`${base}/${id}`);
+    if (!currentResponse.ok) throw new Error(`Failed to fetch task: ${currentResponse.status}`);
+
+    const existingTask = await currentResponse.json() as Task;
+    const taskToUpdate: Task = { ...existingTask, ...updates };
+
     const response = await fetch(`${base}/${id}`, {
         method: 'PUT',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify(updates)
-    })
-    if(!response.ok) throw new Error(`Failed to update task: ${response.status}`);
-    
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(taskToUpdate)
+    });
+
+    if (!response.ok) throw new Error(`Failed to update task: ${response.status}`);
+
     return response.json();
 }

@@ -5,11 +5,17 @@ import TaskList from './components/TaskList';
 import TaskEditor from './components/TaskEditor';
 import type { Task } from './api/tasks';
 import KanbanBoard from './components/KanbanBoard';
+import CalendarView from './components/CalendarView';
+//import TaskStats from './components/TaskStats';
 
 function App() {
   const [task, setTasks] = React.useState<Task[]>([]);
-  const [view, setView] = React.useState<'list'|'kanban'>('list');
-
+  const [view, setView] = React.useState<'list'|'kanban'|'calendar'>('list');
+  const renderedView = view === 'list'
+             ? <TaskList onTasksChange={setTasks} />
+             : view === 'kanban'
+               ? <KanbanBoard />
+               : <CalendarView />
   return (
     <>
       <div className='app'>
@@ -18,11 +24,12 @@ function App() {
           <div className="view-toggle">
             <button onClick={() => setView('list')} disabled={view==='list'}>List</button>
             <button onClick={() => setView('kanban')} disabled={view==='kanban'}>Kanban</button>
+            <button onClick={() => setView('calendar')} disabled={view==='calendar'}>Calendar</button>
           </div>
         </header>
         <main>
-          <TaskEditor/>
-          {view === 'list' ? <TaskList onTasksChange={setTasks} /> : <KanbanBoard />}
+          <TaskEditor />
+          {renderedView}
         </main>
       </div>
     </>
