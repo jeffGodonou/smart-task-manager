@@ -10,6 +10,7 @@
         
         <!-- Entity classes -->
         <class>com.jeff.taskmanager.model.Task</class>
+        <class>com.jeff.taskmanager.model.User</class>
         
         <properties>
             <!-- H2 Database Connection -->
