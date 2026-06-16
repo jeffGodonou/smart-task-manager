@@ -46,7 +46,7 @@ public class App extends Application {
         TableView<Task> tableView = new TableView<>();
 
         // load persisted tasks into the TableView at startup
-        tableView.getItems().addAll(taskService.listTasks());
+        tableView.getItems().addAll(taskService.listTasks(""));
 
         TableColumn<Task, String> titleColumn = new TableColumn<>("Title");
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
@@ -118,7 +118,7 @@ public class App extends Application {
             String taskDescription = descriptionField.getText();
             Task task = new Task(taskTitle, taskDescription , dueDate, false);
             
-            taskService.addTask(task);
+            taskService.addTask(task, "");
             System.out.println("Task added: " + taskTitle + " Due:" + dueDate);
             tableView.getItems().add(task);
             
