@@ -1,48 +1,46 @@
 package com.jeff.taskmanager.service;
 
 import com.jeff.taskmanager.model.Task;
+import com.jeff.taskmanager.model.User;
 import com.jeff.taskmanager.repository.TaskRepository;
+import com.jeff.taskmanager.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
-    // Default constructor - keeps existing behavior if someone uses no-arg
     public TaskService() {
-        this.taskRepository = new TaskRepository();
+        this(new TaskRepository(), new UserRepository());
     }
 
-    // Constructor injection - useful for tests and flexibility
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
-    /***
-     * Add a task
-     */
-    public Task addTask(Task task) {
+    public Task addTask(Task task, String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("Unknown user"));
+        task.setOwner(user);
         return taskRepository.save(task);
     }
 
-    /***
-     * Delete a task
-     */
     public void deleteTask(Task task) {
         taskRepository.delete(task);
     }
 
-    public void deleteTaskById(Long id) {
-        taskRepository.findByID(id).ifPresent(taskRepository::delete);
+    public void deleteTaskById(Long id, String username) {
+        taskRepository.findByIdAndUser(id, username).ifPresent(taskRepository::delete);
     }
 
-    public Task getTaskById(Long id) {
-        return taskRepository.findByID(id).orElse(null);
+    public Task getTaskById(Long id, String username) {
+        return taskRepository.findByIdAndUser(id, username).orElse(null);
     }
 
-    public Task updateTask(Long id, Task source) {
-        return taskRepository.findByID(id)
+    public Task updateTask(Long id, Task source, String username) {
+        return taskRepository.findByIdAndUser(id, username)
                 .map(existing -> {
                     existing.setTitle(source.getTitle());
                     existing.setDescription(source.getDescription());
@@ -54,11 +52,8 @@ public class TaskService {
                 }).orElse(null);
     }
 
-    /***
-     * Update status by id
-     */
-    public boolean updateTaskStatus(Long id, Task.Status status) {
-        return taskRepository.findByID(id)
+    public boolean updateTaskStatus(Long id, Task.Status status, String username) {
+        return taskRepository.findByIdAndUser(id, username)
                 .map(t -> {
                     t.setStatus(status);
                     taskRepository.save(t);
@@ -66,18 +61,12 @@ public class TaskService {
                 }).orElse(false);
     }
 
-    /***
-     * List tasks
-     */
-    public List<Task> listTasks() {
-        return taskRepository.findAll();
+    public List<Task> listTasks(String username) {
+        return taskRepository.findAllByUser(username);
     }
 
-    /**
-     * Update description by id
-     */
-    public boolean updateTaskDescription(Long id, String description) {
-        return taskRepository.findByID(id)
+    public boolean updateTaskDescription(Long id, String description, String username) {
+        return taskRepository.findByIdAndUser(id, username)
                 .map(t -> {
                     t.setDescription(description);
                     taskRepository.save(t);
@@ -85,11 +74,8 @@ public class TaskService {
                 }).orElse(false);
     }
 
-    /**
-     * Update due date by id
-     */
-    public boolean updateTaskDueDate(Long id, LocalDate dueDate) {
-        return taskRepository.findByID(id)
+    public boolean updateTaskDueDate(Long id, LocalDate dueDate, String username) {
+        return taskRepository.findByIdAndUser(id, username)
                 .map(t -> {
                     t.setDueDate(dueDate);
                     taskRepository.save(t);
@@ -97,11 +83,8 @@ public class TaskService {
                 }).orElse(false);
     }
 
-    /**
-     * Update priority by id
-     */
-    public boolean updateTaskPriority(Long id, String priority) {
-        return taskRepository.findByID(id)
+    public boolean updateTaskPriority(Long id, String priority, String username) {
+        return taskRepository.findByIdAndUser(id, username)
                 .map(t -> {
                     t.setPriority(priority);
                     taskRepository.save(t);
@@ -109,11 +92,8 @@ public class TaskService {
                 }).orElse(false);
     }
 
-    /**
-     * Complete task by id
-     */
-    public boolean completeTask(Long id) {
-        return taskRepository.findByID(id)
+    public boolean completeTask(Long id, String username) {
+        return taskRepository.findByIdAndUser(id, username)
                 .map(t -> {
                     t.setCompleted(true);
                     taskRepository.save(t);
@@ -121,7 +101,6 @@ public class TaskService {
                 }).orElse(false);
     }
 
-    // Backwards-compatible methods using title (delegates to repository)
     public void updateTaskDescription(String title, String description) {
         taskRepository.findByTitle(title).ifPresent(t -> {
             t.setDescription(description);

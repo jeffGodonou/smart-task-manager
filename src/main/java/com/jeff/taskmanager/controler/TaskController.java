@@ -3,8 +3,10 @@ package com.jeff.taskmanager.controler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.jeff.taskmanager.api.AuthFilter;
 import com.jeff.taskmanager.model.Task;
 import com.jeff.taskmanager.service.TaskService;
+import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
@@ -28,8 +30,10 @@ public class TaskController {
     }
 
     public void registerRoutes(HttpServer server) {
-        server.createContext(PREFIX, this::handleRequest);
-        server.createContext(PREFIX + "/", this::handleRequest);
+        HttpContext context = server.createContext(PREFIX, this::handleRequest);
+        context.getFilters().add(new AuthFilter());
+        HttpContext contextSlash = server.createContext(PREFIX + "/", this::handleRequest);
+        contextSlash.getFilters().add(new AuthFilter());
     }
 
     private void handleRequest(HttpExchange exchange) throws IOException {
@@ -90,20 +94,23 @@ public class TaskController {
     }
 
     private void handleList(HttpExchange exchange) throws IOException {
-        List<Task> tasks = taskService.listTasks();
+        String username = getUsername(exchange);
+        List<Task> tasks = taskService.listTasks(username);
         String json = objectMapper.writeValueAsString(tasks);
         sendJson(exchange, 200, json);
     }
 
     private void handleCreate(HttpExchange exchange) throws IOException {
+        String username = getUsername(exchange);
         Task task = readRequestBody(exchange.getRequestBody(), Task.class);
-        Task saved = taskService.addTask(task);
+        Task saved = taskService.addTask(task, username);
         String json = objectMapper.writeValueAsString(saved);
         sendJson(exchange, 201, json);
     }
 
     private void handleGet(HttpExchange exchange, Long id) throws IOException {
-        Task task = taskService.getTaskById(id);
+        String username = getUsername(exchange);
+        Task task = taskService.getTaskById(id, username);
         if (task == null) {
             sendResponse(exchange, 404, "Task not found");
             return;
@@ -112,8 +119,9 @@ public class TaskController {
     }
 
     private void handleUpdate(HttpExchange exchange, Long id) throws IOException {
+        String username = getUsername(exchange);
         Task payload = readRequestBody(exchange.getRequestBody(), Task.class);
-        Task updated = taskService.updateTask(id, payload);
+        Task updated = taskService.updateTask(id, payload, username);
         if (updated == null) {
             sendResponse(exchange, 404, "Task not found");
             return;
@@ -122,7 +130,8 @@ public class TaskController {
     }
 
     private void handleDelete(HttpExchange exchange, Long id) throws IOException {
-        taskService.deleteTaskById(id);
+        String username = getUsername(exchange);
+        taskService.deleteTaskById(id, username);
         sendResponse(exchange, 204, "");
     }
 
@@ -160,5 +169,10 @@ public class TaskController {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private String getUsername(HttpExchange exchange) {
+        Object username = exchange.getAttribute("username");
+        return username == null ? null : username.toString();
     }
 }

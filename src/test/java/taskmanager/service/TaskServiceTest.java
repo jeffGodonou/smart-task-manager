@@ -50,53 +50,60 @@ public class TaskServiceTest {
     }
 
     private TaskService taskService;
-    private InMemoryTaskRepository repository;
     private Task sample;
 
     @BeforeEach
     void setUp() {
-        repository = new InMemoryTaskRepository();
-        taskService = new TaskService(repository);
+        new InMemoryTaskRepository();
+        taskService = new TaskService();
         sample = new Task("Test Task", "This is a test task", LocalDate.now(), false);
     }
 
     @Test
     void addTask_persists() {
-        taskService.addTask(sample);
-        assertEquals(1, taskService.listTasks().size());
+        taskService.addTask(sample, "user");
+        assertEquals(1, taskService.listTasks("user").size());
     }
 
     @Test
     void deleteTask_removes() {
-        taskService.addTask(sample);
+        taskService.addTask(sample, "user");
         taskService.deleteTask(sample);
-        assertEquals(0, taskService.listTasks().size());
+        assertEquals(0, taskService.listTasks("user").size());
     }
 
     @Test
     void listTasks_returnsAll() {
         Task a = new Task("A", "a", LocalDate.now(), false);
         Task b = new Task("B", "b", LocalDate.now(), false);
-        taskService.addTask(a);
-        taskService.addTask(b);
-        assertEquals(2, taskService.listTasks().size());
+        taskService.addTask(a, "user");
+        taskService.addTask(b, "user");
+        assertEquals(2, taskService.listTasks("user").size());
     }
 
     @Test
     void updateTaskDescription_byId_persists() {
-        taskService.addTask(sample);
+        taskService.addTask(sample, "user");
         Long id = sample.getId();
-        boolean updated = taskService.updateTaskDescription(id, "Updated");
+        boolean updated = taskService.updateTaskDescription(id, "Updated", "user");
         assertTrue(updated);
-        assertEquals("Updated", repository.findByID(id).get().getDescription());
+        assertEquals("Updated", taskService.listTasks("user").stream()
+                .filter(t -> id.equals(t.getId()))
+                .findFirst()
+                .map(Task::getDescription)
+                .orElse(null));
     }
 
     @Test
     void completeTask_setsCompleted() {
-        taskService.addTask(sample);
+        taskService.addTask(sample, "user");
         Long id = sample.getId();
-        boolean result = taskService.completeTask(id);
+        boolean result = taskService.completeTask(id, "user");
         assertTrue(result);
-        assertTrue(repository.findByID(id).get().isCompleted());
+        assertTrue(taskService.listTasks("user").stream()
+                .filter(t -> id.equals(t.getId()))
+                .findFirst()
+                .map(Task::isCompleted)
+                .orElse(false));
     }
 }

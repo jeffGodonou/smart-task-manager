@@ -51,6 +51,33 @@ public class TaskRepository {
         }
     }
 
+    public Optional<Task> findByIdAndUser(Long id, String username) {
+        EntityManager em = PersistanceManager.getEntityManager();
+        try {
+            TypedQuery<Task> q = em.createQuery(
+                "SELECT t FROM Task t WHERE t.id = :id AND t.owner.username = :username", Task.class
+            );
+            q.setParameter("id", id);
+            q.setParameter("username", username);
+            return q.getResultStream().findFirst();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Task> findAllByUser(String username) {
+        EntityManager em = PersistanceManager.getEntityManager();
+        try {
+            TypedQuery<Task> q = em.createQuery(
+                "SELECT t FROM Task t WHERE t.owner.username = :username", Task.class
+            );
+            q.setParameter("username", username);
+            return q.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public Optional<Task> findByTitle(String title) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
