@@ -1,8 +1,6 @@
 package com.jeff.taskmanager;
 
 import java.time.LocalDate;
-// import java.util.List;
-
 import com.jeff.taskmanager.model.Task;
 import com.jeff.taskmanager.service.TaskService;
 
@@ -48,6 +46,7 @@ public class App extends Application {
         // load persisted tasks into the TableView at startup
         tableView.getItems().addAll(taskService.listTasks(""));
 
+        // define the table of tasks 
         TableColumn<Task, String> titleColumn = new TableColumn<>("Title");
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         
@@ -89,7 +88,8 @@ public class App extends Application {
         TableColumn<Task, Void> actionsColumn = new TableColumn<>("Actions");
         actionsColumn.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
             private final Button deleteButton = new Button("Delete");
-
+            
+            // remove task from table view after deletion
             {
                 deleteButton.setOnAction(event -> {
                     Task task = getTableView().getItems().get(getIndex());
@@ -98,6 +98,7 @@ public class App extends Application {
                 });
             }
 
+            // specify delete button appearence
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
@@ -109,6 +110,7 @@ public class App extends Application {
             }
         });
 
+        // set TableView
         tableView.getColumns().addAll(titleColumn, descriptionColumn, dueDateColumn, completedColumn, priorityColumn, actionsColumn);
 
         // Set the action for the add button
