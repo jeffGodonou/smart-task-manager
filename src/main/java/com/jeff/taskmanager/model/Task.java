@@ -7,6 +7,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/*************
+ * Entity: Task
+ * Attribute: id, title, owner, description, dueDate, isCompleted, status 
+ */
+
 @Entity
 @Table(name = "tasks")
 public class Task {
@@ -20,6 +25,7 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // user associated to the task
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore

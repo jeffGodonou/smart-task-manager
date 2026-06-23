@@ -3,6 +3,11 @@ package com.jeff.taskmanager.model;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/*************
+ * Entity: User
+ * Attribute: id, username, passwordHash
+ */
+
 @Entity
 @Table(name = "users")
 public class User {
