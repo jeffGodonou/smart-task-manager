@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public class TaskRepository {
     
+    // Save the task in the database
     public Task save(Task task) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -28,6 +29,7 @@ public class TaskRepository {
         }
     }   
 
+    // delete the task form the database
     public void delete(Task task) {
         EntityManager em = PersistanceManager.getEntityManager();
         try{
@@ -42,6 +44,7 @@ public class TaskRepository {
         }
     }
 
+    // find task by ID
     public Optional<Task> findByID(Long id) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -51,6 +54,7 @@ public class TaskRepository {
         }
     }
 
+    // find task by ID and owner username
     public Optional<Task> findByIdAndUser(Long id, String username) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -65,6 +69,7 @@ public class TaskRepository {
         }
     }
 
+    // find all tasks associated to one user
     public List<Task> findAllByUser(String username) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -78,6 +83,7 @@ public class TaskRepository {
         }
     }
 
+    // find task by title
     public Optional<Task> findByTitle(String title) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -92,6 +98,7 @@ public class TaskRepository {
         }
     }
 
+    // Display all task
     public List<Task> findAll() {
         EntityManager em = PersistanceManager.getEntityManager();
         try{

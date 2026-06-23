@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public class UserRepository {
 
+    // add a new user to the database
     public User save(User user) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -27,6 +28,7 @@ public class UserRepository {
         }
     }
 
+    // find user by username
     public Optional<User> findByUsername(String username) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -41,6 +43,7 @@ public class UserRepository {
         }
     }
 
+    // find user by id
     public Optional<User> findById(Long id) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
