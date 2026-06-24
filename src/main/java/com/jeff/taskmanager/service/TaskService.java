@@ -8,37 +8,88 @@ import com.jeff.taskmanager.repository.UserRepository;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Business service for task management operations.
+ *
+ * <p>This service coordinates task persistence and user ownership checks.
+ * It delegates persistence actions to the {@link TaskRepository} and resolves
+ * users via the {@link UserRepository}.</p>
+ */
 public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Construct a TaskService with default repository implementations.
+     */
     public TaskService() {
         this(new TaskRepository(), new UserRepository());
     }
 
+    /**
+     * Construct a TaskService with explicit repository dependencies.
+     *
+     * @param taskRepository repository used for task persistence
+     * @param userRepository repository used for user lookup
+     */
     public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
     }
 
+    /**
+     * Add a new task for the given user.
+     *
+     * @param task the task to persist
+     * @param username the owner of the task
+     * @return the saved task instance
+     * @throws IllegalArgumentException if the user cannot be found
+     */
     public Task addTask(Task task, String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("Unknown user"));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown user"));
         task.setOwner(user);
         return taskRepository.save(task);
     }
 
+    /**
+     * Delete the provided task instance.
+     *
+     * @param task the task to remove
+     */
     public void deleteTask(Task task) {
         taskRepository.delete(task);
     }
 
+    /**
+     * Delete a task by ID if it belongs to the given user.
+     *
+     * @param id the task identifier
+     * @param username the username of the owner
+     */
     public void deleteTaskById(Long id, String username) {
         taskRepository.findByIdAndUser(id, username).ifPresent(taskRepository::delete);
     }
 
+    /**
+     * Retrieve a task by its ID for the specified user.
+     *
+     * @param id the task identifier
+     * @param username the username of the owner
+     * @return the task when found, or {@code null} when not found or unauthorized
+     */
     public Task getTaskById(Long id, String username) {
         return taskRepository.findByIdAndUser(id, username).orElse(null);
     }
 
+    /**
+     * Update an existing task owned by a specific user.
+     *
+     * @param id the task identifier
+     * @param source the task payload containing updates
+     * @param username the username of the owner
+     * @return the updated task, or {@code null} when the task is not found
+     */
     public Task updateTask(Long id, Task source, String username) {
         return taskRepository.findByIdAndUser(id, username)
                 .map(existing -> {
@@ -52,6 +103,14 @@ public class TaskService {
                 }).orElse(null);
     }
 
+    /**
+     * Update the status of a task owned by a user.
+     *
+     * @param id the task identifier
+     * @param status new status value
+     * @param username the username of the owner
+     * @return {@code true} when the update succeeded, otherwise {@code false}
+     */
     public boolean updateTaskStatus(Long id, Task.Status status, String username) {
         return taskRepository.findByIdAndUser(id, username)
                 .map(t -> {
@@ -61,10 +120,24 @@ public class TaskService {
                 }).orElse(false);
     }
 
+    /**
+     * List all tasks for the specified user.
+     *
+     * @param username the username of the owner
+     * @return tasks belonging to the user
+     */
     public List<Task> listTasks(String username) {
         return taskRepository.findAllByUser(username);
     }
 
+    /**
+     * Update the description of an owned task.
+     *
+     * @param id the task identifier
+     * @param description the new description
+     * @param username the username of the owner
+     * @return {@code true} when the update succeeded, otherwise {@code false}
+     */
     public boolean updateTaskDescription(Long id, String description, String username) {
         return taskRepository.findByIdAndUser(id, username)
                 .map(t -> {
@@ -74,6 +147,14 @@ public class TaskService {
                 }).orElse(false);
     }
 
+    /**
+     * Update the due date of an owned task.
+     *
+     * @param id the task identifier
+     * @param dueDate the new due date
+     * @param username the username of the owner
+     * @return {@code true} when the update succeeded, otherwise {@code false}
+     */
     public boolean updateTaskDueDate(Long id, LocalDate dueDate, String username) {
         return taskRepository.findByIdAndUser(id, username)
                 .map(t -> {
@@ -83,6 +164,14 @@ public class TaskService {
                 }).orElse(false);
     }
 
+    /**
+     * Update the priority of an owned task.
+     *
+     * @param id the task identifier
+     * @param priority the new priority value
+     * @param username the username of the owner
+     * @return {@code true} when the update succeeded, otherwise {@code false}
+     */
     public boolean updateTaskPriority(Long id, String priority, String username) {
         return taskRepository.findByIdAndUser(id, username)
                 .map(t -> {
@@ -92,6 +181,13 @@ public class TaskService {
                 }).orElse(false);
     }
 
+    /**
+     * Mark an owned task as completed.
+     *
+     * @param id the task identifier
+     * @param username the username of the owner
+     * @return {@code true} when the task was marked complete, otherwise {@code false}
+     */
     public boolean completeTask(Long id, String username) {
         return taskRepository.findByIdAndUser(id, username)
                 .map(t -> {
@@ -101,6 +197,12 @@ public class TaskService {
                 }).orElse(false);
     }
 
+    /**
+     * Update a task description by title. This method does not enforce user ownership.
+     *
+     * @param title the task title to find
+     * @param description the new description
+     */
     public void updateTaskDescription(String title, String description) {
         taskRepository.findByTitle(title).ifPresent(t -> {
             t.setDescription(description);
@@ -108,6 +210,12 @@ public class TaskService {
         });
     }
 
+    /**
+     * Update a task due date by title. This method does not enforce user ownership.
+     *
+     * @param title the task title to find
+     * @param dueDate the new due date
+     */
     public void updateTaskDueDate(String title, LocalDate dueDate) {
         taskRepository.findByTitle(title).ifPresent(t -> {
             t.setDueDate(dueDate);
@@ -115,6 +223,12 @@ public class TaskService {
         });
     }
 
+    /**
+     * Update a task priority by title. This method does not enforce user ownership.
+     *
+     * @param title the task title to find
+     * @param priority the new priority value
+     */
     public void updateTaskPriority(String title, String priority) {
         taskRepository.findByTitle(title).ifPresent(t -> {
             t.setPriority(priority);
@@ -122,6 +236,12 @@ public class TaskService {
         });
     }
 
+    /**
+     * Mark a task complete by title. This method does not enforce user ownership.
+     *
+     * @param title the task title to find
+     * @return {@code true} when a matching task was found and updated
+     */
     public boolean completeTask(String title) {
         return taskRepository.findByTitle(title).map(t -> {
             t.setCompleted(true);
