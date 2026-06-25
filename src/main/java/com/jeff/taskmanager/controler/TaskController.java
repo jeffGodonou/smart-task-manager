@@ -17,6 +17,12 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+/**
+ * HTTP controller that exposes REST endpoints for task CRUD operations.
+ *
+ * <p>This controller validates authentication via {@link AuthFilter}
+ * and routes requests to {@link TaskService}.</p>
+ */
 public class TaskController {
     private static final String PREFIX = "/api/tasks";
     private final TaskService taskService;
@@ -29,6 +35,11 @@ public class TaskController {
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
+    /**
+     * Register task API routes and attach authentication filtering.
+     *
+     * @param server the HTTP server used for route registration
+     */
     public void registerRoutes(HttpServer server) {
         HttpContext context = server.createContext(PREFIX, this::handleRequest);
         context.getFilters().add(new AuthFilter());

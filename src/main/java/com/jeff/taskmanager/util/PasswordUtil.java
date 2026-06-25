@@ -4,8 +4,17 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Utility methods for hashing and verifying passwords.
+ */
 public class PasswordUtil {
 
+    /**
+     * Hash a password using SHA-256.
+     *
+     * @param password the raw password to hash
+     * @return the hexadecimal SHA-256 hash
+     */
     public static String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -16,6 +25,13 @@ public class PasswordUtil {
         }
     }
 
+    /**
+     * Verify a raw password against a stored hash.
+     *
+     * @param raw the raw password value
+     * @param hash the stored hashed password
+     * @return true when the password matches the hash
+     */
     public static boolean verifyPassword(String raw, String hash) {
         return hashPassword(raw).equals(hash);
     }

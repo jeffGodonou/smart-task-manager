@@ -13,9 +13,13 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-// import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * HTTP controller responsible for authentication endpoints.
+ *
+ * <p>Supports user registration and login using JWT tokens.</p>
+ */
 public class AuthController {
     private static final String PREFIX = "/api/auth";
     private final UserRepository userRepository;
@@ -28,6 +32,11 @@ public class AuthController {
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
+    /**
+     * Register the authentication endpoints on the provided HTTP server.
+     *
+     * @param server the HTTP server to register routes with
+     */
     public void registerRoutes(HttpServer server) {
         server.createContext(PREFIX + "/login", this::handleLogin);
         server.createContext(PREFIX + "/register", this::handleRegister);

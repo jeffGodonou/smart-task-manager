@@ -1,8 +1,6 @@
 package com.jeff.taskmanager;
 
 import java.time.LocalDate;
-// import java.util.List;
-
 import com.jeff.taskmanager.model.Task;
 import com.jeff.taskmanager.service.TaskService;
 
@@ -20,6 +18,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * JavaFX application entry point for the desktop task manager UI.
+ *
+ * <p>This class builds a simple task creation form and task table,
+ * and delegates persistence to {@link com.jeff.taskmanager.service.TaskService}.</p>
+ */
 public class App extends Application {
     @SuppressWarnings("unchecked")
     @Override
@@ -48,6 +52,7 @@ public class App extends Application {
         // load persisted tasks into the TableView at startup
         tableView.getItems().addAll(taskService.listTasks(""));
 
+        // define the table of tasks 
         TableColumn<Task, String> titleColumn = new TableColumn<>("Title");
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         
@@ -89,7 +94,8 @@ public class App extends Application {
         TableColumn<Task, Void> actionsColumn = new TableColumn<>("Actions");
         actionsColumn.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
             private final Button deleteButton = new Button("Delete");
-
+            
+            // remove task from table view after deletion
             {
                 deleteButton.setOnAction(event -> {
                     Task task = getTableView().getItems().get(getIndex());
@@ -98,6 +104,7 @@ public class App extends Application {
                 });
             }
 
+            // specify delete button appearance
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
@@ -109,6 +116,7 @@ public class App extends Application {
             }
         });
 
+        // set TableView
         tableView.getColumns().addAll(titleColumn, descriptionColumn, dueDateColumn, completedColumn, priorityColumn, actionsColumn);
 
         // Set the action for the add button

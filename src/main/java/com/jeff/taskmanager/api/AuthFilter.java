@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+/**
+ * HTTP filter that validates JWT bearer tokens for protected API endpoints.
+ */
 public class AuthFilter extends Filter {
     @Override
     public void doFilter(HttpExchange exchange, Chain chain) throws IOException {
