@@ -1,6 +1,5 @@
 package com.jeff.taskmanager.api;
 
-// import com.jeff.taskmanager.api.AuthController;
 import com.jeff.taskmanager.controler.TaskController;
 import com.jeff.taskmanager.repository.UserRepository;
 import com.jeff.taskmanager.service.TaskService;
@@ -8,6 +7,12 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.net.InetSocketAddress;
 
+/**
+ * Backend application launcher for the REST API server.
+ *
+ * <p>This class initializes the HTTP server, registers authentication and task
+ * routes, and starts the application on port 8080.</p>
+ */
 public class BackendApplication {
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);

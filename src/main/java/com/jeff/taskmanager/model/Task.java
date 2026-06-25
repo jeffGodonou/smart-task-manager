@@ -7,11 +7,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/*************
- * Entity: Task
- * Attribute: id, title, owner, description, dueDate, isCompleted, status 
+/**
+ * JPA entity representing a task owned by a user.
+ *
+ * <p>A task includes a title, description, due date, completion flag,
+ * priority, and workflow status.</p>
  */
-
 @Entity
 @Table(name = "tasks")
 public class Task {
@@ -25,7 +26,7 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // user associated to the task
+    /** The user that owns this task. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
@@ -36,11 +37,12 @@ public class Task {
     @Column(length = 2000)
     private String description;
 
+    /** The priority level for the task, e.g. Low, Medium, or High. */
     private String priority;
     
     @Column(name="due_date")
-        @JsonProperty("dueDate")
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonProperty("dueDate")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
 
     @Column(name="is_completed")
@@ -59,7 +61,7 @@ public class Task {
         this.description = description;
         this.dueDate = dueDate;
         this.isCompleted = isCompleted;
-        this.priority = "Medium"; // Default priority
+        this.priority = "Medium";
         this.status = Status.TODO;
     }
 

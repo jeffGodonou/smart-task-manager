@@ -8,9 +8,22 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repository for persisting {@link Task task} entities.
+ *
+ * <p>Provides create, update, delete, and query operations for tasks.</p>
+ */
 public class TaskRepository {
     
-    // Save the task in the database
+    /**
+     * Save a task to the database.
+     *
+     * <p>If the task has no identifier, it is persisted as a new entity.
+     * Otherwise the existing task entity is merged.</p>
+     *
+     * @param task the task to save
+     * @return the persisted or merged task instance
+     */
     public Task save(Task task) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -29,7 +42,11 @@ public class TaskRepository {
         }
     }   
 
-    // delete the task form the database
+    /**
+     * Delete the provided task from the database.
+     *
+     * @param task the task to remove
+     */
     public void delete(Task task) {
         EntityManager em = PersistanceManager.getEntityManager();
         try{
@@ -44,7 +61,12 @@ public class TaskRepository {
         }
     }
 
-    // find task by ID
+    /**
+     * Find a task by its primary key identifier.
+     *
+     * @param id the task identifier
+     * @return an optional task instance
+     */
     public Optional<Task> findByID(Long id) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -54,7 +76,13 @@ public class TaskRepository {
         }
     }
 
-    // find task by ID and owner username
+    /**
+     * Find a task by ID and ensure it belongs to the specified user.
+     *
+     * @param id the task identifier
+     * @param username the owning user's username
+     * @return an optional task instance for the owner
+     */
     public Optional<Task> findByIdAndUser(Long id, String username) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -69,7 +97,12 @@ public class TaskRepository {
         }
     }
 
-    // find all tasks associated to one user
+    /**
+     * Find all tasks owned by the specified user.
+     *
+     * @param username the owner's username
+     * @return the list of tasks for that user
+     */
     public List<Task> findAllByUser(String username) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -83,7 +116,12 @@ public class TaskRepository {
         }
     }
 
-    // find task by title
+    /**
+     * Find a task by its title, ignoring case.
+     *
+     * @param title the task title to search for
+     * @return an optional matching task
+     */
     public Optional<Task> findByTitle(String title) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -98,7 +136,11 @@ public class TaskRepository {
         }
     }
 
-    // Display all task
+    /**
+     * Retrieve all tasks stored in the database.
+     *
+     * @return the complete task list
+     */
     public List<Task> findAll() {
         EntityManager em = PersistanceManager.getEntityManager();
         try{

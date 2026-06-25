@@ -7,9 +7,17 @@ import jakarta.persistence.TypedQuery;
 
 import java.util.Optional;
 
+/**
+ * Repository for persisting {@link com.jeff.taskmanager.model.User user} entities.
+ */
 public class UserRepository {
 
-    // add a new user to the database
+    /**
+     * Save a user to the database.
+     *
+     * @param user the user to persist
+     * @return the persisted or merged user instance
+     */
     public User save(User user) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -28,7 +36,12 @@ public class UserRepository {
         }
     }
 
-    // find user by username
+    /**
+     * Find a user by username.
+     *
+     * @param username the username to look up
+     * @return an optional matching user
+     */
     public Optional<User> findByUsername(String username) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
@@ -43,7 +56,12 @@ public class UserRepository {
         }
     }
 
-    // find user by id
+    /**
+     * Find a user by primary key.
+     *
+     * @param id the user identifier
+     * @return an optional matching user
+     */
     public Optional<User> findById(Long id) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {

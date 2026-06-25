@@ -18,6 +18,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * JavaFX application entry point for the desktop task manager UI.
+ *
+ * <p>This class builds a simple task creation form and task table,
+ * and delegates persistence to {@link com.jeff.taskmanager.service.TaskService}.</p>
+ */
 public class App extends Application {
     @SuppressWarnings("unchecked")
     @Override
@@ -98,7 +104,7 @@ public class App extends Application {
                 });
             }
 
-            // specify delete button appearence
+            // specify delete button appearance
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);

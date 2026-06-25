@@ -3,11 +3,12 @@ package com.jeff.taskmanager.model;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-/*************
- * Entity: User
- * Attribute: id, username, passwordHash
+/**
+ * JPA entity representing an application user.
+ *
+ * <p>The user entity stores the username and hashed password used for
+ * authentication and task ownership.</p>
  */
-
 @Entity
 @Table(name = "users")
 public class User {
@@ -15,9 +16,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Unique username used to identify the user. */
     @Column(unique = true, nullable = false)
     private String username;
 
+    /** Hashed password value; never serialized in API responses. */
     @JsonIgnore
     @Column(nullable = false)
     private String passwordHash;
