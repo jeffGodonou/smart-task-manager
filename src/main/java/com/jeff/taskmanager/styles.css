@@ -1,0 +1,236 @@
+/* ─── Root ─────────────────────────────────────────────────────────────── */
+.root {
+    -fx-background-color: #F8F9FB;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 13px;
+}
+
+/* ─── Header bar ────────────────────────────────────────────────────────── */
+.header-bar {
+    -fx-background-color: #1F4E79;
+    -fx-padding: 12 20 12 20;
+}
+
+.header-label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+/* ─── Form area ─────────────────────────────────────────────────────────── */
+.form-area {
+    -fx-background-color: #FFFFFF;
+    -fx-padding: 16 20 16 20;
+    -fx-border-color: #E5E7EB;
+    -fx-border-width: 0 0 1 0;
+}
+
+.form-label {
+    -fx-text-fill: #6B7280;
+    -fx-font-size: 12px;
+}
+
+.section-label {
+    -fx-text-fill: #9CA3AF;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* ─── Text fields ───────────────────────────────────────────────────────── */
+.text-field {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D1D5DB;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 7 10 7 10;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1A1A2E;
+    -fx-prompt-text-fill: #9CA3AF;
+}
+
+.text-field:focused {
+    -fx-border-color: #1F4E79;
+    -fx-border-width: 1.5px;
+}
+
+/* ─── DatePicker ────────────────────────────────────────────────────────── */
+.date-picker {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D1D5DB;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.date-picker .text-field {
+    -fx-border-width: 0;
+    -fx-background-color: transparent;
+}
+
+.date-picker:focused {
+    -fx-border-color: #1F4E79;
+}
+
+/* ─── ChoiceBox ─────────────────────────────────────────────────────────── */
+.choice-box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D1D5DB;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 4 8 4 8;
+}
+
+.choice-box:focused {
+    -fx-border-color: #1F4E79;
+}
+
+.choice-box .label {
+    -fx-text-fill: #1A1A2E;
+    -fx-font-size: 13px;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+.btn-primary {
+    -fx-background-color: #1F4E79;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 7 18 7 18;
+    -fx-cursor: hand;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2D6A9F;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #163A5C;
+}
+
+.btn-danger {
+    -fx-background-color: transparent;
+    -fx-text-fill: #A32D2D;
+    -fx-border-color: #F0A0A0;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-font-size: 12px;
+    -fx-padding: 4 10 4 10;
+    -fx-cursor: hand;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #FCEBEB;
+}
+
+/* ─── TableView ─────────────────────────────────────────────────────────── */
+.table-view {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-table-cell-border-color: #F3F4F6;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #F9FAFB;
+    -fx-border-color: #E5E7EB;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 10 14 10 14;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #9CA3AF;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #F3F4F6;
+    -fx-border-width: 0 0 1 0;
+    -fx-cell-size: 44px;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: #F8F9FB;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: #E6F1FB;
+}
+
+.table-view .table-cell {
+    -fx-padding: 0 14 0 14;
+    -fx-text-fill: #1A1A2E;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-border-color: transparent;
+}
+
+.table-view .placeholder .label {
+    -fx-text-fill: #9CA3AF;
+    -fx-font-size: 13px;
+}
+
+/* ─── Priority badges (applied via cell styles in code) ─────────────────── */
+.badge-high {
+    -fx-background-color: #FCEBEB;
+    -fx-text-fill: #A32D2D;
+    -fx-background-radius: 20px;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-medium {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #854F0B;
+    -fx-background-radius: 20px;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-low {
+    -fx-background-color: #E8F5EE;
+    -fx-text-fill: #0F6E56;
+    -fx-background-radius: 20px;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #D1D5DB;
+    -fx-background-radius: 4px;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #9CA3AF;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-shape: "";
+    -fx-padding: 0;
+}
