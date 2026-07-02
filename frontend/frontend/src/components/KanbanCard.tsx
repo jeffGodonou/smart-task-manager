@@ -1,20 +1,78 @@
 import React from 'react';
 import type { Task } from '../api/tasks';
 
-export default function KanbanCard({ task, onMove }:{task:Task, onMove:(id:string|undefined,newStatus:Task['status'])=>void}){
-  const next = (status: Task['status']) => {
-    if (status === 'TODO') return 'IN_PROGRESS' as Task['status'];
-    if (status === 'IN_PROGRESS') return 'DONE' as Task['status'];
-    return 'TODO' as Task['status'];
-  }
+interface KanbanCardProps {
+  task: Task;
+  onMove: (id: string | undefined, newStatus: Task['status']) => void;
+}
+
+const STATUS_FLOW: Record<string, Task['status']> = {
+  'TODO':        'IN_PROGRESS',
+  'IN_PROGRESS': 'DONE',
+  'DONE':        'TODO',
+};
+
+const MOVE_LABEL: Record<string, string> = {
+  'TODO':        '→ In Progress',
+  'IN_PROGRESS': '→ Done',
+  'DONE':        '↩ Restart',
+};
+
+function formatDate(date?: string) {
+  if (!date) return null;
+  return new Date(date).toLocaleDateString('en-CA', {
+    month: 'short', day: 'numeric'
+  });
+}
+
+function priorityClass(priority?: string) {
+  if (!priority) return '';
+  return `badge badge-${priority.toLowerCase()}`;
+}
+
+export default function KanbanCard({ task, onMove }: KanbanCardProps) {
+  const currentStatus = task.status || 'TODO';
+  const nextStatus    = STATUS_FLOW[currentStatus];
+  const moveLabel     = MOVE_LABEL[currentStatus];
+  const formattedDate = formatDate(task.dueDate);
+  const isDone        = currentStatus === 'DONE';
 
   return (
-    <div className="kanban-card">
-      <div className="kanban-card-title">{task.title}</div>
-      {task.dueDate && <div className="kanban-card-due">Due: {task.dueDate}</div>}
-      <div className="kanban-card-actions">
-        <button onClick={() => onMove(task.id, next(task.status || 'TODO'))}>Move</button>
+    <div className={`kanban-card ${isDone ? 'kanban-card--done' : ''}`}>
+
+      {/* Priority badge + title */}
+      <div className="kanban-card-header">
+        {task.status && (
+          <span className={priorityClass(task.status)}>
+            {task.status}
+          </span>
+        )}
       </div>
+
+      <div className={`kanban-card-title ${isDone ? 'kanban-card-title--done' : ''}`}>
+        {task.title}
+      </div>
+
+      {task.description && (
+        <div className="kanban-card-desc">{task.description}</div>
+      )}
+
+      {/* Footer: due date + move button */}
+      <div className="kanban-card-footer">
+        {formattedDate ? (
+          <span className="kanban-card-date">📅 {formattedDate}</span>
+        ) : (
+          <span />
+        )}
+        <button
+          className="kanban-move-btn"
+          onClick={() => onMove(task.id, nextStatus)}
+          title={`Move to ${nextStatus}`}
+        >
+          {moveLabel}
+        </button>
+      </div>
+
     </div>
   );
 }
