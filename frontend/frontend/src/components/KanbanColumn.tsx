@@ -1,16 +1,39 @@
 import React from 'react';
 import type { Task } from '../api/tasks';
-import KanbanCard from './KanbanCard.tsx';
+import KanbanCard from './KanbanCard';
 
-export default function KanbanColumn({ title, status, tasks, onMove }:{title:string,status:Task['status'],tasks:Task[],onMove:(id:string|undefined,newStatus:Task['status'])=>void}){
+interface KanbanColumnProps {
+  title: string;
+  status: Task['status'];
+  accent: string;
+  tasks: Task[];
+  onMove: (id: string | undefined, newStatus: Task['status']) => void;
+}
+
+export default function KanbanColumn({ title, status, accent, tasks, onMove }: KanbanColumnProps) {
   return (
     <div className="kanban-column">
-      <h3>{title} ({tasks.length})</h3>
-      <div className="kanban-cards">
-        {tasks.map(t => (
-          <KanbanCard key={t.id} task={t} onMove={onMove} />
-        ))}
+
+      {/* Column header */}
+      <div className="kanban-column-header">
+        <div className="kanban-column-title-row">
+          <span className="kanban-column-accent" style={{ background: accent }} />
+          <h3 className="kanban-column-title">{title}</h3>
+        </div>
+        <span className="kanban-column-count">{tasks.length}</span>
       </div>
+
+      {/* Cards */}
+      <div className="kanban-cards">
+        {tasks.length === 0 ? (
+          <div className="kanban-column-empty">No tasks here</div>
+        ) : (
+          tasks.map(t => (
+            <KanbanCard key={t.id} task={t} onMove={onMove} />
+          ))
+        )}
+      </div>
+
     </div>
   );
 }

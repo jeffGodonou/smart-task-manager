@@ -13,11 +13,11 @@ import { useEffect } from "react";
  */
 
 export default function TaskEditor() {
-  const addTask = useTaskStore(state => state.addTask);
-  const error = useTaskStore(state => state.error);
+  const addTask   = useTaskStore(state => state.addTask);
+  const error     = useTaskStore(state => state.error);
   const fetchTasks = useTaskStore(state => state.fetchTasks);
 
-  useEffect (() => {
+  useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
 
@@ -31,39 +31,69 @@ export default function TaskEditor() {
   });
 
   const onSubmit = async (data: TaskFormData) => {
-    await addTask(data)
+    await addTask(data);
     reset();
     await fetchTasks();
-  }
+  };
 
   return (
-    <form className="task-editor" data-completed={false} onSubmit={handleSubmit(onSubmit)}>
-      {error && <p className="task-error">{error}</p>}
-      <div className="task-content">
-        <input
-          className="editor-title"
-          type="text"
-          placeholder="Title"
-          {...register('title')}
-        />
-        {errors.title && <span className="field-error">{errors.title?.message}</span>}
-        <input
-          className="editor-description"
-          type="text"
-          placeholder="Description"
-          {...register('description')}
-        />
-        {errors.description && <span className="field-error">{errors.description.message}</span>}
-        <input
-          className="editor-due-date"
-          type="date"
-          {...register('dueDate')}
-        />
-        {errors.dueDate && <span className="field-error">{errors.dueDate.message}</span>}
+    <form className="task-editor" onSubmit={handleSubmit(onSubmit)}>
+
+      <p className="task-editor-section-label">Add a new task</p>
+
+      {error && <p className="task-editor-error">{error}</p>}
+
+      <div className="task-editor-fields">
+
+        <div className="task-editor-field">
+          <label htmlFor="title">Title</label>
+          <input
+            id="title"
+            type="text"
+            placeholder="Task title..."
+            {...register('title')}
+          />
+          {errors.title && (
+            <span className="field-error">{errors.title.message}</span>
+          )}
+        </div>
+
+        <div className="task-editor-field">
+          <label htmlFor="description">Description</label>
+          <input
+            id="description"
+            type="text"
+            placeholder="Optional description..."
+            {...register('description')}
+          />
+          {errors.description && (
+            <span className="field-error">{errors.description.message}</span>
+          )}
+        </div>
+
+        <div className="task-editor-field">
+          <label htmlFor="dueDate">Due date</label>
+          <input
+            id="dueDate"
+            type="date"
+            {...register('dueDate')}
+          />
+          {errors.dueDate && (
+            <span className="field-error">{errors.dueDate.message}</span>
+          )}
+        </div>
+
+        <div className="task-editor-field task-editor-submit">
+          <button
+            className="btn-primary"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Adding...' : '+ Add task'}
+          </button>
+        </div>
+
       </div>
-      <button className="task-create" type="submit" disabled={isSubmitting}>
-        {isSubmitting ?'Adding...' : 'Add'}
-      </button>
     </form>
   );
 }
