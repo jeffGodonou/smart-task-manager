@@ -11,11 +11,14 @@ import java.net.InetSocketAddress;
  * Backend application launcher for the REST API server.
  *
  * <p>This class initializes the HTTP server, registers authentication and task
- * routes, and starts the application on port 8080.</p>
+ * routes, and starts the application on the configured port.</p>
  */
 public class BackendApplication {
+    private static final int DEFAULT_PORT = 8080;
+
     public static void main(String[] args) throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        int port = resolvePort(System.getenv("PORT"));
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         UserRepository userRepository = new UserRepository();
         TaskService taskService = new TaskService(new com.jeff.taskmanager.repository.TaskRepository(), userRepository);
 
@@ -26,6 +29,18 @@ public class BackendApplication {
         controller.registerRoutes(server);
 
         server.start();
-        System.out.println("Backend API started at http://localhost:8080/api/tasks");
+        System.out.println("Backend API started at http://0.0.0.0:" + port + "/api/tasks");
+    }
+
+    static int resolvePort(String portValue) {
+        if (portValue == null || portValue.isBlank()) {
+            return DEFAULT_PORT;
+        }
+
+        try {
+            return Integer.parseInt(portValue);
+        } catch (NumberFormatException ex) {
+            return DEFAULT_PORT;
+        }
     }
 }

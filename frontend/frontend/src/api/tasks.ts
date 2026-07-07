@@ -1,4 +1,5 @@
-const base = 'http://localhost:8080/api/tasks';
+const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+const base = `${apiBaseUrl}/api/tasks`;
 
 export interface Task {
     id?: string;

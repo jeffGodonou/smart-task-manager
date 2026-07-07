@@ -13,3 +13,13 @@
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Frontend environment files
+frontend/frontend/.env
+frontend/frontend/.env.local
+frontend/frontend/.env.production
+
+# Deployment artifacts
+/dist/
+/target/
+*.jar
