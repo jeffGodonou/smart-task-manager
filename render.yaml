@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: smart-task-manager-backend
+    env: java
+    plan: free
+    buildCommand: ./mvnw -DskipTests package
+    startCommand: java -jar target/backend.jar
+    envVars:
+      - key: PORT
+        value: 10000
