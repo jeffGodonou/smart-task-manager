@@ -43,6 +43,11 @@ public class AuthController {
         server.createContext(PREFIX + "/register", this::handleRegister);
     }
 
+    /**
+     * Respond to browser preflight requests so the frontend can call auth endpoints across origins.
+     *
+     * @param exchange the HTTP exchange for the incoming CORS preflight request
+     */
     private void handleOptions(HttpExchange exchange) throws IOException {
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
@@ -52,6 +57,7 @@ public class AuthController {
 
     private void handleLogin(HttpExchange exchange) throws IOException {
         if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            // Allow browser preflight requests to reach the login endpoint.
             handleOptions(exchange);
             return;
         }
@@ -79,6 +85,7 @@ public class AuthController {
 
     private void handleRegister(HttpExchange exchange) throws IOException {
         if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            // Allow browser preflight requests to reach the registration endpoint.
             handleOptions(exchange);
             return;
         }
@@ -105,6 +112,7 @@ public class AuthController {
             String token = JwtUtil.generateToken(user.getUsername());
             sendJson(exchange, 201, objectMapper.writeValueAsString(new AuthResponse(token)));
         } catch (Exception ex) {
+            // Translate persistence-level conflicts into a user-friendly duplicate-username response.
             Throwable cause = ex;
             while (cause != null) {
                 String message = cause.getMessage();
@@ -171,6 +179,9 @@ public class AuthController {
         }
     }
 
+    /**
+     * Simple error payload returned for failed registration attempts.
+     */
     private static class ErrorResponse {
         @JsonProperty("error")
         public final String error;
