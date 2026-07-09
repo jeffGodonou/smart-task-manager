@@ -64,7 +64,13 @@ header h1 {
   letter-spacing: -0.01em;
 }
 
-/* ─── View toggle ───────────────────────────────────────────────────────── */
+/* ─── Header actions ─────────────────────────────────────────────────── */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .view-toggle {
   display: flex;
   gap: 4px;
@@ -97,6 +103,20 @@ header h1 {
   color: var(--navy);
   font-weight: 600;
   cursor: default;
+}
+
+.header-logout {
+  background: rgba(255,255,255,0.14);
+  color: var(--white);
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 13px;
+  height: auto;
+}
+
+.header-logout:hover {
+  background: rgba(255,255,255,0.2);
 }
 
 /* ─── Main content ──────────────────────────────────────────────────────── */
