@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 /**
  * HTTP controller responsible for authentication endpoints.
@@ -42,7 +43,19 @@ public class AuthController {
         server.createContext(PREFIX + "/register", this::handleRegister);
     }
 
+    private void handleOptions(HttpExchange exchange) throws IOException {
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
+        exchange.sendResponseHeaders(204, -1);
+    }
+
     private void handleLogin(HttpExchange exchange) throws IOException {
+        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            handleOptions(exchange);
+            return;
+        }
+
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "Method not allowed");
             return;
@@ -65,26 +78,54 @@ public class AuthController {
     }
 
     private void handleRegister(HttpExchange exchange) throws IOException {
+        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            handleOptions(exchange);
+            return;
+        }
+
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendResponse(exchange, 405, "Method not allowed");
             return;
         }
 
-        RegisterRequest request = readRequestBody(exchange.getRequestBody(), RegisterRequest.class);
-        if (request.username == null || request.password == null) {
-            sendResponse(exchange, 400, "username and password are required");
-            return;
-        }
+        try {
+            RegisterRequest request = readRequestBody(exchange.getRequestBody(), RegisterRequest.class);
+            if (request.username == null || request.password == null) {
+                sendResponse(exchange, 400, "username and password are required");
+                return;
+            }
 
-        if (userRepository.findByUsername(request.username).isPresent()) {
-            sendResponse(exchange, 409, "Username already exists");
-            return;
-        }
+            if (userRepository.findByUsername(request.username).isPresent()) {
+                sendResponse(exchange, 409, "Username already exists");
+                return;
+            }
 
-        User user = new User(request.username, PasswordUtil.hashPassword(request.password));
-        userRepository.save(user);
-        String token = JwtUtil.generateToken(user.getUsername());
-        sendJson(exchange, 201, objectMapper.writeValueAsString(new AuthResponse(token)));
+            User user = new User(request.username, PasswordUtil.hashPassword(request.password));
+            userRepository.save(user);
+            String token = JwtUtil.generateToken(user.getUsername());
+            sendJson(exchange, 201, objectMapper.writeValueAsString(new AuthResponse(token)));
+        } catch (Exception ex) {
+            Throwable cause = ex;
+            while (cause != null) {
+                String message = cause.getMessage();
+                if (message != null && message.toLowerCase(Locale.ROOT).contains("unique")) {
+                    sendResponse(exchange, 409, "Username already exists");
+                    return;
+                }
+                if (message != null && message.toLowerCase(Locale.ROOT).contains("duplicate")) {
+                    sendResponse(exchange, 409, "Username already exists");
+                    return;
+                }
+                if (message != null && message.toLowerCase(Locale.ROOT).contains("constraint")) {
+                    sendResponse(exchange, 409, "Username already exists");
+                    return;
+                }
+                cause = cause.getCause();
+            }
+
+            ex.printStackTrace();
+            sendJson(exchange, 500, objectMapper.writeValueAsString(new ErrorResponse("Registration failed")));
+        }
     }
 
     private <T> T readRequestBody(InputStream stream, Class<T> targetClass) throws IOException {
@@ -127,6 +168,15 @@ public class AuthController {
 
         public AuthResponse(String token) {
             this.token = token;
+        }
+    }
+
+    private static class ErrorResponse {
+        @JsonProperty("error")
+        public final String error;
+
+        public ErrorResponse(String error) {
+            this.error = error;
         }
     }
 }
