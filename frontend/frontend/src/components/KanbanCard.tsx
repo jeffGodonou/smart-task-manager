@@ -1,3 +1,9 @@
+/**
+ * KanbanCard Component
+ *
+ * Shows a single task card in the Kanban column with metadata and
+ * a button to move the task to the next status.
+ */
 import React from 'react';
 import type { Task } from '../api/tasks';
 
@@ -18,6 +24,11 @@ const MOVE_LABEL: Record<string, string> = {
   'DONE':        '↩ Restart',
 };
 
+/**
+ * formatDate
+ *
+ * Returns a compact localized date string for display, or null.
+ */
 function formatDate(date?: string) {
   if (!date) return null;
   return new Date(date).toLocaleDateString('en-CA', {
@@ -25,6 +36,11 @@ function formatDate(date?: string) {
   });
 }
 
+/**
+ * priorityClass
+ *
+ * Returns a CSS class for the priority badge when provided.
+ */
 function priorityClass(priority?: string) {
   if (!priority) return '';
   return `badge badge-${priority.toLowerCase()}`;

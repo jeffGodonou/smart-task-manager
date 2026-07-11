@@ -1,3 +1,9 @@
+/**
+ * KanbanBoard Component
+ *
+ * Displays tasks grouped into status columns and handles moving tasks
+ * between statuses by calling the API.
+ */
 import React from 'react';
 import { listTasks, updateTask } from '../api/tasks';
 import type { Task } from '../api/tasks';

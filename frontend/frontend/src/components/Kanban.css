@@ -1,5 +1,6 @@
 /* ─── Board ─────────────────────────────────────────────────────────────── */
 .kanban-board {
+/* Styles for Kanban components (KanbanBoard, KanbanColumn, KanbanCard) */
   width: 100%;
 }
 

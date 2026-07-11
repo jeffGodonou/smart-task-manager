@@ -1,3 +1,8 @@
+/**
+ * KanbanColumn Component
+ *
+ * Renders a single column in the Kanban board with a header and list of cards.
+ */
 import React from 'react';
 import type { Task } from '../api/tasks';
 import KanbanCard from './KanbanCard';
