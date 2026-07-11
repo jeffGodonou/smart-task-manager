@@ -28,6 +28,11 @@ public class TaskController {
     private final TaskService taskService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Construct the controller with a {@link TaskService} dependency.
+     *
+     * @param taskService service used to perform task CRUD operations
+     */
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
         this.objectMapper = new ObjectMapper();
@@ -52,6 +57,7 @@ public class TaskController {
             String path = normalizePath(exchange.getRequestURI());
             String method = exchange.getRequestMethod();
 
+            // Handle CORS preflight requests quickly and uniformly
             if ("OPTIONS".equals(exchange.getRequestMethod())) {
                 exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
                 exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
@@ -61,6 +67,7 @@ public class TaskController {
                 return;
             }
 
+            // Route: /api/tasks -> list or create
             if (path.equals(PREFIX) || path.equals(PREFIX + "/")) {
                 switch (method) {
                     case "GET":
@@ -75,6 +82,7 @@ public class TaskController {
                 return;
             }
 
+            // Route: /api/tasks/{id} -> get, update, delete
             if (path.startsWith(PREFIX + "/")) {
                 Long id = parseId(path.substring((PREFIX + "/").length()));
                 if (id == null) {

@@ -17,14 +17,19 @@ public class BackendApplication {
     private static final int DEFAULT_PORT = 8080;
 
     public static void main(String[] args) throws Exception {
+        // Resolve port and initialize the HTTP server
         int port = resolvePort(System.getenv("PORT"));
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+
+        // Initialize repositories and services
         UserRepository userRepository = new UserRepository();
         TaskService taskService = new TaskService(new com.jeff.taskmanager.repository.TaskRepository(), userRepository);
 
+        // Register authentication routes
         AuthController authController = new AuthController(userRepository);
         authController.registerRoutes(server);
 
+        // Register task API routes
         TaskController controller = new TaskController(taskService);
         controller.registerRoutes(server);
 
