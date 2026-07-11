@@ -1,3 +1,10 @@
+/**
+ * AuthForm Component
+ *
+ * Small authentication form used for logging in or creating an account.
+ * Handles submission, error state, and exposes `onAuthenticated` callback
+ * when authentication completes.
+ */
 import { useState } from 'react';
 import { login, register, saveToken, clearToken } from '../api/auth';
 import './AuthForm.css';
