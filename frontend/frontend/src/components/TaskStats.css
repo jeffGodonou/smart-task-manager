@@ -2,6 +2,8 @@
   padding: 16px;
 }
 
+/* Styles for TaskStats component (statistics cards) */
+
 .stats-loading {
   text-align: center;
   color: #999;

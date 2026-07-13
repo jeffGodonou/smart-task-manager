@@ -1,4 +1,5 @@
 .task-row {
+/* Styles for TaskRow component (single task row) */
   display: flex;
   align-items: flex-start;
   gap: 12px;
