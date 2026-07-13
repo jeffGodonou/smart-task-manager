@@ -11,6 +11,11 @@ import java.util.List;
  * HTTP filter that validates JWT bearer tokens for protected API endpoints.
  */
 public class AuthFilter extends Filter {
+    /**
+     * Filter incoming requests and validate the Authorization header contains
+     * a valid Bearer JWT. On success the username is attached to the
+     * exchange attributes under the key "username".
+     */
     @Override
     public void doFilter(HttpExchange exchange, Chain chain) throws IOException {
         if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {

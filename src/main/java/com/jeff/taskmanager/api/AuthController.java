@@ -34,6 +34,12 @@ public class AuthController {
     }
 
     /**
+     * Create an AuthController backed by the provided {@link UserRepository}.
+     *
+     * @param userRepository repository used to lookup and persist users
+     */
+
+    /**
      * Register the authentication endpoints on the provided HTTP server.
      *
      * @param server the HTTP server to register routes with
@@ -54,6 +60,11 @@ public class AuthController {
         exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
         exchange.sendResponseHeaders(204, -1);
     }
+
+    /**
+     * Handle login requests. Expects a POST with JSON body containing
+     * `username` and `password`. Responds with a JWT token on success.
+     */
 
     private void handleLogin(HttpExchange exchange) throws IOException {
         if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -82,6 +93,11 @@ public class AuthController {
         String token = JwtUtil.generateToken(user.getUsername());
         sendJson(exchange, 200, objectMapper.writeValueAsString(new AuthResponse(token)));
     }
+
+    /**
+     * Handle user registration requests. Expects a POST with JSON body
+     * containing `username` and `password`. Returns a JWT token on success.
+     */
 
     private void handleRegister(HttpExchange exchange) throws IOException {
         if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
