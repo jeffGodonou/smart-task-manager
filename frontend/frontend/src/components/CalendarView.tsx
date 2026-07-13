@@ -1,3 +1,9 @@
+/**
+ * CalendarView Component
+ *
+ * Renders a month/week/day calendar view of tasks using react-big-calendar.
+ * Provides a modal UI for creating and editing task due dates.
+ */
 import React from 'react';
 import { Calendar, dateFnsLocalizer, type Event as RbcEvent } from 'react-big-calendar';
 import { format } from 'date-fns/format';
@@ -45,6 +51,11 @@ interface ModalProps {
   onCancel: () => void;
 }
 
+/**
+ * TaskModal
+ *
+ * Small modal used to create or edit a task's due date and title.
+ */
 function TaskModal({ title, defaultDate, defaultTitle = '', mode, onConfirm, onCancel }: ModalProps) {
   const [taskTitle, setTaskTitle] = React.useState(defaultTitle);
   const [taskDate, setTaskDate]   = React.useState(defaultDate);
@@ -101,6 +112,11 @@ function TaskModal({ title, defaultDate, defaultTitle = '', mode, onConfirm, onC
 
 // ── Priority dot for event styling ────────────────────────────────────────
 
+/**
+ * EventLabel
+ *
+ * Renders an event title with an optional priority dot for styling.
+ */
 function EventLabel({ event }: { event: CalendarEvent }) {
   const priority = event.task?.status?.toLowerCase();
   return (
