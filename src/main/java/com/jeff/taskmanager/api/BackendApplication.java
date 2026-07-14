@@ -3,8 +3,11 @@ package com.jeff.taskmanager.api;
 import com.jeff.taskmanager.controler.TaskController;
 import com.jeff.taskmanager.repository.UserRepository;
 import com.jeff.taskmanager.service.TaskService;
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.net.InetSocketAddress;
 
 /**
@@ -29,6 +32,9 @@ public class BackendApplication {
         AuthController authController = new AuthController(userRepository);
         authController.registerRoutes(server);
 
+        // Expose a lightweight unauthenticated health endpoint for hosting checks
+        server.createContext("/health", BackendApplication::handleHealth);
+
         // Register task API routes
         TaskController controller = new TaskController(taskService);
         controller.registerRoutes(server);
@@ -47,5 +53,13 @@ public class BackendApplication {
         } catch (NumberFormatException ex) {
             return DEFAULT_PORT;
         }
+    }
+
+    private static void handleHealth(HttpExchange exchange) throws IOException {
+        byte[] bytes = "ok".getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+        exchange.sendResponseHeaders(200, bytes.length);
+        exchange.getResponseBody().write(bytes);
+        exchange.close();
     }
 }
