@@ -11,7 +11,6 @@
     <properties>
         <maven.compiler.release>25</maven.compiler.release>
         <javafx.version>25.0.2</javafx.version>
-        <javafx.platform>win</javafx.platform>
     </properties>
     
     <dependencies>
@@ -41,19 +40,16 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
-            <classifier>${javafx.platform}</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
-            <classifier>${javafx.platform}</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
-            <classifier>${javafx.platform}</classifier>
         </dependency>
 
         <!-- Jackson for JSON -->
