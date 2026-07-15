@@ -4,7 +4,6 @@
  * Shows a single task card in the Kanban column with metadata and
  * a button to move the task to the next status.
  */
-import React from 'react';
 import type { Task } from '../api/tasks';
 
 interface KanbanCardProps {

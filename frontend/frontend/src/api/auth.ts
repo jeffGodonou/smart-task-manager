@@ -18,9 +18,13 @@ export function getStoredToken() {
   return localStorage.getItem(tokenStorageKey);
 }
 
-export function getAuthHeaders() {
+export function getAuthHeaders(): Record<string, string> {
   const token = getStoredToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
 }
 
 export async function login(username: string, password: string): Promise<AuthResponse> {

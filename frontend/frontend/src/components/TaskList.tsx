@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { listTasks, deleteTask, updateTask } from '../api/tasks.ts';
 import TaskRow from './TaskRow.ts';
 import './TaskList.css';

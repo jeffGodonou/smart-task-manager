@@ -10,7 +10,7 @@ import AuthForm from './components/AuthForm';
 import { clearToken, getStoredToken } from './api/auth';
 
 function App() {
-  const [task, setTasks] = React.useState<Task[]>([]);
+  const [, setTasks] = React.useState<Task[]>([]);
   const [view, setView] = React.useState<'list'|'kanban'|'calendar'>('list');
   const [isAuthenticated, setIsAuthenticated] = React.useState(Boolean(getStoredToken()));
 

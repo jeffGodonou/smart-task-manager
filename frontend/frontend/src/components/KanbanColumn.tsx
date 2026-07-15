@@ -3,7 +3,6 @@
  *
  * Renders a single column in the Kanban board with a header and list of cards.
  */
-import React from 'react';
 import type { Task } from '../api/tasks';
 import KanbanCard from './KanbanCard';
 
@@ -16,8 +15,10 @@ interface KanbanColumnProps {
 }
 
 export default function KanbanColumn({ title, status, accent, tasks, onMove }: KanbanColumnProps) {
+  const columnStatus = status ?? 'TODO';
+
   return (
-    <div className="kanban-column">
+    <div className="kanban-column" data-status={columnStatus}>
 
       {/* Column header */}
       <div className="kanban-column-header">
