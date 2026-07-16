@@ -78,20 +78,25 @@ public class AuthController {
             return;
         }
 
-        LoginRequest request = readRequestBody(exchange.getRequestBody(), LoginRequest.class);
-        if (request.username == null || request.password == null) {
-            sendResponse(exchange, 400, "username and password are required");
-            return;
-        }
+        try {
+            LoginRequest request = readRequestBody(exchange.getRequestBody(), LoginRequest.class);
+            if (request.username == null || request.password == null) {
+                sendResponse(exchange, 400, "username and password are required");
+                return;
+            }
 
-        User user = userRepository.findByUsername(request.username).orElse(null);
-        if (user == null || !PasswordUtil.verifyPassword(request.password, user.getPasswordHash())) {
-            sendResponse(exchange, 401, "Invalid username or password");
-            return;
-        }
+            User user = userRepository.findByUsername(request.username).orElse(null);
+            if (user == null || !PasswordUtil.verifyPassword(request.password, user.getPasswordHash())) {
+                sendResponse(exchange, 401, "Invalid username or password");
+                return;
+            }
 
-        String token = JwtUtil.generateToken(user.getUsername());
-        sendJson(exchange, 200, objectMapper.writeValueAsString(new AuthResponse(token)));
+            String token = JwtUtil.generateToken(user.getUsername());
+            sendJson(exchange, 200, objectMapper.writeValueAsString(new AuthResponse(token)));
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+            sendJson(exchange, 500, objectMapper.writeValueAsString(new ErrorResponse("Login failed")));
+        }
     }
 
     /**
@@ -127,7 +132,7 @@ public class AuthController {
             userRepository.save(user);
             String token = JwtUtil.generateToken(user.getUsername());
             sendJson(exchange, 201, objectMapper.writeValueAsString(new AuthResponse(token)));
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             // Translate persistence-level conflicts into a user-friendly duplicate-username response.
             Throwable cause = ex;
             while (cause != null) {
