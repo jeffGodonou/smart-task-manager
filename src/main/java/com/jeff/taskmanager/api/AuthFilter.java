@@ -53,6 +53,9 @@ public class AuthFilter extends Filter {
     private void sendUnauthorized(HttpExchange exchange, String message) throws IOException {
         byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type,Authorization");
         exchange.sendResponseHeaders(401, bytes.length);
         exchange.getResponseBody().write(bytes);
         exchange.close();
