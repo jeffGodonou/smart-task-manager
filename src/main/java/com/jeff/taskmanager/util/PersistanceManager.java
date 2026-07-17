@@ -4,6 +4,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Utility class that lazily initializes and exposes the JPA {@link EntityManagerFactory}.
  *
@@ -12,6 +15,7 @@ import jakarta.persistence.Persistence;
  */
 public class PersistanceManager {
     private static volatile EntityManagerFactory emf;
+    private static final String DEFAULT_H2_URL = "jdbc:h2:mem:taskdb;DB_CLOSE_DELAY=-1";
 
     /**
      * Get or create the singleton {@link EntityManagerFactory}.
@@ -20,7 +24,11 @@ public class PersistanceManager {
      */
     public static synchronized EntityManagerFactory getEmf() {
         if (emf == null) {
-            emf = Persistence.createEntityManagerFactory("task-manager-unit");
+            Map<String, String> overrides = new HashMap<>();
+            // Use in-memory H2 by default in cloud environments to avoid file locking/path issues.
+            String jdbcUrl = System.getenv().getOrDefault("H2_JDBC_URL", DEFAULT_H2_URL);
+            overrides.put("jakarta.persistence.jdbc.url", jdbcUrl);
+            emf = Persistence.createEntityManagerFactory("task-manager-unit", overrides);
         }
         return emf;
     }

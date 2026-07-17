@@ -5,3 +5,6 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
+    envVars:
+      - key: H2_JDBC_URL
+        value: jdbc:h2:mem:taskdb;DB_CLOSE_DELAY=-1
