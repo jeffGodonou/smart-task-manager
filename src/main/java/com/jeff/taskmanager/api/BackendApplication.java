@@ -3,6 +3,7 @@ package com.jeff.taskmanager.api;
 import com.jeff.taskmanager.controler.TaskController;
 import com.jeff.taskmanager.repository.UserRepository;
 import com.jeff.taskmanager.service.TaskService;
+import com.jeff.taskmanager.util.PersistanceManager;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
@@ -25,6 +26,7 @@ public class BackendApplication {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
         // Initialize repositories and services
+        PersistanceManager.getEmf();
         UserRepository userRepository = new UserRepository();
         TaskService taskService = new TaskService(new com.jeff.taskmanager.repository.TaskRepository(), userRepository);
 
