@@ -15,7 +15,7 @@
         <properties>
             <!-- H2 Database Connection -->
             <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" />
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:./data/tasks;DB_CLOSE_ON_EXIT=FALSE" />
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:mem:taskdb;DB_CLOSE_DELAY=-1" />
             <property name="jakarta.persistence.jdbc.user" value="sa" />
             <property name="jakarta.persistence.jdbc.password" value="" />
             
