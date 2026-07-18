@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 60" width="300" height="60">
+  <rect width="300" height="60" rx="6" fill="#1f3a5f"/>
+  <rect x="14" y="22" width="30" height="22" rx="3" fill="#7fb3e0"/>
+  <rect x="21" y="14" width="30" height="22" rx="3" fill="#ffffff"/>
+  <text x="60" y="36" font-size="18" font-weight="500" fill="#ffffff" font-family="Arial, Helvetica, sans-serif">Smart Task Manager</text>
+</svg>
