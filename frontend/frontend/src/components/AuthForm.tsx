@@ -10,7 +10,7 @@ import { login, register, saveToken, clearToken } from '../api/auth';
 import './AuthForm.css';
 
 type AuthFormProps = {
-  onAuthenticated: () => void;
+  onAuthenticated: (username?: string) => void;
 };
 
 export default function AuthForm({ onAuthenticated }: AuthFormProps) {
@@ -31,7 +31,7 @@ export default function AuthForm({ onAuthenticated }: AuthFormProps) {
         : await register(username, password);
 
       saveToken(response.token);
-      onAuthenticated();
+      onAuthenticated(username);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {
