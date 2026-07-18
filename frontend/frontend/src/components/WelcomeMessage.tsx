@@ -21,7 +21,7 @@ export default function WelcomeMessage({ username, onDismiss }: WelcomeMessagePr
       <div className="welcome-chatbox" role="dialog" aria-label="Welcome message">
         <div className="welcome-chatbox__bubble">
           <span className="welcome-chatbox__label">Welcome</span>
-          <p>Welcome {username}! <br />
+          <p>Welcome {username}!! <br />
             The space is ready for you.</p>
         </div>
       </div>
