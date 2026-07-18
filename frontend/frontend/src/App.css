@@ -131,41 +131,6 @@ main {
   gap: 24px;
 }
 
-/* ─── Welcome chatbox ──────────────────────────────────────────────────── */
-.welcome-chatbox {
-  max-width: 1100px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 16px 32px 0;
-}
-
-.welcome-chatbox__bubble {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 6px;
-  max-width: min(100%, 520px);
-  background: linear-gradient(180deg, #f7fbff 0%, #eef6ff 100%);
-  border: 1px solid #cfe0f2;
-  border-radius: 18px 18px 18px 6px;
-  padding: 14px 16px;
-  box-shadow: var(--shadow-sm);
-  color: var(--text);
-}
-
-.welcome-chatbox__label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--navy);
-}
-
-.welcome-chatbox__bubble p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
 /* ─── Task editor / form card ───────────────────────────────────────────── */
 .task-editor {
   background: var(--white);
