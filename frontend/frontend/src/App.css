@@ -57,11 +57,31 @@ header {
   z-index: 100;
 }
 
+ .header-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+ }
+
 header h1 {
   font-size: 18px;
   font-weight: 600;
   color: var(--white);
   letter-spacing: -0.01em;
+}
+
+.header-username {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
 /* ─── Header actions ─────────────────────────────────────────────────── */
@@ -103,20 +123,6 @@ header h1 {
   color: var(--navy);
   font-weight: 600;
   cursor: default;
-}
-
-.header-logout {
-  background: rgba(255,255,255,0.14);
-  color: var(--white);
-  border: 1px solid rgba(255,255,255,0.24);
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 13px;
-  height: auto;
-}
-
-.header-logout:hover {
-  background: rgba(255,255,255,0.2);
 }
 
 /* ─── Main content ──────────────────────────────────────────────────────── */
