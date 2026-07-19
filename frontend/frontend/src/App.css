@@ -5,7 +5,8 @@
   padding: 0;
 }
 
-:root {
+:root,
+:root[data-theme='blue'] {
   --navy:        #1F4E79;
   --navy-hover:  #2D6A9F;
   --navy-pale:   #E6F1FB;
@@ -19,12 +20,56 @@
   --text-muted:  #6B7280;
   --border:      #E5E7EB;
   --bg:          #F8F9FB;
+  --surface:     #FFFFFF;
   --white:       #FFFFFF;
   --radius:      8px;
   --radius-lg:   12px;
   --shadow-sm:   0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --shadow-md:   0 4px 12px rgba(0,0,0,0.08);
   --font:        "Segoe UI", "Inter", "Arial", sans-serif;
+  color-scheme: light;
+}
+
+:root[data-theme='light'] {
+  --navy:        #37517e;
+  --navy-hover:  #466493;
+  --navy-pale:   #edf4ff;
+  --green:       #2d7a4f;
+  --green-pale:  #e8f5ee;
+  --amber:       #8f5b12;
+  --amber-pale:  #fff3d6;
+  --red:         #b23a3a;
+  --red-pale:    #fdeeee;
+  --text:        #1b2330;
+  --text-muted:  #687385;
+  --border:      #d9e0e8;
+  --bg:          #f6f7fb;
+  --surface:     #ffffff;
+  --white:       #ffffff;
+  --shadow-sm:   0 1px 3px rgba(17,24,39,0.06), 0 1px 2px rgba(17,24,39,0.04);
+  --shadow-md:   0 12px 28px rgba(17,24,39,0.10);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --navy:        #162337;
+  --navy-hover:  #213553;
+  --navy-pale:   #1a2d46;
+  --green:       #5bc58f;
+  --green-pale:  rgba(91,197,143,0.18);
+  --amber:       #f1b95e;
+  --amber-pale:  rgba(241,185,94,0.18);
+  --red:         #ff8d8d;
+  --red-pale:    rgba(255,141,141,0.16);
+  --text:        #eef4ff;
+  --text-muted:  #a5b4c8;
+  --border:      #2b3a4d;
+  --bg:          #0d1520;
+  --surface:     #152130;
+  --white:       #ffffff;
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.28);
+  --shadow-md:   0 12px 32px rgba(0,0,0,0.32);
+  color-scheme: dark;
 }
 
 body {
@@ -139,7 +184,7 @@ main {
 
 /* ─── Task editor / form card ───────────────────────────────────────────── */
 .task-editor {
-  background: var(--white);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 20px 24px;
@@ -183,7 +228,7 @@ select {
   font-family: var(--font);
   font-size: 13px;
   color: var(--text);
-  background: var(--white);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 8px 12px;

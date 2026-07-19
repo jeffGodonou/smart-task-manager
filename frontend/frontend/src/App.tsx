@@ -12,6 +12,17 @@ import WelcomeMessage from './components/WelcomeMessage';
 import ProfileMenu from './components/ProfileMenu';
 import { clearToken, getStoredToken } from './api/auth';
 
+type ThemeName = 'light' | 'dark' | 'blue';
+
+const themeStorageKey = 'smart-task-manager-theme';
+
+function getStoredTheme(): ThemeName {
+  const storedTheme = localStorage.getItem(themeStorageKey);
+  return storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'blue'
+    ? storedTheme
+    : 'blue';
+}
+
 function App() {
   const [, setTasks] = React.useState<Task[]>([]);
   const [view, setView] = React.useState<'list'|'kanban'|'calendar'|'stats'>('list');
@@ -19,6 +30,12 @@ function App() {
   const [currentUsername, setCurrentUsername] = React.useState<string | null>(null);
   const [welcomeUser, setWelcomeUser] = React.useState<string | null>(null);
   const [tasksRefreshKey, setTasksRefreshKey] = React.useState(0);
+  const [theme, setTheme] = React.useState<ThemeName>(() => getStoredTheme());
+
+  React.useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem(themeStorageKey, theme);
+  }, [theme]);
 
   const renderedView = view === 'list'
              ? <TaskList onTasksChange={setTasks} refreshKey={tasksRefreshKey} />
@@ -56,9 +73,13 @@ function App() {
               <button onClick={() => setView('stats')} disabled={view==='stats'}>Stats</button>
             </div>
             <ProfileMenu
-              onEditProfile={() => {
+              username={currentUsername}
+              onUpdateProfile={(username) => {
+                setCurrentUsername(username);
                 setWelcomeUser(null);
               }}
+              theme={theme}
+              onThemeChange={setTheme}
               onLogout={() => {
                 clearToken();
                 setIsAuthenticated(false);

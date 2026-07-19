@@ -88,6 +88,126 @@
   background: var(--red-pale);
 }
 
+.profile-menu__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 4px 10px;
+}
+
+.profile-menu__section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.profile-menu__theme-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.profile-menu__theme-option {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text);
+  padding: 8px 6px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-menu__theme-option:hover {
+  background: var(--bg);
+}
+
+.profile-menu__theme-option--active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+.profile-menu__editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 4px 10px;
+}
+
+.profile-menu__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.profile-menu__input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+}
+
+.profile-menu__input:focus {
+  outline: none;
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.1);
+}
+
+.profile-menu__hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.profile-menu__editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.profile-menu__secondary,
+.profile-menu__primary {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-menu__secondary {
+  background: #f3f4f6;
+  color: var(--text-muted);
+}
+
+.profile-menu__secondary:hover {
+  background: #e5e7eb;
+}
+
+.profile-menu__primary {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.profile-menu__primary:hover:not(:disabled) {
+  background: var(--navy-hover);
+}
+
+.profile-menu__primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 640px) {
   .profile-menu__dropdown {
     right: -4px;

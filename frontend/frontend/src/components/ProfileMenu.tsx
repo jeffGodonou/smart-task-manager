@@ -2,9 +2,18 @@ import React from 'react';
 import './ProfileMenu.css';
 
 type ProfileMenuProps = {
-  onEditProfile: () => void;
+  username?: string | null;
+  onUpdateProfile: (username: string) => void;
+  theme: 'light' | 'dark' | 'blue';
+  onThemeChange: (theme: 'light' | 'dark' | 'blue') => void;
   onLogout: () => void;
 };
+
+const themeOptions = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'blue', label: 'Blue' },
+] as const;
 
 function ProfileIcon() {
   return (
@@ -14,20 +23,28 @@ function ProfileIcon() {
   );
 }
 
-export default function ProfileMenu({ onEditProfile, onLogout }: ProfileMenuProps) {
+export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeChange, onLogout }: ProfileMenuProps) {
   const [open, setOpen] = React.useState(false);
+  const [editing, setEditing] = React.useState(false);
+  const [draftUsername, setDraftUsername] = React.useState(username ?? '');
   const menuRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    setDraftUsername(username ?? '');
+  }, [username]);
 
   React.useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setOpen(false);
+        setEditing(false);
       }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setOpen(false);
+        setEditing(false);
       }
     };
 
@@ -48,24 +65,99 @@ export default function ProfileMenu({ onEditProfile, onLogout }: ProfileMenuProp
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Open profile menu"
-        onClick={() => setOpen((current) => !current)}
+        onClick={() => {
+          setOpen((current) => {
+            const nextOpen = !current;
+            if (!nextOpen) {
+              setEditing(false);
+              setDraftUsername(username ?? '');
+            }
+            return nextOpen;
+          });
+        }}
       >
         <ProfileIcon />
       </button>
 
       {open && (
         <div className="profile-menu__dropdown" role="menu" aria-label="Profile actions">
-          <button
-            type="button"
-            className="profile-menu__item"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onEditProfile();
-            }}
-          >
-            Edit profile
-          </button>
+          {!editing ? (
+            <>
+              <button
+                type="button"
+                className="profile-menu__item"
+                role="menuitem"
+                onClick={() => {
+                  setEditing(true);
+                  setDraftUsername(username ?? '');
+                }}
+              >
+                Edit profile
+              </button>
+
+              <div className="profile-menu__section">
+                <span className="profile-menu__section-title">Theme</span>
+                <div className="profile-menu__theme-list" role="group" aria-label="Theme options">
+                  {themeOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`profile-menu__theme-option ${theme === option.value ? 'profile-menu__theme-option--active' : ''}`}
+                      onClick={() => onThemeChange(option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <form
+              className="profile-menu__editor"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const nextUsername = draftUsername.trim();
+                if (!nextUsername) {
+                  return;
+                }
+                onUpdateProfile(nextUsername);
+                setEditing(false);
+                setOpen(false);
+              }}
+            >
+              <label className="profile-menu__label" htmlFor="profile-username">
+                Username
+              </label>
+              <input
+                id="profile-username"
+                className="profile-menu__input"
+                type="text"
+                value={draftUsername}
+                onChange={(event) => setDraftUsername(event.target.value)}
+                autoFocus
+              />
+              <p className="profile-menu__hint">Updates the name shown in this session.</p>
+              <div className="profile-menu__editor-actions">
+                <button
+                  type="button"
+                  className="profile-menu__secondary"
+                  onClick={() => {
+                    setEditing(false);
+                    setDraftUsername(username ?? '');
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="profile-menu__primary"
+                  disabled={!draftUsername.trim()}
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          )}
           <button
             type="button"
             className="profile-menu__item profile-menu__item--destructive"
