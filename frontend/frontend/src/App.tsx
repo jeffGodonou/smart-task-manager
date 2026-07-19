@@ -12,13 +12,17 @@ import WelcomeMessage from './components/WelcomeMessage';
 import ProfileMenu from './components/ProfileMenu';
 import { clearToken, getStoredToken } from './api/auth';
 
-type ThemeName = 'light' | 'dark' | 'blue';
+type ThemeName = 'light' | 'dark' | 'blue' | 'forest' | 'gray';
 
 const themeStorageKey = 'smart-task-manager-theme';
 
 function getStoredTheme(): ThemeName {
   const storedTheme = localStorage.getItem(themeStorageKey);
-  return storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'blue'
+  return storedTheme === 'light'
+    || storedTheme === 'dark'
+    || storedTheme === 'blue'
+    || storedTheme === 'forest'
+    || storedTheme === 'gray'
     ? storedTheme
     : 'blue';
 }

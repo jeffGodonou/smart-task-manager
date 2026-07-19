@@ -4,8 +4,8 @@ import './ProfileMenu.css';
 type ProfileMenuProps = {
   username?: string | null;
   onUpdateProfile: (username: string) => void;
-  theme: 'light' | 'dark' | 'blue';
-  onThemeChange: (theme: 'light' | 'dark' | 'blue') => void;
+  theme: 'light' | 'dark' | 'blue' | 'forest' | 'gray';
+  onThemeChange: (theme: 'light' | 'dark' | 'blue' | 'forest' | 'gray') => void;
   onLogout: () => void;
 };
 
@@ -13,6 +13,8 @@ const themeOptions = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
   { value: 'blue', label: 'Blue' },
+  { value: 'forest', label: 'Forest' },
+  { value: 'gray', label: 'Gray' },
 ] as const;
 
 function ProfileIcon() {
