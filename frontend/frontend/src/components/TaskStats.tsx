@@ -12,7 +12,11 @@ import './TaskStats.css';
  * - Auto-refresh when tasks change
  */
 
-export default function TaskStats() {
+type TaskStatsProps = {
+  refreshKey?: number;
+};
+
+export default function TaskStats({ refreshKey = 0 }: TaskStatsProps) {
   const [tasks, setTasks] = React.useState<Task[]>([]);
   const [loading, setLoading] = React.useState(false);
 
@@ -28,7 +32,7 @@ export default function TaskStats() {
     }
   };
 
-  React.useEffect(() => { load(); }, []);
+  React.useEffect(() => { load(); }, [refreshKey]);
 
   // Calculate stats
   const total = tasks.length;

@@ -6,6 +6,7 @@ import TaskEditor from './components/TaskEditor';
 import type { Task } from './api/tasks';
 import KanbanBoard from './components/KanbanBoard';
 import CalendarView from './components/CalendarView';
+import TaskStats from './components/TaskStats';
 import AuthForm from './components/AuthForm';
 import WelcomeMessage from './components/WelcomeMessage';
 import ProfileMenu from './components/ProfileMenu';
@@ -13,7 +14,7 @@ import { clearToken, getStoredToken } from './api/auth';
 
 function App() {
   const [, setTasks] = React.useState<Task[]>([]);
-  const [view, setView] = React.useState<'list'|'kanban'|'calendar'>('list');
+  const [view, setView] = React.useState<'list'|'kanban'|'calendar'|'stats'>('list');
   const [isAuthenticated, setIsAuthenticated] = React.useState(Boolean(getStoredToken()));
   const [currentUsername, setCurrentUsername] = React.useState<string | null>(null);
   const [welcomeUser, setWelcomeUser] = React.useState<string | null>(null);
@@ -23,7 +24,9 @@ function App() {
              ? <TaskList onTasksChange={setTasks} refreshKey={tasksRefreshKey} />
              : view === 'kanban'
                ? <KanbanBoard refreshKey={tasksRefreshKey} />
-               : <CalendarView refreshKey={tasksRefreshKey} />
+               : view === 'calendar'
+                 ? <CalendarView refreshKey={tasksRefreshKey} />
+                 : <TaskStats refreshKey={tasksRefreshKey} />
 
   if (!isAuthenticated) {
     return <AuthForm onAuthenticated={(username) => {
@@ -50,6 +53,7 @@ function App() {
               <button onClick={() => setView('list')} disabled={view==='list'}>List</button>
               <button onClick={() => setView('kanban')} disabled={view==='kanban'}>Kanban</button>
               <button onClick={() => setView('calendar')} disabled={view==='calendar'}>Calendar</button>
+              <button onClick={() => setView('stats')} disabled={view==='stats'}>Stats</button>
             </div>
             <ProfileMenu
               onEditProfile={() => {
