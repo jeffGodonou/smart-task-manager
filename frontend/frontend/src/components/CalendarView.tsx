@@ -26,6 +26,10 @@ interface CalendarEvent extends RbcEvent {
   task: Task;
 }
 
+type CalendarViewProps = {
+  refreshKey?: number;
+};
+
 // ── Helpers ──────────────────────────────────────────────────────────────
 
 function tasksToEvents(items: Task[]): CalendarEvent[] {
@@ -131,7 +135,7 @@ function EventLabel({ event }: { event: CalendarEvent }) {
 
 // ── Main component ────────────────────────────────────────────────────────
 
-export default function CalendarView() {
+export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
   const [tasks, setTasks]   = React.useState<Task[]>([]);
   const [events, setEvents] = React.useState<CalendarEvent[]>([]);
   const [error, setError]   = React.useState<string | null>(null);
@@ -153,7 +157,7 @@ export default function CalendarView() {
         console.error(err);
       }
     })();
-  }, []);
+  }, [refreshKey]);
 
   // Click existing event → open edit modal
   function onSelectEvent(event: any) {

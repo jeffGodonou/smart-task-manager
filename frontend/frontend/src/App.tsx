@@ -17,12 +17,13 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = React.useState(Boolean(getStoredToken()));
   const [currentUsername, setCurrentUsername] = React.useState<string | null>(null);
   const [welcomeUser, setWelcomeUser] = React.useState<string | null>(null);
+  const [tasksRefreshKey, setTasksRefreshKey] = React.useState(0);
 
   const renderedView = view === 'list'
-             ? <TaskList onTasksChange={setTasks} />
+             ? <TaskList onTasksChange={setTasks} refreshKey={tasksRefreshKey} />
              : view === 'kanban'
-               ? <KanbanBoard />
-               : <CalendarView />
+               ? <KanbanBoard refreshKey={tasksRefreshKey} />
+               : <CalendarView refreshKey={tasksRefreshKey} />
 
   if (!isAuthenticated) {
     return <AuthForm onAuthenticated={(username) => {
@@ -67,7 +68,7 @@ function App() {
           <WelcomeMessage username={welcomeUser} onDismiss={() => setWelcomeUser(null)} />
         )}
         <main>
-          <TaskEditor />
+          <TaskEditor onTaskCreated={() => setTasksRefreshKey(prev => prev + 1)} />
           {renderedView}
         </main>
       </div>

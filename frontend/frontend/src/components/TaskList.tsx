@@ -15,9 +15,10 @@ import './TaskList.css';
 
 type TaskListProps = {
   onTasksChange?: (tasks: any[]) => void;
+  refreshKey?: number;
 };
 
-export default function TaskList({ onTasksChange }: TaskListProps) {
+export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProps) {
   const [tasks, setTasks]     = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
@@ -25,7 +26,7 @@ export default function TaskList({ onTasksChange }: TaskListProps) {
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [refreshKey]);
 
   async function loadTasks() {
     try {

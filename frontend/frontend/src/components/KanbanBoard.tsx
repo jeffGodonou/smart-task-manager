@@ -9,7 +9,11 @@ import { listTasks, updateTask } from '../api/tasks';
 import type { Task } from '../api/tasks';
 import KanbanColumn from './KanbanColumn';
 
-export default function KanbanBoard() {
+type KanbanBoardProps = {
+  refreshKey?: number;
+};
+
+export default function KanbanBoard({ refreshKey = 0 }: KanbanBoardProps) {
   const [tasks, setTasks]     = React.useState<Task[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError]     = React.useState<string | null>(null);
@@ -28,7 +32,7 @@ export default function KanbanBoard() {
     }
   };
 
-  React.useEffect(() => { load(); }, []);
+  React.useEffect(() => { load(); }, [refreshKey]);
 
   const handleMove = async (id: string | undefined, newStatus: Task['status']) => {
     if (!id) return;

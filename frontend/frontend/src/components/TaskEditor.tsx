@@ -12,7 +12,11 @@ import { useEffect } from "react";
  * - Create a new Task
  */
 
-export default function TaskEditor() {
+type TaskEditorProps = {
+  onTaskCreated?: () => void;
+};
+
+export default function TaskEditor({ onTaskCreated }: TaskEditorProps) {
   const addTask   = useTaskStore(state => state.addTask);
   const error     = useTaskStore(state => state.error);
   const fetchTasks = useTaskStore(state => state.fetchTasks);
@@ -43,6 +47,7 @@ export default function TaskEditor() {
       await addTask(normalizedTask);
       reset();
       await fetchTasks();
+      onTaskCreated?.();
     } catch {
       // Keep form values when create fails so the user can correct and retry.
     }
