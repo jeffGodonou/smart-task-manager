@@ -5,6 +5,7 @@
  * a button to move the task to the next status.
  */
 import type { Task } from '../api/tasks';
+import { isTaskUrgent } from '../utils/taskUrgency';
 
 interface KanbanCardProps {
   task: Task;
@@ -51,9 +52,10 @@ export default function KanbanCard({ task, onMove }: KanbanCardProps) {
   const moveLabel     = MOVE_LABEL[currentStatus];
   const formattedDate = formatDate(task.dueDate);
   const isDone        = currentStatus === 'DONE';
+  const isUrgent      = isTaskUrgent(task);
 
   return (
-    <div className={`kanban-card ${isDone ? 'kanban-card--done' : ''}`}>
+    <div className={`kanban-card ${isDone ? 'kanban-card--done' : ''} ${isUrgent ? 'kanban-card--urgent' : ''}`}>
 
       {/* Priority badge + title */}
       <div className="kanban-card-header">
@@ -75,7 +77,7 @@ export default function KanbanCard({ task, onMove }: KanbanCardProps) {
       {/* Footer: due date + move button */}
       <div className="kanban-card-footer">
         {formattedDate ? (
-          <span className="kanban-card-date">📅 {formattedDate}</span>
+          <span className={`kanban-card-date ${isUrgent ? 'kanban-card-date--urgent' : ''}`}>📅 {formattedDate}</span>
         ) : (
           <span />
         )}

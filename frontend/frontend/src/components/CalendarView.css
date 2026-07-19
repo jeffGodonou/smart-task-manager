@@ -136,6 +136,14 @@
   background: #2D6A9F !important;
 }
 
+.rbc-event.calendar-event--urgent {
+  background: #b3261e !important;
+}
+
+.rbc-event.calendar-event--urgent.rbc-selected {
+  background: #8f1d16 !important;
+}
+
 .rbc-show-more {
   font-size: 11px;
   color: #1F4E79;
@@ -157,6 +165,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.calendar-event-label--urgent {
+  font-weight: 700;
 }
 
 .calendar-event-dot {

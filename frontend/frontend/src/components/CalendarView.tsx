@@ -16,6 +16,7 @@ import './CalendarView.css';
 
 import { createTask, listTasks, updateTask } from '../api/tasks';
 import type { Task } from '../api/tasks';
+import { isTaskUrgent } from '../utils/taskUrgency';
 
 const locales = { 'en-US': enUS };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
@@ -119,8 +120,9 @@ function TaskModal({ title, defaultDate, defaultTitle = '', mode, onConfirm, onC
  */
 function EventLabel({ event }: { event: CalendarEvent }) {
   const priority = event.task?.status?.toLowerCase();
+  const urgent = isTaskUrgent(event.task);
   return (
-    <span className="calendar-event-label">
+    <span className={`calendar-event-label ${urgent ? 'calendar-event-label--urgent' : ''}`}>
       {priority && <span className={`calendar-event-dot dot-${priority}`} />}
       {event.title as string}
     </span>
@@ -215,6 +217,9 @@ export default function CalendarView() {
           onSelectEvent={onSelectEvent}
           onSelectSlot={onSelectSlot}
           views={['month', 'week', 'day']}
+          eventPropGetter={(event: CalendarEvent) => ({
+            className: isTaskUrgent(event.task) ? 'calendar-event--urgent' : '',
+          })}
           components={{ event: EventLabel as any }}
         />
       </div>

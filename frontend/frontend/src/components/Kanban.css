@@ -131,6 +131,11 @@
   opacity: 0.6;
 }
 
+.kanban-card--urgent {
+  border-color: #ef9a9a;
+  background: #fff5f5;
+}
+
 .kanban-card-header {
   margin-bottom: 8px;
   min-height: 20px;
@@ -168,6 +173,11 @@
 .kanban-card-date {
   font-size: 11px;
   color: #9CA3AF;
+}
+
+.kanban-card-date--urgent {
+  color: #b3261e;
+  font-weight: 700;
 }
 
 /* ─── Move button ───────────────────────────────────────────────────────── */
