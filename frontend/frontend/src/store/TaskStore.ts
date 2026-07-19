@@ -30,11 +30,13 @@ export const useTaskStore = create<TaskStore> ((set) => ({
     },
 
     addTask: async (task) => {
+        set({ error: null });
         try{
             const created = await createTask(task);
              set(state => ({ tasks: [...state.tasks, created] }));
         } catch (error) {
             set({ error: 'Failed to create task'});
+            throw error;
         }
     },
 

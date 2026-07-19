@@ -31,9 +31,21 @@ export default function TaskEditor() {
   });
 
   const onSubmit = async (data: TaskFormData) => {
-    await addTask(data);
-    reset();
-    await fetchTasks();
+    const normalizedTask = {
+      title: data.title.trim(),
+      description: data.description?.trim() || undefined,
+      dueDate: data.dueDate || undefined,
+      isCompleted: false,
+      status: 'TODO' as const,
+    };
+
+    try {
+      await addTask(normalizedTask);
+      reset();
+      await fetchTasks();
+    } catch {
+      // Keep form values when create fails so the user can correct and retry.
+    }
   };
 
   return (
