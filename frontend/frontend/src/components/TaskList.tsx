@@ -54,9 +54,11 @@ export default function TaskList({ onTasksChange }: TaskListProps) {
 
   async function handleToggleComplete(task: any) {
     try {
+      const nextCompleted = !task.isCompleted;
       const updated = await updateTask(task.id, {
         ...task,
-        isCompleted: !task.isCompleted,
+        isCompleted: nextCompleted,
+        status: nextCompleted ? 'DONE' : 'TODO',
       });
       setTasks(prev => prev.map(t => t.id === task.id ? updated : t));
     } catch (err) {

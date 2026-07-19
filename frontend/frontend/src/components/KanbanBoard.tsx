@@ -33,7 +33,10 @@ export default function KanbanBoard() {
   const handleMove = async (id: string | undefined, newStatus: Task['status']) => {
     if (!id) return;
     try {
-      const updated = await updateTask(id, { status: newStatus });
+      const updated = await updateTask(id, {
+        status: newStatus,
+        isCompleted: newStatus === 'DONE',
+      });
       setTasks(prev => prev.map(t => t.id === updated.id ? updated : t));
     } catch (e) {
       console.error(e);
