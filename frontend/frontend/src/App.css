@@ -406,6 +406,11 @@ select:focus {
   box-shadow: var(--shadow-md);
 }
 
+.kanban-card.kanban-card--urgent {
+  border-color: #ef9a9a;
+  background: #fff5f5;
+}
+
 .kanban-card-title {
   font-weight: 600;
   font-size: 13px;
@@ -429,6 +434,11 @@ select:focus {
 .kanban-card-date {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+.kanban-card-date.kanban-card-date--urgent {
+  color: #b3261e;
+  font-weight: 700;
 }
 
 .kanban-card-actions {
