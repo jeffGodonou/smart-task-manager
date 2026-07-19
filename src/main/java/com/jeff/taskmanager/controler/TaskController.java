@@ -121,10 +121,15 @@ public class TaskController {
 
     private void handleCreate(HttpExchange exchange) throws IOException {
         String username = getUsername(exchange);
-        Task task = readRequestBody(exchange.getRequestBody(), Task.class);
-        Task saved = taskService.addTask(task, username);
-        String json = objectMapper.writeValueAsString(saved);
-        sendJson(exchange, 201, json);
+        try {
+            Task task = readRequestBody(exchange.getRequestBody(), Task.class);
+            Task saved = taskService.addTask(task, username);
+            String json = objectMapper.writeValueAsString(saved);
+            sendJson(exchange, 201, json);
+        } catch (IllegalArgumentException ex) {
+            // Happens when token subject does not map to a persisted user (e.g., DB reset).
+            sendResponse(exchange, 401, "Unknown user. Please log in again.");
+        }
     }
 
     private void handleGet(HttpExchange exchange, Long id) throws IOException {
