@@ -21,7 +21,9 @@ The project follows a standard layered architecture:
 ```text
 src/
 └── main/java/com/jeff/taskmanager
+
     ├── util/        # Domain utilities
+
     ├── api/         # REST controllers — handles HTTP requests and responses
     ├── service/     # Business logic layer
     ├── repository/  # Data access layer (JPA repositories)
@@ -55,6 +57,19 @@ The API will be available at `http://localhost:8080`
 ```bash
 ./mvnw test
 ```
+
+## Persistence on Render
+
+To avoid task and user data resets after backend restarts, use a persistent database path instead of `jdbc:h2:mem`.
+
+- `H2_JDBC_URL`: `jdbc:h2:file:/var/data/taskdb;AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE`
+- Render disk mount path: `/var/data`
+
+To keep login sessions valid across restarts, keep a stable JWT signing key.
+
+- Set `JWT_SECRET` in Render environment variables and keep it stable.
+
+Without these settings, in-memory data can be lost on restart and existing tokens may point to users that no longer exist.
  
 ---
  

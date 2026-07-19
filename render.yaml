@@ -5,6 +5,12 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
+    disks:
+      - name: task-data
+        mountPath: /var/data
+        sizeGB: 1
     envVars:
       - key: H2_JDBC_URL
-        value: jdbc:h2:mem:taskdb;DB_CLOSE_DELAY=-1
+        value: jdbc:h2:file:/var/data/taskdb;AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE
+      - key: JWT_SECRET
+        sync: false
