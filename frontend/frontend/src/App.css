@@ -7,25 +7,25 @@
 
 :root,
 :root[data-theme='blue'] {
-  --navy:        #1F4E79;
-  --navy-hover:  #2D6A9F;
-  --navy-pale:   #E6F1FB;
-  --green:       #2D7A4F;
-  --green-pale:  #E8F5EE;
-  --amber:       #854F0B;
-  --amber-pale:  #FEF3C7;
-  --red:         #A32D2D;
-  --red-pale:    #FCEBEB;
-  --text:        #1A1A2E;
-  --text-muted:  #6B7280;
-  --border:      #E5E7EB;
-  --bg:          #F8F9FB;
-  --surface:     #FFFFFF;
+  --navy:        #0f4c81;
+  --navy-hover:  #1f6aa8;
+  --navy-pale:   #dbeeff;
+  --green:       #1e8f68;
+  --green-pale:  #dcf7eb;
+  --amber:       #a15f08;
+  --amber-pale:  #fff0c9;
+  --red:         #b43636;
+  --red-pale:    #ffe4e4;
+  --text:        #10253d;
+  --text-muted:  #56708f;
+  --border:      #c8daea;
+  --bg:          #eaf4ff;
+  --surface:     #f8fbff;
   --white:       #FFFFFF;
   --radius:      8px;
   --radius-lg:   12px;
-  --shadow-sm:   0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md:   0 4px 12px rgba(0,0,0,0.08);
+  --shadow-sm:   0 1px 3px rgba(9,40,77,0.08), 0 1px 2px rgba(9,40,77,0.06);
+  --shadow-md:   0 12px 28px rgba(15,76,129,0.14);
   --font:        "Segoe UI", "Inter", "Arial", sans-serif;
   color-scheme: light;
 }
@@ -43,7 +43,7 @@
   --text:        #1b2330;
   --text-muted:  #687385;
   --border:      #d9e0e8;
-  --bg:          #f6f7fb;
+  --bg:          #f7f8fa;
   --surface:     #ffffff;
   --white:       #ffffff;
   --shadow-sm:   0 1px 3px rgba(17,24,39,0.06), 0 1px 2px rgba(17,24,39,0.04);
