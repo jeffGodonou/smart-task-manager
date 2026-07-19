@@ -17,6 +17,7 @@ export default function AuthForm({ onAuthenticated }: AuthFormProps) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -53,14 +54,22 @@ export default function AuthForm({ onAuthenticated }: AuthFormProps) {
           required
         />
         <input
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           placeholder="Password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           required
         />
+        <button
+          type="button"
+          className="auth-password-toggle"
+          onClick={() => setShowPassword((current) => !current)}
+          aria-label={showPassword ? 'Hide password' : 'Show password'}
+        >
+          {showPassword ? 'Hide password' : 'Show password'}
+        </button>
         {error && <div className="auth-error">{error}</div>}
-        <button type="submit" disabled={loading}>
+        <button type="submit" className="auth-submit" disabled={loading}>
           {loading ? 'Working...' : mode === 'login' ? 'Log in' : 'Create account'}
         </button>
       </form>

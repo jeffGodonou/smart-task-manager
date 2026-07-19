@@ -31,7 +31,7 @@
   border: 1px solid #d1d5db;
 }
 
-.auth-form button {
+.auth-form .auth-submit {
   padding: 0.8rem 1rem;
   border: none;
   border-radius: 8px;
@@ -40,8 +40,25 @@
   cursor: pointer;
 }
 
-.auth-form button:hover {
+.auth-form .auth-submit:hover {
   background: #2d6a9f;
+}
+
+.auth-password-toggle {
+  align-self: flex-end;
+  margin-top: -0.35rem;
+  margin-bottom: 0.2rem;
+  background: none;
+  border: none;
+  color: #1f4e79;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.auth-password-toggle:hover {
+  text-decoration: underline;
 }
 
 .auth-error {
