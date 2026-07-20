@@ -63,8 +63,8 @@ function App() {
         <header>
           <div className="header-brand">
             <img
-              className="header-brand-lockup-translucent"
-              src="/header-lockup.svg"
+              className="header-brand-lockup"
+              src="/header-lockup-translucent.svg"
               alt="Smart Task Manager"
             />
             {currentUsername && <span className="header-username">{currentUsername}</span>}
