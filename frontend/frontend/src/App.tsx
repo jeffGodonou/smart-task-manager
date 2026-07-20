@@ -63,7 +63,7 @@ function App() {
         <header>
           <div className="header-brand">
             <img
-              className="header-brand-lockup"
+              className="header-brand-lockup-translucent"
               src="/header-lockup.svg"
               alt="Smart Task Manager"
             />

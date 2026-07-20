@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 60" width="300" height="60">
+  <defs>
+    <clipPath id="chip">
+      <rect width="300" height="60" rx="6"/>
+    </clipPath>
+  </defs>
+  <!-- translucent frosted chip, sits on top of any theme color -->
+  <rect width="300" height="60" rx="6" fill="#ffffff" fill-opacity="0.12"/>
+  <rect width="300" height="60" rx="6" fill="none" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1"/>
+
+  <rect x="14" y="22" width="30" height="22" rx="3" fill="#ffffff" fill-opacity="0.55"/>
+  <rect x="21" y="14" width="30" height="22" rx="3" fill="#ffffff" fill-opacity="0.95"/>
+
+  <text x="60" y="36" font-size="18" font-weight="500" fill="#ffffff" font-family="Arial, Helvetica, sans-serif">Smart Task Manager</text>
+</svg>
