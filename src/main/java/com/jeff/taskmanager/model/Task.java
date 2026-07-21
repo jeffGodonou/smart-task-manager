@@ -2,8 +2,12 @@ package com.jeff.taskmanager.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -37,6 +41,20 @@ public class Task {
     @Column(length = 2000)
     private String description;
 
+    @Column(length = 4000)
+    @JsonProperty("notes")
+    private String notes;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_task_id", nullable = true)
+    @JsonBackReference("task-parent")
+    private Task parentTask;
+
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("task-parent")
+    @JsonProperty("subtasks")
+    private List<Task> childTasks = new ArrayList<>();
+
     /** The priority level for the task, e.g. Low, Medium, or High. */
     private String priority;
     
@@ -63,6 +81,7 @@ public class Task {
         this.isCompleted = isCompleted;
         this.priority = "Medium";
         this.status = Status.TODO;
+        this.childTasks = new ArrayList<>();
     }
 
     public Long getId() {
@@ -87,6 +106,64 @@ public class Task {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public Task getParentTask() {
+        return parentTask;
+    }
+
+    public void setParentTask(Task parentTask) {
+        this.parentTask = parentTask;
+    }
+
+    public List<Task> getSubtasks() {
+        return childTasks;
+    }
+
+    public List<Task> getChildTasks() {
+        return childTasks;
+    }
+
+    public void setSubtasks(List<Task> subtasks) {
+        setChildTasks(subtasks);
+    }
+
+    public void setChildTasks(List<Task> childTasks) {
+        this.childTasks.clear();
+        if (childTasks == null) {
+            return;
+        }
+        for (Task child : childTasks) {
+            if (child == null) {
+                continue;
+            }
+            child.setParentTask(this);
+            this.childTasks.add(child);
+        }
+    }
+
+    public void addChildTask(Task child) {
+        if (child == null) {
+            return;
+        }
+        child.setParentTask(this);
+        this.childTasks.add(child);
+    }
+
+    public void removeChildTask(Task child) {
+        if (child == null) {
+            return;
+        }
+        this.childTasks.remove(child);
+        child.setParentTask(null);
     }
 
     public String getPriority() {

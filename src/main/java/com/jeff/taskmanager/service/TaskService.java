@@ -6,6 +6,7 @@ import com.jeff.taskmanager.repository.TaskRepository;
 import com.jeff.taskmanager.repository.UserRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,6 +17,7 @@ import java.util.List;
  * users via the {@link UserRepository}.</p>
  */
 public class TaskService {
+    private static final int MAX_SUBTASKS_PER_TASK = 4;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
 
@@ -49,6 +51,7 @@ public class TaskService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown user"));
         task.setOwner(user);
+        validateAndNormalizeTaskRules(task);
         return taskRepository.save(task);
     }
 
@@ -93,14 +96,66 @@ public class TaskService {
     public Task updateTask(Long id, Task source, String username) {
         return taskRepository.findByIdAndUser(id, username)
                 .map(existing -> {
+                    source.setOwner(existing.getOwner());
+                    validateAndNormalizeTaskRules(source);
                     existing.setTitle(source.getTitle());
                     existing.setDescription(source.getDescription());
+                    existing.setNotes(source.getNotes());
+                    existing.setSubtasks(source.getSubtasks());
                     existing.setPriority(source.getPriority());
                     existing.setDueDate(source.getDueDate());
                     existing.setCompleted(source.isCompleted());
                     existing.setStatus(source.getStatus());
                     return taskRepository.save(existing);
                 }).orElse(null);
+    }
+
+    private void validateAndNormalizeTaskRules(Task task) {
+        if (task == null) {
+            throw new TaskRuleViolationException("Task payload is required.");
+        }
+
+        List<Task> subtasks = task.getSubtasks() == null
+                ? new ArrayList<>()
+                : new ArrayList<>(task.getSubtasks());
+
+        if (subtasks.size() > MAX_SUBTASKS_PER_TASK) {
+            throw new TaskRuleViolationException("A task cannot have more than 4 subtasks.");
+        }
+
+        for (Task subTask : subtasks) {
+            if (subTask == null || subTask.getTitle() == null || subTask.getTitle().trim().isEmpty()) {
+                throw new TaskRuleViolationException("Subtasks must have a non-empty title.");
+            }
+            subTask.setTitle(subTask.getTitle().trim());
+            // Phase 2 contract: subtasks are one-level children only.
+            if (subTask.getSubtasks() != null && !subTask.getSubtasks().isEmpty()) {
+                throw new TaskRuleViolationException("Nested subtasks are not allowed.");
+            }
+
+            subTask.setOwner(task.getOwner());
+            subTask.setPriority(subTask.getPriority() == null || subTask.getPriority().isBlank() ? "Medium" : subTask.getPriority());
+            subTask.setDueDate(subTask.getDueDate() == null ? task.getDueDate() : subTask.getDueDate());
+            subTask.setNotes(subTask.getNotes() == null ? null : subTask.getNotes().trim());
+            subTask.setStatus(subTask.isCompleted() ? Task.Status.DONE : Task.Status.TODO);
+        }
+
+        task.setSubtasks(subtasks);
+
+        // Phase 1 contract: when subtasks exist, parent completion is derived from them.
+        if (!subtasks.isEmpty()) {
+            long completedCount = subtasks.stream().filter(Task::isCompleted).count();
+            boolean allDone = completedCount == subtasks.size();
+
+            task.setCompleted(allDone);
+            if (allDone) {
+                task.setStatus(Task.Status.DONE);
+            } else if (completedCount > 0) {
+                task.setStatus(Task.Status.IN_PROGRESS);
+            } else {
+                task.setStatus(Task.Status.TODO);
+            }
+        }
     }
 
     /**

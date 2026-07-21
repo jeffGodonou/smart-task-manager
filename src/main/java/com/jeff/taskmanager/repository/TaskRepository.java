@@ -107,7 +107,7 @@ public class TaskRepository {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
             TypedQuery<Task> q = em.createQuery(
-                "SELECT t FROM Task t WHERE t.owner.username = :username", Task.class
+                "SELECT t FROM Task t WHERE t.owner.username = :username AND t.parentTask IS NULL", Task.class
             );
             q.setParameter("username", username);
             return q.getResultList();
