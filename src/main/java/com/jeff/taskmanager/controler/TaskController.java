@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jeff.taskmanager.api.AuthFilter;
 import com.jeff.taskmanager.model.Task;
+import com.jeff.taskmanager.service.TaskRuleViolationException;
 import com.jeff.taskmanager.service.TaskService;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
@@ -126,6 +127,8 @@ public class TaskController {
             Task saved = taskService.addTask(task, username);
             String json = objectMapper.writeValueAsString(saved);
             sendJson(exchange, 201, json);
+        } catch (TaskRuleViolationException ex) {
+            sendResponse(exchange, 409, ex.getMessage());
         } catch (IllegalArgumentException ex) {
             // Happens when token subject does not map to a persisted user (e.g., DB reset).
             sendResponse(exchange, 401, "Unknown user. Please log in again.");
@@ -144,13 +147,17 @@ public class TaskController {
 
     private void handleUpdate(HttpExchange exchange, Long id) throws IOException {
         String username = getUsername(exchange);
-        Task payload = readRequestBody(exchange.getRequestBody(), Task.class);
-        Task updated = taskService.updateTask(id, payload, username);
-        if (updated == null) {
-            sendResponse(exchange, 404, "Task not found");
-            return;
+        try {
+            Task payload = readRequestBody(exchange.getRequestBody(), Task.class);
+            Task updated = taskService.updateTask(id, payload, username);
+            if (updated == null) {
+                sendResponse(exchange, 404, "Task not found");
+                return;
+            }
+            sendJson(exchange, 200, objectMapper.writeValueAsString(updated));
+        } catch (TaskRuleViolationException ex) {
+            sendResponse(exchange, 409, ex.getMessage());
         }
-        sendJson(exchange, 200, objectMapper.writeValueAsString(updated));
     }
 
     private void handleDelete(HttpExchange exchange, Long id) throws IOException {
