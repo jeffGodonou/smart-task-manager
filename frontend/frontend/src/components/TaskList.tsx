@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listTasks, deleteTask, updateTask } from '../api/tasks.ts';
 import TaskRow from './TaskRow.ts';
+import TaskDetailsModal from './TaskDetailsModal';
 import './TaskList.css';
 
 /**
@@ -23,6 +24,7 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
   const [filter, setFilter]   = useState<'all' | 'active' | 'completed'>('all');
+  const [selectedTask, setSelectedTask] = useState<any | null>(null);
 
   useEffect(() => {
     loadTasks();
@@ -65,6 +67,24 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setError('Failed to update task: ' + message);
+    }
+  }
+
+  async function handleSaveTaskDetails(updates: any) {
+    if (!selectedTask?.id) {
+      return;
+    }
+    try {
+      const updated = await updateTask(selectedTask.id, updates);
+      setTasks(prev => prev.map(t => t.id === updated.id ? updated : t));
+      if (onTasksChange) {
+        const nextTasks = tasks.map(t => t.id === updated.id ? updated : t);
+        onTasksChange(nextTasks);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError('Failed to save task details: ' + message);
+      throw err;
     }
   }
 
@@ -139,9 +159,18 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
               task={task}
               onToggle={handleToggleComplete}
               onDelete={handleDelete}
+              onOpen={setSelectedTask}
             />
           ))}
         </div>
+      )}
+
+      {selectedTask && (
+        <TaskDetailsModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onSave={handleSaveTaskDetails}
+        />
       )}
     </div>
   );

@@ -7,6 +7,7 @@ interface TaskRowProps {
     task: Task;
     onToggle: (task: Task) => void;
     onDelete: (task: Task) => void;
+    onOpen: (task: Task) => void;
 }
 
 /**
@@ -18,7 +19,7 @@ interface TaskRowProps {
  * - Trigger callbacks (toggle complete, delete)
  */
 
-export default function TaskRow({ task, onToggle, onDelete }: TaskRowProps) {
+export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowProps) {
     const isUrgent = !task.isCompleted && isUrgentDueDate(task.dueDate);
     const taskTitle = React.createElement('div', { className: 'task-title' }, task.title);
     const taskDescription = task.description
@@ -41,13 +42,26 @@ export default function TaskRow({ task, onToggle, onDelete }: TaskRowProps) {
         }),
         taskContent,
         React.createElement(
-            'button',
-            {
-                className: 'task-delete',
-                onClick: () => onDelete(task),
-                'aria-label': `Delete ${task.title}`,
-            },
-            'Delete'
+            'div',
+            { className: 'task-row-actions' },
+            React.createElement(
+                'button',
+                {
+                    className: 'task-open',
+                    onClick: () => onOpen(task),
+                    'aria-label': `Open ${task.title}`,
+                },
+                'Open'
+            ),
+            React.createElement(
+                'button',
+                {
+                    className: 'task-delete',
+                    onClick: () => onDelete(task),
+                    'aria-label': `Delete ${task.title}`,
+                },
+                'Delete'
+            )
         )
     );
 }

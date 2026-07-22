@@ -7,9 +7,16 @@ export interface Task {
     id?: string;
     title: string;
     description?: string;
+    notes?: string;
+    subtasks?: SubTask[];
     dueDate?: string;
     isCompleted?: boolean;
     status?: 'TODO' | 'IN_PROGRESS' | 'DONE';
+}
+
+export interface SubTask {
+    title: string;
+    isCompleted?: boolean;
 }
 
 export async function listTasks(): Promise<Task[]> {
