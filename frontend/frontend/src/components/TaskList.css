@@ -118,3 +118,148 @@
 @media (max-width: 768px) {
   .task-list-header { display: none; }
 }
+
+.task-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+
+.task-modal {
+  width: min(720px, calc(100vw - 24px));
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #d9e0e8;
+  border-radius: 14px;
+  box-shadow: 0 18px 44px rgba(13, 22, 38, 0.2);
+}
+
+.task-modal-header,
+.task-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.task-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.task-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.task-modal-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-modal-field label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.task-modal-field textarea {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.task-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.task-modal-checkline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.task-modal-subtask-new {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.task-modal-subtasks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-modal-subtask-error {
+  color: #b3261e;
+  font-size: 12px;
+}
+
+.task-modal-subtask-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fafafa;
+}
+
+.task-modal-subtask-item label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  font-size: 13px;
+}
+
+.task-modal-subtask-remove {
+  border: none;
+  background: transparent;
+  color: #b3261e;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.task-modal-subtasks-empty {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.task-modal-footer {
+  border-top: 1px solid #e5e7eb;
+  border-bottom: none;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .task-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -100,3 +100,25 @@
 .task-delete:hover {
   background: #c52020;
 }
+
+.task-row-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-self: flex-start;
+}
+
+.task-open {
+  padding: 8px 14px;
+  background: #1f4e79;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background 0.2s ease;
+}
+
+.task-open:hover {
+  background: #2d6a9f;
+}
