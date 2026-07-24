@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Task, SubTask } from '../api/tasks';
+import type { Task } from '../api/tasks';
 
 type TaskDetailsModalProps = {
   task: Task;
@@ -15,7 +15,7 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
   const [notes, setNotes] = React.useState(task.notes ?? '');
   const [status, setStatus] = React.useState<Task['status']>(task.status ?? 'TODO');
   const [isCompleted, setIsCompleted] = React.useState(Boolean(task.isCompleted));
-  const [subtasks, setSubtasks] = React.useState<SubTask[]>(task.subtasks ?? []);
+  const [subtasks, setSubtasks] = React.useState<Task[]>(task.subtasks ?? []);
   const [newSubtask, setNewSubtask] = React.useState('');
   const [saving, setSaving] = React.useState(false);
   const [subtaskError, setSubtaskError] = React.useState<string | null>(null);
@@ -38,7 +38,13 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
       return;
     }
 
-    setSubtasks(prev => [...prev, { title: trimmed, isCompleted: false }]);
+    const newChild: Task = {
+      title: trimmed,
+      isCompleted: false,
+      status: 'TODO',
+      parentTaskId: task.id,
+    };
+    setSubtasks(prev => [...prev, newChild]);
     setSubtaskError(null);
     setNewSubtask('');
   };
@@ -54,7 +60,12 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
         isCompleted: normalizedCompleted,
         status: normalizedStatus,
         subtasks: subtasks
-          .map(st => ({ title: st.title.trim(), isCompleted: Boolean(st.isCompleted) }))
+          .map(st => ({
+            ...st,
+            title: st.title.trim(),
+            isCompleted: Boolean(st.isCompleted),
+            parentTaskId: task.id,
+          }))
           .filter(st => st.title.length > 0),
       });
       onClose();

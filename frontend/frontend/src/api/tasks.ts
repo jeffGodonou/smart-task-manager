@@ -8,12 +8,17 @@ export interface Task {
     title: string;
     description?: string;
     notes?: string;
-    subtasks?: SubTask[];
+    parentTaskId?: string | null;
+    subtasks?: Task[];
     dueDate?: string;
     isCompleted?: boolean;
     status?: 'TODO' | 'IN_PROGRESS' | 'DONE';
 }
 
+/**
+ * @deprecated Use Task directly for subtasks.
+ * Kept for backward compatibility only.
+ */
 export interface SubTask {
     title: string;
     isCompleted?: boolean;
