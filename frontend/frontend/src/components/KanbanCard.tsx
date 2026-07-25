@@ -54,6 +54,10 @@ export default function KanbanCard({ task, onMove }: KanbanCardProps) {
   const isDone        = currentStatus === 'DONE';
   const isUrgent      = isTaskUrgent(task);
 
+  const subtasks = task.subtasks ?? [];
+  const completedSubtasks = subtasks.filter(st => st.isCompleted).length;
+  const hasSubtasks = subtasks.length > 0;
+
   return (
     <div className={`kanban-card ${isDone ? 'kanban-card--done' : ''} ${isUrgent ? 'kanban-card--urgent' : ''}`}>
 
@@ -72,6 +76,20 @@ export default function KanbanCard({ task, onMove }: KanbanCardProps) {
 
       {task.description && (
         <div className="kanban-card-desc">{task.description}</div>
+      )}
+
+      {hasSubtasks && (
+        <div className="kanban-card-subtasks">
+          <div className="kanban-subtask-bar">
+            <div
+              className="kanban-subtask-bar-fill"
+              style={{ width: `${Math.round((completedSubtasks / subtasks.length) * 100)}%` }}
+            />
+          </div>
+          <span className="kanban-subtask-label">
+            {completedSubtasks}/{subtasks.length} subtasks
+          </span>
+        </div>
       )}
 
       {/* Footer: due date + move button */}

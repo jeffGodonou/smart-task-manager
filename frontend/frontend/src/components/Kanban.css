@@ -161,6 +161,30 @@
   margin-bottom: 12px;
 }
 
+.kanban-card-subtasks {
+  margin: 8px 0 4px;
+}
+
+.kanban-subtask-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: #E5E7EB;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.kanban-subtask-bar-fill {
+  height: 100%;
+  background: #0F6E56;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.kanban-subtask-label {
+  font-size: 10px;
+  color: #9CA3AF;
+}
+
 .kanban-card-footer {
   display: flex;
   align-items: center;
