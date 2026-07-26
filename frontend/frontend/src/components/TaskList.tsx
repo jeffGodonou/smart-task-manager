@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listTasks, deleteTask, updateTask } from '../api/tasks.ts';
+import type { Task } from '../api/tasks.ts';
 import TaskRow from './TaskRow.ts';
 import TaskDetailsModal from './TaskDetailsModal';
 import './TaskList.css';
@@ -20,11 +21,11 @@ type TaskListProps = {
 };
 
 export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProps) {
-  const [tasks, setTasks]     = useState<any[]>([]);
+  const [tasks, setTasks]     = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
   const [filter, setFilter]   = useState<'all' | 'active' | 'completed'>('all');
-  const [selectedTask, setSelectedTask] = useState<any | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
     loadTasks();
@@ -45,9 +46,9 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     }
   }
 
-  async function handleDelete(task: any) {
+  async function handleDelete(task: Task) {
     try {
-      await deleteTask(task.id);
+      await deleteTask(task.id!);
       setTasks(prev => prev.filter(t => t.id !== task.id));
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -55,10 +56,12 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     }
   }
 
-  async function handleToggleComplete(task: any) {
+  async function handleToggleComplete(task: Task) {
+    // When subtasks exist, completion is derived — skip manual toggle.
+    if (task.subtasks && task.subtasks.length > 0) return;
     try {
       const nextCompleted = !task.isCompleted;
-      const updated = await updateTask(task.id, {
+      const updated = await updateTask(task.id!, {
         ...task,
         isCompleted: nextCompleted,
         status: nextCompleted ? 'DONE' : 'TODO',

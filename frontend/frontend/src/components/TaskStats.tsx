@@ -47,6 +47,11 @@ export default function TaskStats({ refreshKey = 0 }: TaskStatsProps) {
   const today = new Date().toISOString().slice(0, 10);
   const overdue = tasks.filter(t => t.dueDate && t.dueDate < today && !t.isCompleted).length;
 
+  const allSubtasks = tasks.flatMap(t => t.subtasks ?? []);
+  const totalSubtasks = allSubtasks.length;
+  const completedSubtasks = allSubtasks.filter(st => st.isCompleted).length;
+  const tasksWithSubtasks = tasks.filter(t => (t.subtasks?.length ?? 0) > 0).length;
+
   return (
     <div className="task-stats">
       {loading && <div className="stats-loading">Loading...</div>}
@@ -81,6 +86,18 @@ export default function TaskStats({ refreshKey = 0 }: TaskStatsProps) {
               <div className="stat-label">Overdue</div>
               <div className="stat-value">{overdue}</div>
             </div>
+          )}
+          {totalSubtasks > 0 && (
+            <>
+              <div className="stat-card">
+                <div className="stat-label">Subtasks done</div>
+                <div className="stat-value">{completedSubtasks}/{totalSubtasks}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Tasks with subtasks</div>
+                <div className="stat-value">{tasksWithSubtasks}</div>
+              </div>
+            </>
           )}
         </div>
       )}
