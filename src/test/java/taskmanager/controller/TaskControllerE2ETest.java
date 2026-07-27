@@ -69,7 +69,9 @@ class TaskControllerE2ETest {
         public List<Task> findAllByUser(String username) {
             List<Task> result = new ArrayList<>();
             for (Task task : store.values()) {
-                if (task.getOwner() != null && username.equalsIgnoreCase(task.getOwner().getUsername())) {
+                // Only return root tasks (those with no parent)
+                if (task.getOwner() != null && username.equalsIgnoreCase(task.getOwner().getUsername())
+                        && task.getParentTask() == null) {
                     result.add(task);
                 }
             }

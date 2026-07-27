@@ -128,14 +128,11 @@ public class Task {
         return childTasks;
     }
 
-    public List<Task> getChildTasks() {
-        return childTasks;
-    }
-
     public void setSubtasks(List<Task> subtasks) {
         setChildTasks(subtasks);
     }
 
+    @JsonIgnore
     public void setChildTasks(List<Task> childTasks) {
         this.childTasks.clear();
         if (childTasks == null) {
