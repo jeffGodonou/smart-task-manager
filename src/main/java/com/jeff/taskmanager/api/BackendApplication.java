@@ -3,6 +3,7 @@ package com.jeff.taskmanager.api;
 import com.jeff.taskmanager.controler.TaskController;
 import com.jeff.taskmanager.repository.UserRepository;
 import com.jeff.taskmanager.service.TaskService;
+import com.jeff.taskmanager.service.DataMigrationService;
 import com.jeff.taskmanager.util.PersistanceManager;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -27,6 +28,10 @@ public class BackendApplication {
 
         // Initialize repositories and services
         PersistanceManager.getEmf();
+        
+        // Run data migrations before starting the application
+        DataMigrationService.runMigrations();
+        
         UserRepository userRepository = new UserRepository();
         TaskService taskService = new TaskService(new com.jeff.taskmanager.repository.TaskRepository(), userRepository);
 
