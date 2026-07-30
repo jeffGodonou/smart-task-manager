@@ -28,6 +28,30 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * End-to-End API Integration Tests
+ *
+ * <p>Full HTTP integration tests for the task management API.
+ * Spins up an actual HttpServer and tests the complete request-response cycle:
+ * </p>
+ *
+ * <ul>
+ *   <li>HTTP client sends requests to running server (localhost)</li>
+ *   <li>Server deserializes JSON to Task objects via Jackson</li>
+ *   <li>TaskController routes requests and calls TaskService</li>
+ *   <li>TaskService enforces business rules and calls repositories</li>
+ *   <li>Server serializes responses back to JSON</li>
+ *   <li>Client receives and validates responses</li>
+ * </ul>
+ *
+ * <p>Validates:</p>
+ * <ul>
+ *   <li>Jackson JSON serialization (parent-child relationships preserved)</li>
+ *   <li>HTTP status codes (201 Created, 200 OK, 409 Conflict, etc.)</li>
+ *   <li>Task CRUD operations end-to-end</li>
+ *   <li>New parent-child model works through full stack</li>
+ * </ul>
+ */
 class TaskControllerE2ETest {
 
     private static final String USERNAME = "test-user";
@@ -37,6 +61,15 @@ class TaskControllerE2ETest {
     private String baseUrl;
     private ObjectMapper objectMapper;
 
+    /**
+     * In-memory task repository for E2E testing.
+     * 
+     * Extends real TaskRepository with a HashMap-backed store.
+     * Auto-generates IDs and filters tasks by ownership and parent relationship.
+     * 
+     * Critical: findAllByUser() filters WHERE parent_task_id IS NULL
+     * to match production behavior (only root tasks returned).
+     */
     private static class InMemoryTaskRepository extends TaskRepository {
         private final Map<Long, Task> store = new LinkedHashMap<>();
         private final AtomicLong seq = new AtomicLong(1);
@@ -103,6 +136,11 @@ class TaskControllerE2ETest {
         }
     }
 
+    /**
+     * Start HTTP server with in-memory repositories.
+     * Initializes ObjectMapper with Jackson modules for LocalDate serialization.
+     * Each test gets a fresh server instance on a random available port.
+     */
     @BeforeEach
     void setUp() throws Exception {
         InMemoryTaskRepository taskRepository = new InMemoryTaskRepository();
@@ -125,6 +163,10 @@ class TaskControllerE2ETest {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
+    /**
+     * Stop the HTTP server after each test.
+     * Ensures clean state for next test (no port conflicts, resource leaks).
+     */
     @AfterEach
     void tearDown() {
         if (server != null) {
@@ -132,6 +174,18 @@ class TaskControllerE2ETest {
         }
     }
 
+    /**
+     * Full CRUD cycle end-to-end test.
+     * 
+     * Validates:
+     * 1. POST /tasks creates a task, returns 201 with persisted ID
+     * 2. GET /tasks lists all tasks, returns 200 with array
+     * 3. PUT /tasks/{id} updates task, returns 200 with new state
+     * 4. DELETE /tasks/{id} removes task, returns 204
+     * 
+     * This test exercises Jackson serialization of the new parent-child Task model
+     * through the full HTTP stack, confirming the migration didn't break API contracts.
+     */
     @Test
     void createListUpdateDeleteTask_endToEnd() throws Exception {
         Task task = new Task("End-to-End Task", "Create a task from the API", LocalDate.now().plusDays(1), false);

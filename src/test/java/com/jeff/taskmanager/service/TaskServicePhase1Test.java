@@ -16,14 +16,28 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Phase 1 Subtask Architecture Tests
+ * Phase 1 Subtask Architecture Domain Rule Tests
  *
- * Validates:
- * - Max 4 subtasks per task
- * - No nesting (subtasks cannot have subtasks)
- * - Non-empty subtask titles
- * - Parent completion derived from children
- * - Proper ownership and field propagation
+ * <p>Comprehensive test suite validating Phase 1 business rules for task subtasks:</p>
+ *
+ * <ul>
+ *   <li><strong>Max 4 subtasks:</strong> A task can have 0-4 subtasks; 5+ rejected with 409</li>
+ *   <li><strong>No nesting:</strong> Subtasks cannot have subtasks (max depth = 1)</li>
+ *   <li><strong>Non-empty titles:</strong> All subtasks must have trimmed, non-empty titles</li>
+ *   <li><strong>Derived completion:</strong> Parent completion auto-computes from children
+ *       <ul>
+ *         <li>All children done → parent DONE</li>
+ *         <li>Some done → parent IN_PROGRESS</li>
+ *         <li>None done → parent TODO</li>
+ *       </ul>
+ *   </li>
+ *   <li><strong>Ownership propagation:</strong> All subtasks inherit parent's owner</li>
+ *   <li><strong>Field defaults:</strong> Subtasks inherit priority and due date from parent</li>
+ *   <li><strong>Update validation:</strong> Rules enforced on both create and update</li>
+ * </ul>
+ *
+ * <p>These tests ensure production-ready data integrity and error handling
+ * for the subtask feature rollout.</p>
  */
 @DisplayName("TaskService Phase 1 Domain Rules")
 class TaskServicePhase1Test {
@@ -32,6 +46,10 @@ class TaskServicePhase1Test {
     private UserRepository mockUserRepository;
     private User testUser;
 
+    /**
+     * Set up test fixtures before each test.
+     * Initializes mock repositories and TaskService with test user context.
+     */
     @BeforeEach
     void setup() {
         mockTaskRepository = new MockTaskRepository();
@@ -44,6 +62,10 @@ class TaskServicePhase1Test {
         testUser.setPasswordHash("hashed");
     }
 
+    /**
+     * Boundary test: Task with 0 subtasks (valid).
+     * Expected: Succeeds; empty subtask list is allowed.
+     */
     @Test
     @DisplayName("Should allow task with 0 subtasks")
     void testAddTaskWithNoSubtasks() {
@@ -56,6 +78,10 @@ class TaskServicePhase1Test {
         assertEquals(0, saved.getSubtasks().size());
     }
 
+    /**
+     * Boundary test: Tasks with 1-4 subtasks (all valid).
+     * Expected: All counts accepted; no rejection or truncation.
+     */
     @Test
     @DisplayName("Should allow task with 1-4 subtasks")
     void testAddTaskWithValidSubtaskCounts() {
@@ -75,6 +101,11 @@ class TaskServicePhase1Test {
         }
     }
 
+    /**
+     * Business rule enforcement: Reject tasks with 5+ subtasks.
+     * Expected: TaskRuleViolationException thrown with clear message.
+     * This ensures the API will return 409 Conflict to client.
+     */
     @Test
     @DisplayName("Should reject task with > 4 subtasks")
     void testAddTaskWithTooManySubtasks() {
@@ -95,6 +126,11 @@ class TaskServicePhase1Test {
         assertEquals("A task cannot have more than 4 subtasks.", ex.getMessage());
     }
 
+    /**
+     * Data validation: Reject subtasks with empty title.
+     * Expected: TaskRuleViolationException with descriptive message.
+     * Prevents creation of untitled, unmeaningful subtasks.
+     */
     @Test
     @DisplayName("Should reject subtask with empty title")
     void testAddTaskWithEmptySubtaskTitle() {
@@ -110,6 +146,11 @@ class TaskServicePhase1Test {
         assertEquals("Subtasks must have a non-empty title.", ex.getMessage());
     }
 
+    /**
+     * Data validation: Reject subtasks with whitespace-only title.
+     * Expected: TaskRuleViolationException (same as empty).
+     * Ensures meaningful titles; "    " is not a valid task description.
+     */
     @Test
     @DisplayName("Should reject subtask with whitespace-only title")
     void testAddTaskWithWhitespaceSubtaskTitle() {
@@ -125,6 +166,12 @@ class TaskServicePhase1Test {
         assertEquals("Subtasks must have a non-empty title.", ex.getMessage());
     }
 
+    /**
+     * Data normalization: Subtask titles should be trimmed.
+     * Input: "  Subtask with spaces  "
+     * Expected: Saved as "Subtask with spaces"
+     * Prevents user confusion from leading/trailing whitespace.
+     */
     @Test
     @DisplayName("Should trim subtask titles")
     void testSubtaskTitlesTrimmed() {
@@ -137,6 +184,12 @@ class TaskServicePhase1Test {
         assertEquals("Subtask with spaces", saved.getSubtasks().get(0).getTitle());
     }
 
+    /**
+     * Nesting prevention: Phase 1 prohibits nested subtasks (max depth = 1).
+     * Scenario: Attempt to create grandchild (subtask of a subtask).
+     * Expected: TaskRuleViolationException rejects the structure.
+     * Rationale: Simplifies UI, reduces cognitive load, prevents infinite nesting.
+     */
     @Test
     @DisplayName("Should reject nested subtasks (subtask with subtasks)")
     void testRejectNestedSubtasks() {
@@ -156,6 +209,11 @@ class TaskServicePhase1Test {
         assertEquals("Nested subtasks are not allowed.", ex.getMessage());
     }
 
+    /**
+     * Derived completion rule 1: All children done → parent DONE.
+     * Rule: isCompleted=true AND status=DONE only when all children completed.
+     * Prevents manual parent completion when children still pending.
+     */
     @Test
     @DisplayName("Should derive parent completion: all completed -> parent completed")
     void testDerivedCompletionAllDone() {
@@ -170,6 +228,11 @@ class TaskServicePhase1Test {
         assertEquals(Task.Status.DONE, saved.getStatus());
     }
 
+    /**
+     * Derived completion rule 2: Some children done → parent IN_PROGRESS.
+     * Rule: Work has started but not finished; reflects actual project state.
+     * isCompleted=false, status=IN_PROGRESS signals ongoing work.
+     */
     @Test
     @DisplayName("Should derive parent completion: some completed -> parent in progress")
     void testDerivedCompletionPartial() {
@@ -184,6 +247,11 @@ class TaskServicePhase1Test {
         assertEquals(Task.Status.IN_PROGRESS, saved.getStatus());
     }
 
+    /**
+     * Derived completion rule 3: No children done → parent TODO.
+     * Rule: Work not yet started; all children pending.
+     * isCompleted=false, status=TODO signals unstarted work.
+     */
     @Test
     @DisplayName("Should derive parent completion: none completed -> parent todo")
     void testDerivedCompletionNone() {
@@ -198,6 +266,11 @@ class TaskServicePhase1Test {
         assertEquals(Task.Status.TODO, saved.getStatus());
     }
 
+    /**
+     * Field propagation: All subtasks inherit parent's owner.
+     * Expected: After save, each child.owner == parent.owner.
+     * Ensures access control: only parent owner can modify subtasks.
+     */
     @Test
     @DisplayName("Should propagate ownership to subtasks")
     void testSubtaskOwnershipPropagation() {

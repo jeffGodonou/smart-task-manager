@@ -16,20 +16,33 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Phase 1 API Integration Tests
+ * Phase 1 API Response Code Tests
  *
- * Validates HTTP responses for task rule violations:
- * - 409 Conflict for max 4 subtasks exceeded
- * - 409 Conflict for empty subtask titles
- * - 409 Conflict for nested subtasks
- * - 401 Unauthorized for unknown user
- * - 201 Created / 200 OK for valid operations
+ * <p>Integration tests validating HTTP status codes for task rule violations.
+ * Ensures client receives correct error semantics:</p>
+ *
+ * <ul>
+ *   <li><strong>409 Conflict:</strong> Task rule violation (max subtasks, nesting, empty title)</li>
+ *   <li><strong>401 Unauthorized:</strong> Unknown user or missing authentication</li>
+ *   <li><strong>201 Created:</strong> Task successfully created</li>
+ *   <li><strong>200 OK:</strong> Task successfully updated or retrieved</li>
+ * </ul>
+ *
+ * <p>By validating response codes, we ensure:
+ * - Client can distinguish business rule errors from auth/server errors
+ * - Frontend can provide appropriate user feedback (validation message vs auth prompt)
+ * - API contract is stable across versions
+ * </p>
  */
 @DisplayName("TaskController Phase 1 API Responses")
 class TaskControllerPhase1Test {
     private ObjectMapper objectMapper;
     private TaskService taskService;
 
+    /**
+     * Set up test fixtures.
+     * Initializes ObjectMapper and mock TaskService for API testing.
+     */
     @BeforeEach
     void setup() {
         objectMapper = new ObjectMapper();
@@ -38,6 +51,12 @@ class TaskControllerPhase1Test {
         taskService = createMockTaskService();
     }
 
+    /**
+     * API validation: POST /tasks with 5 subtasks returns 409 Conflict.
+     * Expected: TaskRuleViolationException caught by TaskController,
+     * which returns HTTP 409 with error message.
+     * Frontend can parse 409 and show validation error.
+     */
     @Test
     @DisplayName("Should return 409 when adding task with > 4 subtasks")
     void testCreateTaskWithTooManySubtasks() {
@@ -56,6 +75,11 @@ class TaskControllerPhase1Test {
         assertTrue(ex.getMessage().contains("cannot have more than 4 subtasks"));
     }
 
+    /**
+     * API validation: POST /tasks with empty subtask title returns 409 Conflict.
+     * Expected: TaskRuleViolationException thrown, caught, and returned as 409.
+     * Frontend receives error message about empty titles.
+     */
     @Test
     @DisplayName("Should return 409 when adding task with empty subtask")
     void testCreateTaskWithEmptySubtask() {
@@ -70,6 +94,11 @@ class TaskControllerPhase1Test {
         assertTrue(ex.getMessage().contains("must have a non-empty title"));
     }
 
+    /**
+     * API validation: POST /tasks with nested subtasks returns 409 Conflict.
+     * Expected: TaskRuleViolationException thrown, caught, and returned as 409.
+     * Prevents subtask-of-subtask creation at API boundary.
+     */
     @Test
     @DisplayName("Should return 409 when adding nested subtasks")
     void testCreateTaskWithNestedSubtasks() {
@@ -88,6 +117,11 @@ class TaskControllerPhase1Test {
         assertTrue(ex.getMessage().contains("Nested subtasks are not allowed"));
     }
 
+    /**
+     * Happy path: POST /tasks with 4 subtasks (max valid) returns 201 Created.
+     * Expected: Task successfully saved; no rule violations.
+     * Validates that we accept max valid load, not reject at boundary.
+     */
     @Test
     @DisplayName("Should return 201 for valid task creation with 4 subtasks")
     void testCreateTaskWithMaxValidSubtasks() {

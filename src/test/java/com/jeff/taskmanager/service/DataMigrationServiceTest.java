@@ -17,6 +17,24 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Data Migration Service Tests
+ *
+ * <p>Tests the migration from embedded @Embeddable subtasks to self-referential
+ * parent-child Task relationships. Validates:</p>
+ *
+ * <ul>
+ *   <li>Graceful handling when no legacy data exists</li>
+ *   <li>Idempotency - safe to run migration multiple times</li>
+ *   <li>Derived completion works with new model (all done → parent DONE)</li>
+ *   <li>Task ownership preserved during migration</li>
+ *   <li>Deep hierarchies (grandchildren) supported by schema</li>
+ *   <li>Nullable fields handled correctly</li>
+ * </ul>
+ *
+ * <p>These tests use a real JPA EntityManager with H2 in-memory database
+ * to validate actual database behavior, not just in-memory mocks.</p>
+ */
 @DisplayName("Data Migration Service")
 public class DataMigrationServiceTest {
     private EntityManager em;
@@ -25,13 +43,19 @@ public class DataMigrationServiceTest {
     private User testUser;
     private static int testCounter = 0;
 
+    /**
+     * Set up test environment before each test.
+     * Creates a fresh EntityManager and test user with unique username
+     * to avoid constraint violations in shared in-memory database.
+     */
     @BeforeEach
     public void setUp() {
         em = PersistanceManager.getEntityManager();
         userRepository = new UserRepository();
         taskRepository = new TaskRepository();
 
-        // Create a test user with unique username
+        // Create a test user with unique username to prevent duplicate key errors
+        // across multiple test runs in the same in-memory database session
         testCounter++;
         testUser = new User();
         testUser.setUsername("testuser_" + testCounter + "_" + System.nanoTime());
@@ -41,6 +65,10 @@ public class DataMigrationServiceTest {
         em.getTransaction().commit();
     }
 
+    /**
+     * Clean up resources after each test.
+     * Closes the EntityManager to free database connections.
+     */
     @AfterEach
     public void tearDown() {
         if (em != null && em.isOpen()) {
@@ -48,6 +76,13 @@ public class DataMigrationServiceTest {
         }
     }
 
+    /**
+     * Test: Migration works when no legacy data exists.
+     * 
+     * Scenario: New deployment with fresh database using new parent-child model.
+     * Expected: Migration detects no legacy task_subtasks table and skips,
+     * leaving new data intact.
+     */
     @Test
     @DisplayName("Migration handles no legacy data gracefully")
     public void testMigrationWithNoLegacyData() {
@@ -83,6 +118,15 @@ public class DataMigrationServiceTest {
         assertEquals(1, retrieved.getSubtasks().size());
     }
 
+    /**
+     * Test: Migration can safely run multiple times without data duplication.
+     * 
+     * Scenario: Application restarts or redeployment triggers migration again.
+     * Expected: Running migration twice produces no duplicates; data unchanged.
+     * 
+     * This is critical for production - we can't be afraid to restart the app
+     * after deployment if something goes wrong.
+     */
     @Test
     @DisplayName("Migration is idempotent")
     public void testMigrationIdempotency() {
@@ -113,6 +157,13 @@ public class DataMigrationServiceTest {
         assertEquals("Idempotent Test", retrieved.getTitle());
     }
 
+    /**
+     * Test: Parent task completion correctly derives from children post-migration.
+     * 
+     * Scenario: Parent has 2 children, 1 complete, 1 incomplete.
+     * Expected: Parent completion should auto-derive when children change.
+     * Rule: all children done → parent DONE, partial → IN_PROGRESS, none done → TODO.
+     */
     @Test
     @DisplayName("Derived completion works with new model")
     public void testDerivedCompletionInNewModel() {
@@ -161,6 +212,13 @@ public class DataMigrationServiceTest {
         assertTrue(hasCompletedChild);
     }
 
+    /**
+     * Test: Task ownership is preserved through migration.
+     * 
+     * Scenario: Tasks and subtasks owned by specific user.
+     * Expected: After migration, both parent and child tasks remain owned
+     * by the same user - no orphaning or reassignment.
+     */
     @Test
     @DisplayName("Migration preserves task ownership")
     public void testOwnershipPreserved() {
@@ -192,6 +250,14 @@ public class DataMigrationServiceTest {
         assertEquals(testUser.getId(), retrieved.getOwner().getId());
     }
 
+    /**
+     * Test: Schema supports deep task hierarchies (grandchildren, etc).
+     * 
+     * Note: Phase 1 enforces max 1 level (no grandchildren via business rules),
+     * but the schema supports arbitrary depth via self-referential FK.
+     * This test validates the schema can store and retrieve hierarchies correctly.
+     * Useful for future phases that might relax nesting constraints.
+     */
     @Test
     @DisplayName("Migration handles deep task hierarchies")
     public void testDeepHierarchies() {
@@ -238,6 +304,15 @@ public class DataMigrationServiceTest {
         assertEquals(1, retrievedChild.getSubtasks().size());
     }
 
+    /**
+     * Test: Tasks with missing optional fields migrate correctly.
+     * 
+     * Scenario: Minimal task with only title, owner, and status.
+     * Missing: due date, description, priority, etc.
+     * Expected: Migration succeeds; nullable fields remain null.
+     * 
+     * Validates that migration doesn't fail on NULL values in optional columns.
+     */
     @Test
     @DisplayName("Migration handles nullable fields correctly")
     public void testNullableFieldsHandled() {

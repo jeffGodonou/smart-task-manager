@@ -14,6 +14,21 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Core TaskService Tests (Pre-Phase 1 Baseline)
+ *
+ * <p>Legacy test suite covering basic task CRUD operations and access control.
+ * These tests validate functionality before Phase 1 subtask architecture was added.</p>
+ *
+ * <p>Test approach:
+ * - Uses in-memory mock repositories (InMemoryTaskRepository, InMemoryUserRepository)
+ * - No database dependencies; tests run in isolation
+ * - Validates: create, read, update, delete, filtering, ownership
+ * </p>
+ *
+ * <p>Note: Phase 1 tests (TaskServicePhase1Test) supersede these for subtask scenarios,
+ * but these baseline tests remain to ensure backward compatibility with task CRUD.</p>
+ */
 class TaskServiceTest {
 
     private static class InMemoryTaskRepository extends TaskRepository {
