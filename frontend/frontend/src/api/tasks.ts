@@ -25,16 +25,20 @@ export interface SubTask {
 }
 
 export async function listTasks(): Promise<Task[]> {
-    const response = await fetch(base, { headers: getAuthHeaders() });
+    const headers = getAuthHeaders();
+    if (!headers.Authorization) return [];
+    const response = await fetch(base, { headers });
     if(!response.ok) throw new Error(`Failed to load tasks: ${response.status}`);
     
-    return response.ok ? response.json() : [] ;
+    return response.json();
 }
 
 export async function createTask(task: Task): Promise<Task> {
+    const headers = getAuthHeaders();
+    if (!headers.Authorization) throw new Error('You must be logged in to create tasks.');
     const response = await fetch(base, {
         method: 'POST',
-        headers: {'Content-Type':'application/json', ...getAuthHeaders()},
+        headers: {'Content-Type':'application/json', ...headers},
         body: JSON.stringify(task)
     });
     if(!response.ok) throw new Error(`Failed to create task: ${response.status}`);
