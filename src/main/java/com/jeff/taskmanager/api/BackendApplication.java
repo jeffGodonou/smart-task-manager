@@ -42,6 +42,9 @@ public class BackendApplication {
         // Expose a lightweight unauthenticated health endpoint for hosting checks
         server.createContext("/health", BackendApplication::handleHealth);
 
+        // Expose a root endpoint with API documentation
+        server.createContext("/", BackendApplication::handleRoot);
+
         // Register task API routes
         TaskController controller = new TaskController(taskService);
         controller.registerRoutes(server);
@@ -65,6 +68,43 @@ public class BackendApplication {
     private static void handleHealth(HttpExchange exchange) throws IOException {
         byte[] bytes = "ok".getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+        exchange.sendResponseHeaders(200, bytes.length);
+        exchange.getResponseBody().write(bytes);
+        exchange.close();
+    }
+
+    private static void handleRoot(HttpExchange exchange) throws IOException {
+        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
+            exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+
+        String apiDocs = """
+            {
+              "service": "Smart Task Manager Backend API",
+              "version": "1.0",
+              "endpoints": {
+                "health": "GET /health - Health check (no auth required)",
+                "auth": {
+                  "register": "POST /api/auth/register - Register new user",
+                  "login": "POST /api/auth/login - Login and get JWT token"
+                },
+                "tasks": {
+                  "list": "GET /api/tasks - List all tasks (auth required)",
+                  "create": "POST /api/tasks - Create new task (auth required)",
+                  "get": "GET /api/tasks/{id} - Get task by ID (auth required)",
+                  "update": "PUT /api/tasks/{id} - Update task (auth required)",
+                  "delete": "DELETE /api/tasks/{id} - Delete task (auth required)"
+                }
+              }
+            }""";
+        
+        byte[] bytes = apiDocs.getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
         exchange.sendResponseHeaders(200, bytes.length);
         exchange.getResponseBody().write(bytes);
         exchange.close();
