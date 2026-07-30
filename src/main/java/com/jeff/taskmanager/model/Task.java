@@ -50,7 +50,7 @@ public class Task {
     @JsonBackReference("task-parent")
     private Task parentTask;
 
-    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference("task-parent")
     @JsonProperty("subtasks")
     private List<Task> childTasks = new ArrayList<>();
