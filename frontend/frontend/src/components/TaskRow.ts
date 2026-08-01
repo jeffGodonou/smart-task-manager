@@ -28,7 +28,20 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
     const taskDueDate = task.dueDate
         ? React.createElement('div', { className: `task-due-date ${isUrgent ? 'task-due-date--urgent' : ''}` }, task.dueDate)
         : null;
-    const taskContent = React.createElement('div', { className: 'task-content' }, taskTitle, taskDescription, taskDueDate);
+
+    // Show subtask completion indicator if task has subtasks
+    let taskSubtaskInfo = null;
+    if (task.subtasks && task.subtasks.length > 0) {
+      const completedCount = task.subtasks.filter(s => s.isCompleted).length;
+      const totalCount = task.subtasks.length;
+      taskSubtaskInfo = React.createElement(
+        'div',
+        { className: 'task-subtask-info' },
+        `${completedCount}/${totalCount} subtasks`
+      );
+    }
+
+    const taskContent = React.createElement('div', { className: 'task-content' }, taskTitle, taskDescription, taskDueDate, taskSubtaskInfo);
 
     return React.createElement(
         'div',
