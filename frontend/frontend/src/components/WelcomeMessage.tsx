@@ -8,7 +8,7 @@ type WelcomeMessageProps = {
 
 export default function WelcomeMessage({ username, onDismiss }: WelcomeMessageProps) {
   React.useEffect(() => {
-    const timer = window.setTimeout(onDismiss, 5000);
+    const timer = window.setTimeout(onDismiss, 3000);
 
     return () => {
       window.clearTimeout(timer);
