@@ -151,9 +151,16 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
                 }
               }}
               disabled={hasSubtasks}
+              title={hasSubtasks ? 'Complete all subtasks first to mark the parent task as done' : ''}
             />
             Mark as completed {hasSubtasks ? '(derived from subtasks)' : ''}
           </label>
+
+          {hasSubtasks && (
+            <div className="task-modal-completion-hint">
+              ℹ️ Complete all subtasks first to mark this task as done.
+            </div>
+          )}
 
           <div className="task-modal-field">
             <label htmlFor="task-modal-notes">Completion notes</label>
