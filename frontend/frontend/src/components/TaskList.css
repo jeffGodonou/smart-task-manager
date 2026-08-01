@@ -205,8 +205,9 @@
 
 .task-modal-subtask-new {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   gap: 8px;
+  align-items: center;
 }
 
 .task-modal-subtasks {
@@ -228,14 +229,37 @@
   border-radius: 8px;
   padding: 8px 10px;
   background: #fafafa;
+  gap: 8px;
 }
 
-.task-modal-subtask-item label {
+.task-modal-subtask-label {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.task-modal-subtask-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.task-modal-subtask-date-input {
+  font-size: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 3px 6px;
   color: #374151;
-  font-size: 13px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.task-modal-subtask-done {
+  text-decoration: line-through;
+  color: #9ca3af;
 }
 
 .task-modal-subtask-remove {

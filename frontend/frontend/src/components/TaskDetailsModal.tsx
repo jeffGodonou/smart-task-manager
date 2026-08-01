@@ -17,6 +17,7 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
   const [isCompleted, setIsCompleted] = React.useState(Boolean(task.isCompleted));
   const [subtasks, setSubtasks] = React.useState<Task[]>(task.subtasks ?? []);
   const [newSubtask, setNewSubtask] = React.useState('');
+  const [newSubtaskDueDate, setNewSubtaskDueDate] = React.useState('');
   const [saving, setSaving] = React.useState(false);
   const [subtaskError, setSubtaskError] = React.useState<string | null>(null);
 
@@ -43,10 +44,12 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
       isCompleted: false,
       status: 'TODO',
       parentTaskId: task.id,
+      dueDate: newSubtaskDueDate || undefined,
     };
     setSubtasks(prev => [...prev, newChild]);
     setSubtaskError(null);
     setNewSubtask('');
+    setNewSubtaskDueDate('');
   };
 
   const handleSave = async () => {
@@ -169,7 +172,7 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
               <input
                 type="text"
                 value={newSubtask}
-                placeholder="Add subtask"
+                placeholder="Subtask title"
                 onChange={(event) => setNewSubtask(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
@@ -178,6 +181,13 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
                   }
                 }}
               />
+              <input
+                type="date"
+                value={newSubtaskDueDate}
+                onChange={(event) => setNewSubtaskDueDate(event.target.value)}
+                className="task-modal-subtask-date-input"
+                title="Subtask due date (optional)"
+              />
               <button type="button" className="btn-secondary" onClick={handleAddSubtask}>Add</button>
             </div>
             {subtaskError && <p className="task-modal-subtask-error">{subtaskError}</p>}
@@ -185,7 +195,7 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
               {subtasks.length === 0 && <p className="task-modal-subtasks-empty">No subtasks yet.</p>}
               {subtasks.map((subtask, index) => (
                 <div key={`${subtask.title}-${index}`} className="task-modal-subtask-item">
-                  <label>
+                  <label className="task-modal-subtask-label">
                     <input
                       type="checkbox"
                       checked={Boolean(subtask.isCompleted)}
@@ -194,15 +204,27 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
                         setSubtasks(prev => prev.map((st, i) => i === index ? { ...st, isCompleted: checked } : st));
                       }}
                     />
-                    <span>{subtask.title}</span>
+                    <span className={subtask.isCompleted ? 'task-modal-subtask-done' : ''}>{subtask.title}</span>
                   </label>
-                  <button
-                    type="button"
-                    className="task-modal-subtask-remove"
-                    onClick={() => setSubtasks(prev => prev.filter((_, i) => i !== index))}
-                  >
-                    Remove
-                  </button>
+                  <div className="task-modal-subtask-meta">
+                    <input
+                      type="date"
+                      value={subtask.dueDate ?? ''}
+                      onChange={(event) => {
+                        const val = event.target.value;
+                        setSubtasks(prev => prev.map((st, i) => i === index ? { ...st, dueDate: val || undefined } : st));
+                      }}
+                      className="task-modal-subtask-date-input"
+                      title="Subtask due date"
+                    />
+                    <button
+                      type="button"
+                      className="task-modal-subtask-remove"
+                      onClick={() => setSubtasks(prev => prev.filter((_, i) => i !== index))}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
