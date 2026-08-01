@@ -17,9 +17,27 @@ interface TaskRowProps {
  * - Display a single task
  * - Render checkbox, title, description
  * - Trigger callbacks (toggle complete, delete)
+ * - Show tooltips on hover with 3-second auto-hide
  */
 
 export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowProps) {
+    const [openTooltip, setOpenTooltip] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (openTooltip) {
+            const timer = setTimeout(() => setOpenTooltip(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [openTooltip]);
+
+    const showTooltip = (tooltipId: string) => {
+        setOpenTooltip(tooltipId);
+    };
+
+    const hideTooltip = () => {
+        setOpenTooltip(null);
+    };
+
     const isUrgent = !task.isCompleted && isUrgentDueDate(task.dueDate);
     const taskTitle = React.createElement('div', { className: 'task-title' }, task.title);
     const taskDescription = task.description
@@ -58,22 +76,44 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
             'div',
             { className: 'task-row-actions' },
             React.createElement(
-                'button',
-                {
-                    className: 'task-open',
-                    onClick: () => onOpen(task),
-                    'aria-label': `Open ${task.title}`,
-                },
-                'Open'
+                'div',
+                { className: 'task-action-button-wrapper' },
+                React.createElement(
+                    'button',
+                    {
+                        className: 'task-open',
+                        onClick: () => onOpen(task),
+                        onMouseEnter: () => showTooltip('open'),
+                        onMouseLeave: hideTooltip,
+                        'aria-label': `Open ${task.title}`,
+                    },
+                    '✎'
+                ),
+                openTooltip === 'open' && React.createElement(
+                    'div',
+                    { className: 'task-tooltip' },
+                    'Open task details'
+                )
             ),
             React.createElement(
-                'button',
-                {
-                    className: 'task-delete',
-                    onClick: () => onDelete(task),
-                    'aria-label': `Delete ${task.title}`,
-                },
-                'Delete'
+                'div',
+                { className: 'task-action-button-wrapper' },
+                React.createElement(
+                    'button',
+                    {
+                        className: 'task-delete',
+                        onClick: () => onDelete(task),
+                        onMouseEnter: () => showTooltip('delete'),
+                        onMouseLeave: hideTooltip,
+                        'aria-label': `Delete ${task.title}`,
+                    },
+                    '🗑'
+                ),
+                openTooltip === 'delete' && React.createElement(
+                    'div',
+                    { className: 'task-tooltip' },
+                    'Delete task'
+                )
             )
         )
     );

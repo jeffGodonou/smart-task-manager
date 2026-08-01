@@ -96,40 +96,93 @@
 }
 
 .task-delete {
-  padding: 8px 14px;
-  background: #ef5350;
-  color: white;
-  border: none;
-  border-radius: 8px;
+  padding: 6px 8px;
+  background: transparent;
+  color: #ef5350;
+  border: 1px solid #ef5350;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9em;
+  font-size: 1.1em;
   flex-shrink: 0;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
   align-self: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .task-delete:hover {
-  background: #c52020;
+  background: #ef5350;
+  color: white;
 }
 
 .task-row-actions {
   display: flex;
-  flex-direction: column;
   gap: 6px;
   align-self: flex-start;
 }
 
+.task-action-button-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.task-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1A1A2E;
+  color: #FFFFFF;
+  font-size: 0.75em;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-bottom: 8px;
+  pointer-events: none;
+  z-index: 1000;
+  animation: tooltip-fade-in 0.15s ease;
+}
+
+.task-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #1A1A2E;
+}
+
+@keyframes tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 .task-open {
-  padding: 8px 14px;
-  background: #1f4e79;
-  color: white;
-  border: none;
-  border-radius: 8px;
+  padding: 6px 8px;
+  background: transparent;
+  color: #1f4e79;
+  border: 1px solid #1f4e79;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9em;
-  transition: background 0.2s ease;
+  font-size: 1.1em;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .task-open:hover {
-  background: #2d6a9f;
+  background: #1f4e79;
+  color: white;
 }
