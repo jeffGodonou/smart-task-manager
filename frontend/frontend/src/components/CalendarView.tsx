@@ -24,6 +24,7 @@ const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales
 interface CalendarEvent extends RbcEvent {
   id: string | undefined;
   task: Task;
+  isSubtask?: boolean;
 }
 
 type CalendarViewProps = {
@@ -33,12 +34,43 @@ type CalendarViewProps = {
 // ── Helpers ──────────────────────────────────────────────────────────────
 
 function tasksToEvents(items: Task[]): CalendarEvent[] {
-  return items
-    .filter(t => t.dueDate)
-    .map(t => {
+  const events: CalendarEvent[] = [];
+  
+  items.forEach(t => {
+    // Add parent task if it has a due date
+    if (t.dueDate) {
       const d = new Date(t.dueDate as string);
-      return { id: t.id, title: t.title, start: d, end: d, allDay: true, task: t };
-    });
+      events.push({
+        id: t.id,
+        title: t.title,
+        start: d,
+        end: d,
+        allDay: true,
+        task: t,
+        isSubtask: false,
+      });
+    }
+    
+    // Add subtasks if they have due dates
+    if (t.subtasks && t.subtasks.length > 0) {
+      t.subtasks.forEach(subtask => {
+        if (subtask.dueDate) {
+          const d = new Date(subtask.dueDate as string);
+          events.push({
+            id: subtask.id,
+            title: `${t.title} > ${subtask.title}`,
+            start: d,
+            end: d,
+            allDay: true,
+            task: subtask,
+            isSubtask: true,
+          });
+        }
+      });
+    }
+  });
+  
+  return events;
 }
 
 function formatDateLocal(date: Date): string {
@@ -121,13 +153,17 @@ function TaskModal({ title, defaultDate, defaultTitle = '', mode, onConfirm, onC
  * EventLabel
  *
  * Renders an event title with an optional priority dot for styling.
+ * Subtasks show with a lighter visual style and indentation.
  */
 function EventLabel({ event }: { event: CalendarEvent }) {
   const priority = event.task?.status?.toLowerCase();
   const urgent = isTaskUrgent(event.task);
+  const isSubtask = event.isSubtask || false;
+  
   return (
-    <span className={`calendar-event-label ${urgent ? 'calendar-event-label--urgent' : ''}`}>
-      {priority && <span className={`calendar-event-dot dot-${priority}`} />}
+    <span className={`calendar-event-label ${urgent ? 'calendar-event-label--urgent' : ''} ${isSubtask ? 'calendar-event-label--subtask' : ''}`}>
+      {!isSubtask && priority && <span className={`calendar-event-dot dot-${priority}`} />}
+      {isSubtask && <span className="calendar-event-subtask-bullet">•</span>}
       {event.title as string}
     </span>
   );
@@ -221,9 +257,19 @@ export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
           onSelectEvent={onSelectEvent}
           onSelectSlot={onSelectSlot}
           views={['month', 'week', 'day']}
-          eventPropGetter={(event: CalendarEvent) => ({
-            className: isTaskUrgent(event.task) ? 'calendar-event--urgent' : '',
-          })}
+          eventPropGetter={(event: CalendarEvent) => {
+            const isSubtask = event.isSubtask || false;
+            const isUrgent = isTaskUrgent(event.task);
+            
+            let className = '';
+            if (isSubtask) {
+              className = isUrgent ? 'calendar-event--subtask-urgent' : 'calendar-event--subtask';
+            } else {
+              className = isUrgent ? 'calendar-event--urgent' : '';
+            }
+            
+            return { className };
+          }}
           components={{ event: EventLabel as any }}
         />
       </div>

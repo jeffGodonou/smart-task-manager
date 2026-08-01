@@ -144,6 +144,22 @@
   background: #8f1d16 !important;
 }
 
+.rbc-event.calendar-event--subtask {
+  background: #7BA8D1 !important;
+}
+
+.rbc-event.calendar-event--subtask.rbc-selected {
+  background: #5A8FBD !important;
+}
+
+.rbc-event.calendar-event--subtask-urgent {
+  background: #D87A7A !important;
+}
+
+.rbc-event.calendar-event--subtask-urgent.rbc-selected {
+  background: #C45F5F !important;
+}
+
 .rbc-show-more {
   font-size: 11px;
   color: #1F4E79;
@@ -169,6 +185,16 @@
 
 .calendar-event-label--urgent {
   font-weight: 700;
+}
+
+.calendar-event-label--subtask {
+  font-style: italic;
+  opacity: 0.95;
+}
+
+.calendar-event-subtask-bullet {
+  margin-right: 2px;
+  font-weight: bold;
 }
 
 .calendar-event-dot {
