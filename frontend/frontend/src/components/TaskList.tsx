@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listTasks, deleteTask, updateTask } from '../api/tasks.ts';
 import type { Task } from '../api/tasks.ts';
-import TaskRow from './TaskRow.ts';
+import TaskRow from './TaskRow.tsx';
 import TaskDetailsModal from './TaskDetailsModal';
 import './TaskList.css';
 
