@@ -198,6 +198,29 @@ class TaskControllerPhase1Test {
     }
 
     @Test
+    @DisplayName("Should keep parent task in progress when only some subtasks are completed on update")
+    void testPartialSubtaskUpdateKeepsParentInProgress() {
+        Task parent = new Task("Parent task", "", LocalDate.now(), false);
+        Task childOne = new Task("Subtask 1", "", null, true);
+        Task childTwo = new Task("Subtask 2", "", null, false);
+        parent.setSubtasks(List.of(childOne, childTwo));
+
+        Task saved = taskService.addTask(parent, "testuser");
+
+        Task updatePayload = new Task(saved.getTitle(), saved.getDescription(), saved.getDueDate(), false);
+        Task updatedChildOne = new Task("Subtask 1", "", null, true);
+        Task updatedChildTwo = new Task("Subtask 2", "", null, false);
+        updatePayload.setSubtasks(List.of(updatedChildOne, updatedChildTwo));
+
+        Task updated = taskService.updateTask(saved.getId(), updatePayload, "testuser");
+
+        assertFalse(updated.isCompleted());
+        assertEquals(Task.Status.IN_PROGRESS, updated.getStatus());
+        assertTrue(updated.getSubtasks().get(0).isCompleted());
+        assertFalse(updated.getSubtasks().get(1).isCompleted());
+    }
+
+    @Test
     @DisplayName("Should handle null subtask list gracefully")
     void testHandleNullSubtaskList() {
         Task task = new Task("Parent task", "", LocalDate.now(), false);
