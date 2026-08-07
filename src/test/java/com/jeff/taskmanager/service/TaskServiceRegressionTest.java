@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TaskServiceRegressionTest {
@@ -51,6 +52,28 @@ class TaskServiceRegressionTest {
 
         assertTrue(updated.isCompleted());
         assertEquals(Task.Status.DONE, updated.getStatus());
+    }
+
+    @Test
+    void updateTask_keepsParentInProgressWhenOnlySomeSubtasksAreCompleted() {
+        Task parent = new Task("Parent task", "Parent description", LocalDate.now(), false);
+        Task childOne = new Task("Child 1", "", null, true);
+        Task childTwo = new Task("Child 2", "", null, false);
+        parent.setSubtasks(List.of(childOne, childTwo));
+
+        Task saved = taskService.addTask(parent, "alice");
+
+        Task updatePayload = new Task(saved.getTitle(), saved.getDescription(), saved.getDueDate(), false);
+        Task updatedChildOne = new Task("Child 1", "", null, true);
+        Task updatedChildTwo = new Task("Child 2", "", null, false);
+        updatePayload.setSubtasks(List.of(updatedChildOne, updatedChildTwo));
+
+        Task updated = taskService.updateTask(saved.getId(), updatePayload, "alice");
+
+        assertFalse(updated.isCompleted());
+        assertEquals(Task.Status.IN_PROGRESS, updated.getStatus());
+        assertTrue(updated.getSubtasks().get(0).isCompleted());
+        assertFalse(updated.getSubtasks().get(1).isCompleted());
     }
 
     private static class InMemoryTaskRepository extends TaskRepository {
