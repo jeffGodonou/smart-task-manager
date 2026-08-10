@@ -227,6 +227,46 @@ class TaskControllerE2ETest {
         assertTrue(remaining.isEmpty());
     }
 
+        @Test
+        void updateTaskWithCompletedSubtasks_returnsDoneFromController() throws Exception {
+        Task task = new Task("Parent task", "Created with subtasks", LocalDate.now().plusDays(1), false);
+        task.setSubtasks(List.of(
+            new Task("Child 1", "", null, true),
+            new Task("Child 2", "", null, false)
+        ));
+
+        HttpRequest createRequest = authorizedRequest("/api/tasks")
+            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(task)))
+            .build();
+
+        HttpResponse<String> createResponse = client.send(createRequest, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, createResponse.statusCode());
+
+        Task created = objectMapper.readValue(createResponse.body(), Task.class);
+        assertEquals(Task.Status.IN_PROGRESS, created.getStatus());
+        assertFalse(created.isCompleted());
+
+        Task updatePayload = new Task(created.getTitle(), "All subtasks completed", created.getDueDate(), false);
+        updatePayload.setSubtasks(List.of(
+            new Task("Child 1", "", null, true),
+            new Task("Child 2", "", null, true)
+        ));
+
+        HttpRequest updateRequest = authorizedRequest("/api/tasks/" + created.getId())
+            .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(updatePayload)))
+            .build();
+
+        HttpResponse<String> updateResponse = client.send(updateRequest, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, updateResponse.statusCode());
+
+        Task updated = objectMapper.readValue(updateResponse.body(), Task.class);
+        assertEquals(Task.Status.DONE, updated.getStatus());
+        assertTrue(updated.isCompleted());
+        assertEquals(2, updated.getSubtasks().size());
+        assertTrue(updated.getSubtasks().get(0).isCompleted());
+        assertTrue(updated.getSubtasks().get(1).isCompleted());
+        }
+
     @Test
     void requestWithoutAuthorization_returnsUnauthorized() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
