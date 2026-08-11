@@ -10,7 +10,7 @@ import TaskStats from './components/TaskStats';
 import AuthForm from './components/AuthForm';
 import WelcomeMessage from './components/WelcomeMessage';
 import ProfileMenu from './components/ProfileMenu';
-import { clearToken, getStoredToken } from './api/auth';
+import { clearToken, getStoredToken, saveToken, updateProfile } from './api/auth';
 
 type ThemeName = 'light' | 'dark' | 'blue' | 'forest' | 'gray';
 
@@ -78,8 +78,10 @@ function App() {
             </div>
             <ProfileMenu
               username={currentUsername}
-              onUpdateProfile={(username) => {
-                setCurrentUsername(username);
+              onUpdateProfile={async ({ username, currentPassword, newPassword }) => {
+                const response = await updateProfile({ username, currentPassword, newPassword });
+                saveToken(response.token);
+                setCurrentUsername(response.username);
                 setWelcomeUser(null);
               }}
               theme={theme}

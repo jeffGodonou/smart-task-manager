@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jeff.taskmanager.model.User;
 import com.jeff.taskmanager.repository.UserRepository;
 import com.jeff.taskmanager.util.PasswordUtil;
+import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
@@ -47,6 +48,8 @@ public class AuthController {
     public void registerRoutes(HttpServer server) {
         server.createContext(PREFIX + "/login", this::handleLogin);
         server.createContext(PREFIX + "/register", this::handleRegister);
+        HttpContext profileContext = server.createContext(PREFIX + "/profile", this::handleProfileUpdate);
+        profileContext.getFilters().add(new AuthFilter());
     }
 
     /**
@@ -157,6 +160,76 @@ public class AuthController {
         }
     }
 
+    private void handleProfileUpdate(HttpExchange exchange) throws IOException {
+        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            handleOptions(exchange);
+            return;
+        }
+
+        if (!"PUT".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "Method not allowed");
+            return;
+        }
+
+        String authenticatedUsername = exchange.getAttribute("username") == null
+                ? null
+                : exchange.getAttribute("username").toString();
+
+        if (authenticatedUsername == null || authenticatedUsername.isBlank()) {
+            sendResponse(exchange, 401, "Unauthorized");
+            return;
+        }
+
+        try {
+            ProfileUpdateRequest request = readRequestBody(exchange.getRequestBody(), ProfileUpdateRequest.class);
+            User user = userRepository.findByUsername(authenticatedUsername).orElse(null);
+            if (user == null) {
+                sendResponse(exchange, 401, "Unknown user. Please log in again.");
+                return;
+            }
+
+            String nextUsername = request.username == null ? null : request.username.trim();
+            String currentPassword = request.currentPassword;
+            String newPassword = request.newPassword == null ? null : request.newPassword.trim();
+
+            boolean hasUsernameUpdate = nextUsername != null && !nextUsername.isBlank();
+            boolean hasPasswordUpdate = newPassword != null && !newPassword.isBlank();
+
+            if (!hasUsernameUpdate && !hasPasswordUpdate) {
+                sendResponse(exchange, 400, "Provide a username and/or newPassword to update profile.");
+                return;
+            }
+
+            if (hasPasswordUpdate) {
+                if (currentPassword == null || currentPassword.isBlank()) {
+                    sendResponse(exchange, 400, "currentPassword is required to change password.");
+                    return;
+                }
+                if (!PasswordUtil.verifyPassword(currentPassword, user.getPasswordHash())) {
+                    sendResponse(exchange, 401, "Current password is incorrect.");
+                    return;
+                }
+                user.setPasswordHash(PasswordUtil.hashPassword(newPassword));
+            }
+
+            if (hasUsernameUpdate && !nextUsername.equalsIgnoreCase(user.getUsername())) {
+                User existing = userRepository.findByUsername(nextUsername).orElse(null);
+                if (existing != null && !existing.getId().equals(user.getId())) {
+                    sendResponse(exchange, 409, "Username already exists");
+                    return;
+                }
+                user.setUsername(nextUsername);
+            }
+
+            User saved = userRepository.save(user);
+            String refreshedToken = JwtUtil.generateToken(saved.getUsername());
+            sendJson(exchange, 200, objectMapper.writeValueAsString(new ProfileUpdateResponse(saved.getUsername(), refreshedToken)));
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+            sendJson(exchange, 500, objectMapper.writeValueAsString(new ErrorResponse("Profile update failed")));
+        }
+    }
+
     private <T> T readRequestBody(InputStream stream, Class<T> targetClass) throws IOException {
         return objectMapper.readValue(stream, targetClass);
     }
@@ -191,6 +264,12 @@ public class AuthController {
         public String password;
     }
 
+    private static class ProfileUpdateRequest {
+        public String username;
+        public String currentPassword;
+        public String newPassword;
+    }
+
     private static class AuthResponse {
         @JsonProperty("token")
         public final String token;
@@ -209,6 +288,19 @@ public class AuthController {
 
         public ErrorResponse(String error) {
             this.error = error;
+        }
+    }
+
+    private static class ProfileUpdateResponse {
+        @JsonProperty("username")
+        public final String username;
+
+        @JsonProperty("token")
+        public final String token;
+
+        public ProfileUpdateResponse(String username, String token) {
+            this.username = username;
+            this.token = token;
         }
     }
 }

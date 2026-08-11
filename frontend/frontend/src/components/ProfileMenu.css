@@ -175,6 +175,12 @@
   color: var(--text-muted);
 }
 
+.profile-menu__error {
+  margin: 0;
+  font-size: 11px;
+  color: var(--red);
+}
+
 .profile-menu__editor-actions {
   display: flex;
   justify-content: flex-end;

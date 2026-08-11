@@ -6,6 +6,17 @@ export type AuthResponse = {
   token: string;
 };
 
+export type UpdateProfileRequest = {
+  username?: string;
+  currentPassword?: string;
+  newPassword?: string;
+};
+
+export type UpdateProfileResponse = {
+  username: string;
+  token: string;
+};
+
 export function saveToken(token: string) {
   localStorage.setItem(tokenStorageKey, token);
 }
@@ -52,6 +63,26 @@ export async function register(username: string, password: string): Promise<Auth
   if (!response.ok) {
     const message = await response.text();
     throw new Error(message || 'Registration failed');
+  }
+
+  return response.json();
+}
+
+export async function updateProfile(payload: UpdateProfileRequest): Promise<UpdateProfileResponse> {
+  const headers = getAuthHeaders();
+  if (!headers.Authorization) {
+    throw new Error('You must be logged in to update your profile.');
+  }
+
+  const response = await fetch(`${apiBaseUrl}/api/auth/profile`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...headers },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Profile update failed');
   }
 
   return response.json();

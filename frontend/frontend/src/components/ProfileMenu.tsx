@@ -3,7 +3,11 @@ import './ProfileMenu.css';
 
 type ProfileMenuProps = {
   username?: string | null;
-  onUpdateProfile: (username: string) => void;
+  onUpdateProfile: (payload: {
+    username: string;
+    currentPassword?: string;
+    newPassword?: string;
+  }) => Promise<void>;
   theme: 'light' | 'dark' | 'blue' | 'forest' | 'gray';
   onThemeChange: (theme: 'light' | 'dark' | 'blue' | 'forest' | 'gray') => void;
   onLogout: () => void;
@@ -29,17 +33,32 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
   const [open, setOpen] = React.useState(false);
   const [editing, setEditing] = React.useState(false);
   const [draftUsername, setDraftUsername] = React.useState(username ?? '');
+  const [currentPassword, setCurrentPassword] = React.useState('');
+  const [newPassword, setNewPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
 
-  React.useEffect(() => {
+  const resetEditorState = React.useCallback(() => {
     setDraftUsername(username ?? '');
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setSaving(false);
+    setError(null);
   }, [username]);
+
+  React.useEffect(() => {
+    resetEditorState();
+  }, [resetEditorState]);
 
   React.useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setOpen(false);
         setEditing(false);
+        resetEditorState();
       }
     };
 
@@ -47,6 +66,7 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
       if (event.key === 'Escape') {
         setOpen(false);
         setEditing(false);
+        resetEditorState();
       }
     };
 
@@ -57,7 +77,7 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
       document.removeEventListener('mousedown', handlePointerDown);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [resetEditorState]);
 
   return (
     <div className="profile-menu" ref={menuRef}>
@@ -72,7 +92,7 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
             const nextOpen = !current;
             if (!nextOpen) {
               setEditing(false);
-              setDraftUsername(username ?? '');
+              resetEditorState();
             }
             return nextOpen;
           });
@@ -85,18 +105,6 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
         <div className="profile-menu__dropdown" role="menu" aria-label="Profile actions">
           {!editing ? (
             <>
-              <button
-                type="button"
-                className="profile-menu__item"
-                role="menuitem"
-                onClick={() => {
-                  setEditing(true);
-                  setDraftUsername(username ?? '');
-                }}
-              >
-                Edit profile
-              </button>
-
               <div className="profile-menu__section">
                 <span className="profile-menu__section-title">Theme</span>
                 <div className="profile-menu__theme-list" role="group" aria-label="Theme options">
@@ -112,19 +120,65 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
                   ))}
                 </div>
               </div>
+
+              <button
+                type="button"
+                className="profile-menu__item"
+                role="menuitem"
+                onClick={() => {
+                  setEditing(true);
+                  resetEditorState();
+                }}
+              >
+                Edit profile
+              </button>  
             </>
           ) : (
             <form
               className="profile-menu__editor"
-              onSubmit={(event) => {
+              onSubmit={async (event) => {
                 event.preventDefault();
+                setError(null);
+
                 const nextUsername = draftUsername.trim();
                 if (!nextUsername) {
+                  setError('Username is required.');
                   return;
                 }
-                onUpdateProfile(nextUsername);
-                setEditing(false);
-                setOpen(false);
+
+                const hasPasswordIntent = currentPassword.length > 0 || newPassword.length > 0 || confirmPassword.length > 0;
+                if (hasPasswordIntent) {
+                  if (!currentPassword || !newPassword || !confirmPassword) {
+                    setError('Fill current password, new password, and confirmation to change password.');
+                    return;
+                  }
+
+                  if (newPassword !== confirmPassword) {
+                    setError('New password and confirmation do not match.');
+                    return;
+                  }
+
+                  if (newPassword.length < 6) {
+                    setError('New password must be at least 6 characters.');
+                    return;
+                  }
+                }
+
+                try {
+                  setSaving(true);
+                  await onUpdateProfile({
+                    username: nextUsername,
+                    currentPassword: hasPasswordIntent ? currentPassword : undefined,
+                    newPassword: hasPasswordIntent ? newPassword : undefined,
+                  });
+                  setEditing(false);
+                  setOpen(false);
+                  resetEditorState();
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Failed to update profile.');
+                } finally {
+                  setSaving(false);
+                }
               }}
             >
               <label className="profile-menu__label" htmlFor="profile-username">
@@ -138,24 +192,67 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
                 onChange={(event) => setDraftUsername(event.target.value)}
                 autoFocus
               />
-              <p className="profile-menu__hint">Updates the name shown in this session.</p>
+
+              <label className="profile-menu__label" htmlFor="profile-current-password">
+                Current password
+              </label>
+              <input
+                id="profile-current-password"
+                className="profile-menu__input"
+                type="password"
+                value={currentPassword}
+                onChange={(event) => setCurrentPassword(event.target.value)}
+                autoComplete="current-password"
+                placeholder="Required to change password"
+              />
+
+              <label className="profile-menu__label" htmlFor="profile-new-password">
+                New password
+              </label>
+              <input
+                id="profile-new-password"
+                className="profile-menu__input"
+                type="password"
+                value={newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
+                autoComplete="new-password"
+                placeholder="Leave blank to keep current password"
+              />
+
+              <label className="profile-menu__label" htmlFor="profile-confirm-password">
+                Confirm new password
+              </label>
+              <input
+                id="profile-confirm-password"
+                className="profile-menu__input"
+                type="password"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                autoComplete="new-password"
+                placeholder="Repeat new password"
+              />
+
+              {error && <p className="profile-menu__error">{error}</p>}
+
+              <p className="profile-menu__hint">Update your username and optionally your password.</p>
               <div className="profile-menu__editor-actions">
                 <button
                   type="button"
                   className="profile-menu__secondary"
                   onClick={() => {
                     setEditing(false);
-                    setDraftUsername(username ?? '');
+                    resetEditorState();
                   }}
+                  disabled={saving}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="profile-menu__primary"
-                  disabled={!draftUsername.trim()}
+                  disabled={saving || !draftUsername.trim()}
                 >
-                  Save
+                  {saving ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>
