@@ -39,6 +39,9 @@ public class BackendApplication {
         AuthController authController = new AuthController(userRepository);
         authController.registerRoutes(server);
 
+        ProjectController projectController = new ProjectController(new com.jeff.taskmanager.repository.ProjectRepository(), userRepository);
+        projectController.registerRoutes(server);
+
         // Expose a lightweight unauthenticated health endpoint for hosting checks
         server.createContext("/health", BackendApplication::handleHealth);
 

@@ -11,6 +11,7 @@
         <!-- Entity classes -->
         <class>com.jeff.taskmanager.model.Task</class>
         <class>com.jeff.taskmanager.model.User</class>
+        <class>com.jeff.taskmanager.model.Project</class>
         
         <properties>
             <!-- H2 Database Connection -->
