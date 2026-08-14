@@ -1,5 +1,6 @@
 import React from 'react';
 import './ProfileMenu.css';
+import { loadProject, saveProject, type GitProject } from '../api/projects';
 
 type ProfileMenuProps = {
   username?: string | null;
@@ -37,8 +38,37 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
   const [newPassword, setNewPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [saving, setSaving] = React.useState(false);
+  const [projectFormOpen, setProjectFormOpen] = React.useState(false);
+  const [projectName, setProjectName] = React.useState('');
+  const [repositoryUrl, setRepositoryUrl] = React.useState('');
+  const [localPath, setLocalPath] = React.useState('');
+  const [branch, setBranch] = React.useState('main');
+  const [projectError, setProjectError] = React.useState<string | null>(null);
+  const [projectSaving, setProjectSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function loadCurrentProject() {
+      try {
+        const project = await loadProject();
+        if (cancelled) return;
+        if (project) {
+          setProjectName(project.name ?? '');
+          setRepositoryUrl(project.repositoryUrl ?? '');
+          setLocalPath(project.localPath ?? '');
+          setBranch(project.branch ?? 'main');
+        }
+      } catch {
+        // Ignore project load errors if the user is not authenticated or no project exists yet.
+      }
+    }
+
+    loadCurrentProject();
+    return () => { cancelled = true; };
+  }, [username]);
 
   const resetEditorState = React.useCallback(() => {
     setDraftUsername(username ?? '');
@@ -131,7 +161,104 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
                 }}
               >
                 Edit profile
-              </button>  
+              </button>
+
+              <button
+                type="button"
+                className="profile-menu__item"
+                role="menuitem"
+                onClick={() => {
+                  setProjectFormOpen((current) => !current);
+                  setProjectError(null);
+                }}
+              >
+                {projectFormOpen ? 'Hide git project' : 'Manage existing git project'}
+              </button>
+
+              {projectFormOpen && (
+                <form
+                  className="profile-menu__editor"
+                  onSubmit={async (event) => {
+                    event.preventDefault();
+                    setProjectError(null);
+
+                    const trimmedName = projectName.trim();
+                    const trimmedRepo = repositoryUrl.trim();
+                    const trimmedLocalPath = localPath.trim();
+
+                    if (!trimmedName || (!trimmedRepo && !trimmedLocalPath)) {
+                      setProjectError('Project name and at least one of repository URL or local path are required.');
+                      return;
+                    }
+
+                    try {
+                      setProjectSaving(true);
+                      await saveProject({
+                        name: trimmedName,
+                        repositoryUrl: trimmedRepo,
+                        localPath: trimmedLocalPath,
+                        branch: branch.trim() || 'main',
+                      } as GitProject);
+                      setProjectFormOpen(false);
+                    } catch (err) {
+                      setProjectError(err instanceof Error ? err.message : 'Failed to save project settings.');
+                    } finally {
+                      setProjectSaving(false);
+                    }
+                  }}
+                >
+                  <label className="profile-menu__label" htmlFor="project-name">Project name</label>
+                  <input
+                    id="project-name"
+                    className="profile-menu__input"
+                    type="text"
+                    value={projectName}
+                    onChange={(event) => setProjectName(event.target.value)}
+                    placeholder="My project"
+                  />
+
+                  <label className="profile-menu__label" htmlFor="project-repository-url">Git repository URL</label>
+                  <input
+                    id="project-repository-url"
+                    className="profile-menu__input"
+                    type="text"
+                    value={repositoryUrl}
+                    onChange={(event) => setRepositoryUrl(event.target.value)}
+                    placeholder="https://github.com/user/repo.git"
+                  />
+
+                  <label className="profile-menu__label" htmlFor="project-local-path">Local folder path</label>
+                  <input
+                    id="project-local-path"
+                    className="profile-menu__input"
+                    type="text"
+                    value={localPath}
+                    onChange={(event) => setLocalPath(event.target.value)}
+                    placeholder="/workspace/project"
+                  />
+
+                  <label className="profile-menu__label" htmlFor="project-branch">Branch</label>
+                  <input
+                    id="project-branch"
+                    className="profile-menu__input"
+                    type="text"
+                    value={branch}
+                    onChange={(event) => setBranch(event.target.value)}
+                    placeholder="main"
+                  />
+
+                  {projectError && <p className="profile-menu__error">{projectError}</p>}
+
+                  <div className="profile-menu__editor-actions">
+                    <button type="button" className="profile-menu__secondary" onClick={() => setProjectFormOpen(false)} disabled={projectSaving}>
+                      Close
+                    </button>
+                    <button type="submit" className="profile-menu__primary" disabled={projectSaving}>
+                      {projectSaving ? 'Saving...' : 'Save project'}
+                    </button>
+                  </div>
+                </form>
+              )}
             </>
           ) : (
             <form
