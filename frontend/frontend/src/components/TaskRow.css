@@ -47,6 +47,12 @@
   overflow: hidden;
 }
 
+.task-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .task-title {
   font-weight: 600;
   margin: 0;
@@ -57,6 +63,19 @@
   -webkit-box-orient: vertical;
   white-space: normal;
   text-overflow: ellipsis;
+}
+
+.task-subtask-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.68em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #eef3ff;
+  color: #4169aa;
 }
 
 .task-description {
@@ -82,6 +101,45 @@
 .task-due-date--urgent {
   color: #b3261e;
   font-weight: 700;
+}
+
+.task-row--subtask {
+  border-left: 4px solid #8da9d6;
+  background: #f7faff;
+}
+
+.task-row--subtask:hover {
+  background: #edf4ff;
+}
+
+.task-status-inline {
+  margin-top: 2px;
+}
+
+.task-status-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+}
+
+.task-status-pill--todo {
+  background: #f0f0f0;
+  color: #4b4b4b;
+}
+
+.task-status-pill--in_progress {
+  background: #fff4d6;
+  color: #8a5d00;
+}
+
+.task-status-pill--done {
+  background: #eaf7ed;
+  color: #1f7b3f;
 }
 
 .task-subtask-info {

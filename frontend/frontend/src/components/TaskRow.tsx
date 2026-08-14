@@ -38,6 +38,7 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
   };
 
   const isUrgent = !task.isCompleted && isUrgentDueDate(task.dueDate);
+  const isSubtask = Boolean(task.isSubtask || task.parentTaskId);
 
   // Show subtask completion indicator if task has subtasks
   const completedCount = task.subtasks?.filter(s => s.isCompleted).length ?? 0;
@@ -46,7 +47,7 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
 
   return (
     <div
-      className={`task-row ${isUrgent ? 'task-row--urgent' : ''}`}
+      className={`task-row ${isUrgent ? 'task-row--urgent' : ''} ${isSubtask ? 'task-row--subtask' : ''}`}
       data-completed={task.isCompleted}
     >
       <input
@@ -58,7 +59,10 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
       />
 
       <div className="task-content">
-        <div className="task-title">{task.title}</div>
+        <div className="task-title-row">
+          <div className="task-title">{task.title}</div>
+          {isSubtask && <span className="task-subtask-badge">Subtask</span>}
+        </div>
 
         {task.description && (
           <div className="task-description">{task.description}</div>
@@ -72,11 +76,17 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
           </div>
         )}
 
-        {hasSubtasks && (
+        {hasSubtasks && !isSubtask && (
           <div className="task-subtask-info">
             {completedCount}/{totalCount} subtasks
           </div>
         )}
+
+        <div className="task-status-inline">
+          <span className={`task-status-pill task-status-pill--${(task.status ?? (task.isCompleted ? 'DONE' : 'TODO')).toLowerCase()}`}>
+            {task.status ?? (task.isCompleted ? 'DONE' : 'TODO')}
+          </span>
+        </div>
       </div>
 
       <div className="task-row-actions">

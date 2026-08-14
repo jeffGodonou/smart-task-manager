@@ -73,15 +73,52 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     }
   }
 
+  function flattenTasks(taskList: Task[]): Task[] {
+    return taskList.flatMap(task => {
+      const currentTask: Task = { ...task, isSubtask: Boolean(task.parentTaskId || task.isSubtask) };
+      const subtasks = (task.subtasks ?? []).map(subtask => ({
+        ...subtask,
+        parentTaskId: task.id,
+        isSubtask: true,
+      }));
+
+      return [currentTask, ...subtasks.flatMap(subtask => {
+        const nested = (subtask.subtasks ?? []).map(child => ({
+          ...child,
+          parentTaskId: subtask.id,
+          isSubtask: true,
+        }));
+        return [subtask, ...nested];
+      })];
+    });
+  }
+
+  function updateTaskInTree(taskList: Task[], updatedTask: Task): Task[] {
+    return taskList.map(task => {
+      if (task.id === updatedTask.id) {
+        return { ...task, ...updatedTask };
+      }
+
+      if (task.subtasks && task.subtasks.length > 0) {
+        return {
+          ...task,
+          subtasks: updateTaskInTree(task.subtasks, updatedTask),
+        };
+      }
+
+      return task;
+    });
+  }
+
   async function handleSaveTaskDetails(updates: any) {
     if (!selectedTask?.id) {
       return;
     }
     try {
       const updated = await updateTask(selectedTask.id, updates);
-      setTasks(prev => prev.map(t => t.id === updated.id ? updated : t));
+      const nextTasks = updateTaskInTree(tasks, updated);
+      setTasks(nextTasks);
       if (onTasksChange) {
-        const nextTasks = tasks.map(t => t.id === updated.id ? updated : t);
         onTasksChange(nextTasks);
       }
     } catch (err) {
@@ -111,7 +148,8 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     );
   }
 
-  const filteredTasks = tasks.filter(t => {
+  const flattenedTasks = flattenTasks(tasks);
+  const filteredTasks = flattenedTasks.filter(t => {
     if (filter === 'active')    return !t.isCompleted;
     if (filter === 'completed') return  t.isCompleted;
     return true;
