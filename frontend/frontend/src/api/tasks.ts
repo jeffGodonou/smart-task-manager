@@ -9,6 +9,7 @@ export interface Task {
     description?: string;
     notes?: string;
     parentTaskId?: string | null;
+    isSubtask?: boolean;
     subtasks?: Task[];
     dueDate?: string;
     isCompleted?: boolean;
