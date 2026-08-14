@@ -21,6 +21,7 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
   const [saving, setSaving] = React.useState(false);
   const [subtaskError, setSubtaskError] = React.useState<string | null>(null);
 
+  const isSubtask = Boolean(task.parentTaskId || task.isSubtask);
   const completedSubtasks = subtasks.filter(st => Boolean(st.isCompleted)).length;
   const hasSubtasks = subtasks.length > 0;
 
@@ -31,6 +32,8 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
   const normalizedCompleted = hasSubtasks ? completedSubtasks === subtasks.length : isCompleted;
 
   const handleAddSubtask = () => {
+    if (isSubtask) return;
+
     const trimmed = newSubtask.trim();
     if (!trimmed) return;
 
@@ -173,69 +176,71 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
             />
           </div>
 
-          <div className="task-modal-field">
-            <label>Subtasks</label>
-            <div className="task-modal-subtask-new">
-              <input
-                type="text"
-                value={newSubtask}
-                placeholder="Subtask title"
-                onChange={(event) => setNewSubtask(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    handleAddSubtask();
-                  }
-                }}
-              />
-              <input
-                type="date"
-                value={newSubtaskDueDate}
-                onChange={(event) => setNewSubtaskDueDate(event.target.value)}
-                className="task-modal-subtask-date-input"
-                title="Subtask due date (optional)"
-              />
-              <button type="button" className="btn-secondary" onClick={handleAddSubtask}>Add</button>
-            </div>
-            {subtaskError && <p className="task-modal-subtask-error">{subtaskError}</p>}
-            <div className="task-modal-subtasks">
-              {subtasks.length === 0 && <p className="task-modal-subtasks-empty">No subtasks yet.</p>}
-              {subtasks.map((subtask, index) => (
-                <div key={`${subtask.title}-${index}`} className="task-modal-subtask-item">
-                  <label className="task-modal-subtask-label">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(subtask.isCompleted)}
-                      onChange={(event) => {
-                        const checked = event.target.checked;
-                        setSubtasks(prev => prev.map((st, i) => i === index ? { ...st, isCompleted: checked } : st));
-                      }}
-                    />
-                    <span className={subtask.isCompleted ? 'task-modal-subtask-done' : ''}>{subtask.title}</span>
-                  </label>
-                  <div className="task-modal-subtask-meta">
-                    <input
-                      type="date"
-                      value={subtask.dueDate ?? ''}
-                      onChange={(event) => {
-                        const val = event.target.value;
-                        setSubtasks(prev => prev.map((st, i) => i === index ? { ...st, dueDate: val || undefined } : st));
-                      }}
-                      className="task-modal-subtask-date-input"
-                      title="Subtask due date"
-                    />
-                    <button
-                      type="button"
-                      className="task-modal-subtask-remove"
-                      onClick={() => setSubtasks(prev => prev.filter((_, i) => i !== index))}
-                    >
-                      Remove
-                    </button>
+          {!isSubtask && (
+            <div className="task-modal-field">
+              <label>Subtasks</label>
+              <div className="task-modal-subtask-new">
+                <input
+                  type="text"
+                  value={newSubtask}
+                  placeholder="Subtask title"
+                  onChange={(event) => setNewSubtask(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      handleAddSubtask();
+                    }
+                  }}
+                />
+                <input
+                  type="date"
+                  value={newSubtaskDueDate}
+                  onChange={(event) => setNewSubtaskDueDate(event.target.value)}
+                  className="task-modal-subtask-date-input"
+                  title="Subtask due date (optional)"
+                />
+                <button type="button" className="btn-secondary" onClick={handleAddSubtask}>Add</button>
+              </div>
+              {subtaskError && <p className="task-modal-subtask-error">{subtaskError}</p>}
+              <div className="task-modal-subtasks">
+                {subtasks.length === 0 && <p className="task-modal-subtasks-empty">No subtasks yet.</p>}
+                {subtasks.map((subtask, index) => (
+                  <div key={`${subtask.title}-${index}`} className="task-modal-subtask-item">
+                    <label className="task-modal-subtask-label">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(subtask.isCompleted)}
+                        onChange={(event) => {
+                          const checked = event.target.checked;
+                          setSubtasks(prev => prev.map((st, i) => i === index ? { ...st, isCompleted: checked } : st));
+                        }}
+                      />
+                      <span className={subtask.isCompleted ? 'task-modal-subtask-done' : ''}>{subtask.title}</span>
+                    </label>
+                    <div className="task-modal-subtask-meta">
+                      <input
+                        type="date"
+                        value={subtask.dueDate ?? ''}
+                        onChange={(event) => {
+                          const val = event.target.value;
+                          setSubtasks(prev => prev.map((st, i) => i === index ? { ...st, dueDate: val || undefined } : st));
+                        }}
+                        className="task-modal-subtask-date-input"
+                        title="Subtask due date"
+                      />
+                      <button
+                        type="button"
+                        className="task-modal-subtask-remove"
+                        onClick={() => setSubtasks(prev => prev.filter((_, i) => i !== index))}
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="task-modal-footer">
