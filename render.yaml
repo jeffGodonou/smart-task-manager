@@ -11,6 +11,6 @@ services:
         sizeGB: 1
     envVars:
       - key: H2_JDBC_URL
-        value: jdbc:h2:file:/var/data/taskdb;AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE
+        value: jdbc:h2:file:/var/data/taskdb;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
       - key: JWT_SECRET
         sync: false

@@ -15,7 +15,20 @@ import java.util.Map;
  */
 public class PersistanceManager {
     private static volatile EntityManagerFactory emf;
-    private static final String DEFAULT_H2_URL = "jdbc:h2:mem:taskdb;DB_CLOSE_DELAY=-1";
+    private static final String DEFAULT_H2_URL = "jdbc:h2:file:./data/taskdb;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL";
+
+    public static String resolveJdbcUrl(Map<String, String> environment) {
+        if (environment == null || environment.isEmpty()) {
+            return DEFAULT_H2_URL;
+        }
+
+        String jdbcUrl = environment.get("H2_JDBC_URL");
+        if (jdbcUrl == null || jdbcUrl.isBlank()) {
+            return DEFAULT_H2_URL;
+        }
+
+        return jdbcUrl;
+    }
 
     /**
      * Get or create the singleton {@link EntityManagerFactory}.
@@ -25,8 +38,7 @@ public class PersistanceManager {
     public static synchronized EntityManagerFactory getEmf() {
         if (emf == null) {
             Map<String, String> overrides = new HashMap<>();
-            // Use in-memory H2 by default in cloud environments to avoid file locking/path issues.
-            String jdbcUrl = System.getenv().getOrDefault("H2_JDBC_URL", DEFAULT_H2_URL);
+            String jdbcUrl = resolveJdbcUrl(System.getenv());
             overrides.put("jakarta.persistence.jdbc.url", jdbcUrl);
             emf = Persistence.createEntityManagerFactory("task-manager-unit", overrides);
         }
