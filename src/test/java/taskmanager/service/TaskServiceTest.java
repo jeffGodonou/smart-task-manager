@@ -186,6 +186,23 @@ class TaskServiceTest {
     }
 
     @Test
+    void listTasks_ordersManualPriorityBeforeDueDate() {
+        Task laterTask = new Task("Later task", "", LocalDate.of(2026, 8, 20), false);
+        Task earlierTask = new Task("Earlier task", "", LocalDate.of(2026, 8, 10), false);
+        Task manualPriorityTask = new Task("Manual priority", "", LocalDate.of(2026, 8, 30), false);
+        manualPriorityTask.setPriorityTask(true);
+
+        taskService.addTask(laterTask, "user");
+        taskService.addTask(earlierTask, "user");
+        taskService.addTask(manualPriorityTask, "user");
+
+        List<Task> ordered = taskService.listTasks("user");
+
+        assertEquals(List.of("Manual priority", "Earlier task", "Later task"),
+                ordered.stream().map(Task::getTitle).toList());
+    }
+
+    @Test
     void completeTask_setsCompletedForOwner() {
         taskService.addTask(sample, "user");
         Long id = sample.getId();

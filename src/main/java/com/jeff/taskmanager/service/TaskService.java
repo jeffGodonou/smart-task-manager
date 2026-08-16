@@ -7,6 +7,7 @@ import com.jeff.taskmanager.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -103,6 +104,7 @@ public class TaskService {
                     existing.setNotes(source.getNotes());
                     existing.setSubtasks(source.getSubtasks());
                     existing.setPriority(source.getPriority());
+                    existing.setPriorityTask(source.isPriorityTask());
                     existing.setDueDate(source.getDueDate());
                     existing.setCompleted(source.isCompleted());
                     existing.setStatus(source.getStatus());
@@ -140,7 +142,12 @@ public class TaskService {
             subTask.setStatus(subTask.isCompleted() ? Task.Status.DONE : Task.Status.TODO);
         }
 
+        task.setPriorityTask(task.isPriorityTask());
         task.setSubtasks(subtasks);
+
+        for (Task subTask : subtasks) {
+            subTask.setPriorityTask(subTask.isPriorityTask());
+        }
 
         // Phase 1 contract: when subtasks exist, parent completion is derived from them.
         if (!subtasks.isEmpty()) {
@@ -182,7 +189,43 @@ public class TaskService {
      * @return tasks belonging to the user
      */
     public List<Task> listTasks(String username) {
-        return taskRepository.findAllByUser(username);
+        List<Task> tasks = taskRepository.findAllByUser(username);
+        tasks.forEach(this::sortTaskTree);
+        tasks.sort(compareTasks());
+        return tasks;
+    }
+
+    private void sortTaskTree(Task task) {
+        if (task == null) {
+            return;
+        }
+        List<Task> subtasks = task.getSubtasks();
+        if (subtasks != null && !subtasks.isEmpty()) {
+            subtasks.forEach(this::sortTaskTree);
+            subtasks.sort(compareTasks());
+        }
+    }
+
+    private Comparator<Task> compareTasks() {
+        return (left, right) -> {
+            boolean leftPriority = left != null && left.isPriorityTask();
+            boolean rightPriority = right != null && right.isPriorityTask();
+            if (leftPriority != rightPriority) {
+                return Boolean.compare(rightPriority, leftPriority);
+            }
+
+            LocalDate leftDate = left == null || left.getDueDate() == null ? LocalDate.MAX : left.getDueDate();
+            LocalDate rightDate = right == null || right.getDueDate() == null ? LocalDate.MAX : right.getDueDate();
+            int dateComparison = leftDate.compareTo(rightDate);
+            if (dateComparison != 0) {
+                return dateComparison;
+            }
+
+            if (left == null || right == null) {
+                return 0;
+            }
+            return left.getTitle() == null ? 1 : right.getTitle() == null ? -1 : left.getTitle().compareToIgnoreCase(right.getTitle());
+        };
     }
 
     /**
