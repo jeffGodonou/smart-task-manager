@@ -162,7 +162,7 @@ public class DataMigrationServiceTest {
      * 
      * Scenario: Parent has 2 children, 1 complete, 1 incomplete.
      * Expected: Parent completion should auto-derive when children change.
-     * Rule: all children done → parent DONE, partial → IN_PROGRESS, none done → TODO.
+    * Rule: all children done → parent DONE, partial → IN_PROGRESS, none done → not started.
      */
     @Test
     @DisplayName("Derived completion works with new model")
