@@ -84,11 +84,17 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
     <div className="task-modal-overlay" onClick={onClose}>
       <div className="task-modal" onClick={(event) => event.stopPropagation()}>
         <div className="task-modal-header">
-          <h3>Task details</h3>
+          <h3>{isSubtask ? 'Subtask details' : 'Task details'}</h3>
           <button type="button" className="task-modal-close" onClick={onClose}>×</button>
         </div>
 
         <div className="task-modal-body">
+          {isSubtask && (
+            <div className="task-modal-completion-hint">
+              ℹ️ This is a subtask. It behaves like a lightweight task and cannot contain its own subtasks.
+            </div>
+          )}
+
           <div className="task-modal-field">
             <label htmlFor="task-modal-title">Title</label>
             <input

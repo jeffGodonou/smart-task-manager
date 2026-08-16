@@ -44,6 +44,12 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
   const completedCount = task.subtasks?.filter(s => s.isCompleted).length ?? 0;
   const totalCount = task.subtasks?.length ?? 0;
   const hasSubtasks = totalCount > 0;
+  const normalizedStatus = (task.status ?? (task.isCompleted ? 'DONE' : 'TODO')) as Task['status'];
+  const displayStatus = normalizedStatus === 'IN_PROGRESS'
+    ? 'In Progress'
+    : normalizedStatus === 'DONE'
+      ? 'Done'
+      : 'To do';
 
   return (
     <div
@@ -83,8 +89,8 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
         )}
 
         <div className="task-status-inline">
-          <span className={`task-status-pill task-status-pill--${(task.status ?? (task.isCompleted ? 'DONE' : 'TODO')).toLowerCase()}`}>
-            {task.status ?? (task.isCompleted ? 'DONE' : 'TODO')}
+          <span className={`task-status-pill task-status-pill--${normalizedStatus.toLowerCase()}`}>
+            {displayStatus}
           </span>
         </div>
       </div>
