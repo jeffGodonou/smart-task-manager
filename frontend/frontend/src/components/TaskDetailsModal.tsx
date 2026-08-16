@@ -15,6 +15,7 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
   const [notes, setNotes] = React.useState(task.notes ?? '');
   const [status, setStatus] = React.useState<Task['status']>(task.status ?? 'TODO');
   const [isCompleted, setIsCompleted] = React.useState(Boolean(task.isCompleted));
+  const [isPriority, setIsPriority] = React.useState(Boolean(task.isPriority));
   const [subtasks, setSubtasks] = React.useState<Task[]>(task.subtasks ?? []);
   const [newSubtask, setNewSubtask] = React.useState('');
   const [newSubtaskDueDate, setNewSubtaskDueDate] = React.useState('');
@@ -64,6 +65,7 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
         dueDate: dueDate || undefined,
         notes: notes.trim() || undefined,
         isCompleted: normalizedCompleted,
+        isPriority,
         status: normalizedStatus,
         subtasks: subtasks
           .map(st => ({
@@ -144,6 +146,15 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
               </select>
             </div>
           </div>
+
+          <label className="task-modal-checkline">
+            <input
+              type="checkbox"
+              checked={isPriority}
+              onChange={(event) => setIsPriority(event.target.checked)}
+            />
+            Mark as priority task
+          </label>
 
           <label className="task-modal-checkline">
             <input
