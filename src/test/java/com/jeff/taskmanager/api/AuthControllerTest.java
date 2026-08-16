@@ -145,6 +145,47 @@ class AuthControllerTest {
         }
     }
 
+    @Test
+    void forgotPasswordCanResetCredentialsAndAllowLogin() throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        InMemoryUserRepository userRepository = new InMemoryUserRepository();
+        userRepository.save(new User("testuser", PasswordUtil.hashPassword("old-password")));
+
+        AuthController controller = new AuthController(userRepository);
+        controller.registerRoutes(server);
+        server.start();
+
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+
+            HttpRequest resetRequest = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + server.getAddress().getPort() + "/api/auth/forgot-password"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString("""
+                            {"username":"testuser","newPassword":"reset-password-123"}
+                            """))
+                    .build();
+
+            HttpResponse<String> resetResponse = client.send(resetRequest, HttpResponse.BodyHandlers.ofString());
+            assertEquals(200, resetResponse.statusCode());
+            assertTrue(resetResponse.body().contains("Password reset"));
+
+            HttpRequest loginRequest = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + server.getAddress().getPort() + "/api/auth/login"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString("""
+                            {"username":"testuser","password":"reset-password-123"}
+                            """))
+                    .build();
+
+            HttpResponse<String> loginResponse = client.send(loginRequest, HttpResponse.BodyHandlers.ofString());
+            assertEquals(200, loginResponse.statusCode());
+            assertTrue(loginResponse.body().contains("token"));
+        } finally {
+            server.stop(0);
+        }
+    }
+
     private static class StubUserRepository extends UserRepository {
         @Override
         public Optional<User> findByUsername(String username) {
