@@ -44,7 +44,7 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
   const completedCount = task.subtasks?.filter(s => s.isCompleted).length ?? 0;
   const totalCount = task.subtasks?.length ?? 0;
   const hasSubtasks = totalCount > 0;
-  const normalizedStatus = (task.status ?? (task.isCompleted ? 'DONE' : 'TODO')) as Task['status'];
+  const normalizedStatus: Exclude<Task['status'], undefined> = task.status ?? (task.isCompleted ? 'DONE' : 'TODO');
   const displayStatus = normalizedStatus === 'IN_PROGRESS'
     ? 'In Progress'
     : normalizedStatus === 'DONE'
