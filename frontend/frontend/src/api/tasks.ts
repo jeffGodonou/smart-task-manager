@@ -13,6 +13,7 @@ export interface Task {
     subtasks?: Task[];
     dueDate?: string;
     isCompleted?: boolean;
+    isPriority?: boolean;
     status?: 'TODO' | 'IN_PROGRESS' | 'DONE';
 }
 

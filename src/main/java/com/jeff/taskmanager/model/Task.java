@@ -59,6 +59,10 @@ public class Task {
 
     /** The priority level for the task, e.g. Low, Medium, or High. */
     private String priority;
+
+    @Column(name = "is_priority")
+    @JsonProperty("isPriority")
+    private boolean priorityTask;
     
     @Column(name="due_date")
     @JsonProperty("dueDate")
@@ -195,6 +199,14 @@ public class Task {
 
     public void setPriority(String priority) {
         this.priority = priority;
+    }
+
+    public boolean isPriorityTask() {
+        return priorityTask;
+    }
+
+    public void setPriorityTask(boolean priorityTask) {
+        this.priorityTask = priorityTask;
     }
 
     public Status getStatus() {
