@@ -6,7 +6,7 @@
  * when authentication completes.
  */
 import { useState } from 'react';
-import { login, register, saveToken, clearToken } from '../api/auth';
+import { login, register, resetPassword, saveToken, clearToken } from '../api/auth';
 import './AuthForm.css';
 
 type AuthFormProps = {
@@ -26,19 +26,29 @@ function EyeIcon({ visible }: { visible: boolean }) {
 }
 
 export default function AuthForm({ onAuthenticated }: AuthFormProps) {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot-password'>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
     try {
+      if (mode === 'forgot-password') {
+        const response = await resetPassword(username, password);
+        setSuccess(response.message);
+        setPassword('');
+        setMode('login');
+        return;
+      }
+
       const response = mode === 'login'
         ? await login(username, password)
         : await register(username, password);
@@ -52,10 +62,16 @@ export default function AuthForm({ onAuthenticated }: AuthFormProps) {
     }
   }
 
+  const isForgotPassword = mode === 'forgot-password';
+
   return (
     <div className="auth-shell">
-      <h2>{mode === 'login' ? 'Welcome back' : 'Create an account'}</h2>
-      <p>Use any username and password to start managing tasks.</p>
+      <h2>{mode === 'login' ? 'Welcome back' : mode === 'register' ? 'Create an account' : 'Reset your password'}</h2>
+      <p>
+        {isForgotPassword
+          ? 'Enter your username and choose a new password.'
+          : 'Use any username and password to start managing tasks.'}
+      </p>
 
       <form className="auth-form" onSubmit={handleSubmit}>
         <input
@@ -68,7 +84,7 @@ export default function AuthForm({ onAuthenticated }: AuthFormProps) {
         <div className="auth-password-field">
           <input
             type={showPassword ? 'text' : 'password'}
-            placeholder="Password"
+            placeholder={isForgotPassword ? 'New password' : 'Password'}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
@@ -86,26 +102,47 @@ export default function AuthForm({ onAuthenticated }: AuthFormProps) {
           </button>
         </div>
         {error && <div className="auth-error">{error}</div>}
+        {success && <div className="auth-success">{success}</div>}
         <button type="submit" className="auth-submit" disabled={loading}>
-          {loading ? 'Working...' : mode === 'login' ? 'Log in' : 'Create account'}
+          {loading
+            ? 'Working...'
+            : isForgotPassword
+              ? 'Reset password'
+              : mode === 'login'
+                ? 'Log in'
+                : 'Create account'}
         </button>
       </form>
 
       <div className="auth-toggle">
         {mode === 'login' ? (
           <span>
-            No account yet? <button type="button" onClick={() => setMode('register')}>Create one</button>
+            No account yet? <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('register'); }}>Create one</button>
+          </span>
+        ) : mode === 'register' ? (
+          <span>
+            Already have an account? <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('login'); }}>Log in</button>
           </span>
         ) : (
           <span>
-            Already have an account? <button type="button" onClick={() => setMode('login')}>Log in</button>
+            Remembered it? <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('login'); }}>Back to login</button>
           </span>
         )}
       </div>
 
+      {mode === 'login' && (
+        <div className="auth-toggle auth-subtle-link">
+          <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('forgot-password'); }}>
+            Forgot password?
+          </button>
+        </div>
+      )}
+
       <div className="auth-toggle">
         <button type="button" onClick={() => {
           clearToken();
+          setError(null);
+          setSuccess(null);
           onAuthenticated();
         }}>
           Continue without login

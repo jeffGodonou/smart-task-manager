@@ -68,6 +68,21 @@ export async function register(username: string, password: string): Promise<Auth
   return response.json();
 }
 
+export async function resetPassword(username: string, newPassword: string): Promise<{ message: string }> {
+  const response = await fetch(`${apiBaseUrl}/api/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, newPassword }),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Password reset failed');
+  }
+
+  return response.json();
+}
+
 export async function updateProfile(payload: UpdateProfileRequest): Promise<UpdateProfileResponse> {
   const headers = getAuthHeaders();
   if (!headers.Authorization) {

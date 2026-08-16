@@ -48,6 +48,7 @@ public class AuthController {
     public void registerRoutes(HttpServer server) {
         server.createContext(PREFIX + "/login", this::handleLogin);
         server.createContext(PREFIX + "/register", this::handleRegister);
+        server.createContext(PREFIX + "/forgot-password", this::handleForgotPassword);
         HttpContext profileContext = server.createContext(PREFIX + "/profile", this::handleProfileUpdate);
         profileContext.getFilters().add(new AuthFilter());
     }
@@ -157,6 +158,43 @@ public class AuthController {
 
             ex.printStackTrace();
             sendJson(exchange, 500, objectMapper.writeValueAsString(new ErrorResponse("Registration failed")));
+        }
+    }
+
+    private void handleForgotPassword(HttpExchange exchange) throws IOException {
+        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+            handleOptions(exchange);
+            return;
+        }
+
+        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendResponse(exchange, 405, "Method not allowed");
+            return;
+        }
+
+        try {
+            ForgotPasswordRequest request = readRequestBody(exchange.getRequestBody(), ForgotPasswordRequest.class);
+            if (request.username == null || request.username.isBlank()) {
+                sendResponse(exchange, 400, "username is required");
+                return;
+            }
+            if (request.newPassword == null || request.newPassword.isBlank()) {
+                sendResponse(exchange, 400, "newPassword is required");
+                return;
+            }
+
+            User user = userRepository.findByUsername(request.username).orElse(null);
+            if (user == null) {
+                sendResponse(exchange, 404, "No account found for that username.");
+                return;
+            }
+
+            user.setPasswordHash(PasswordUtil.hashPassword(request.newPassword.trim()));
+            userRepository.save(user);
+            sendJson(exchange, 200, objectMapper.writeValueAsString(new ResetPasswordResponse("Password reset successful. You can now log in with your new password.")));
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+            sendJson(exchange, 500, objectMapper.writeValueAsString(new ErrorResponse("Password reset failed")));
         }
     }
 
@@ -270,6 +308,11 @@ public class AuthController {
         public String newPassword;
     }
 
+    private static class ForgotPasswordRequest {
+        public String username;
+        public String newPassword;
+    }
+
     private static class AuthResponse {
         @JsonProperty("token")
         public final String token;
@@ -301,6 +344,15 @@ public class AuthController {
         public ProfileUpdateResponse(String username, String token) {
             this.username = username;
             this.token = token;
+        }
+    }
+
+    private static class ResetPasswordResponse {
+        @JsonProperty("message")
+        public final String message;
+
+        public ResetPasswordResponse(String message) {
+            this.message = message;
         }
     }
 }

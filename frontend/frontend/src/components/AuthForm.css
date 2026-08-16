@@ -112,10 +112,19 @@
   font-size: 0.9rem;
 }
 
+.auth-success {
+  color: #166534;
+  font-size: 0.9rem;
+}
+
 .auth-toggle {
   margin-top: 1rem;
   color: #6b7280;
   font-size: 0.95rem;
+}
+
+.auth-subtle-link {
+  margin-top: 0.75rem;
 }
 
 .auth-toggle button {
