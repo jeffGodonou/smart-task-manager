@@ -58,18 +58,29 @@ The API will be available at `http://localhost:8080`
 ./mvnw test
 ```
 
-## Persistence on Render
+## Persistence and Supabase
 
-To avoid task and user data resets after backend restarts, use a persistent database path instead of `jdbc:h2:mem`.
+For local development, the app can still use an H2 file database. For a durable deployed setup, use a shared PostgreSQL database such as Supabase.
 
-- `H2_JDBC_URL`: `jdbc:h2:file:/var/data/taskdb;AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE`
-- Render disk mount path: `/var/data`
+### Recommended production variables
 
-To keep login sessions valid across restarts, keep a stable JWT signing key.
+- `DATABASE_URL`: `jdbc:postgresql://<host>:5432/postgres?sslmode=require`
+- `DB_USERNAME`: your Supabase database user
+- `DB_PASSWORD`: your Supabase database password
+- `JWT_SECRET`: a stable long secret for signing tokens
 
-- Set `JWT_SECRET` in Render environment variables and keep it stable.
+The app now checks these environment variables first and automatically switches Hibernate to the PostgreSQL dialect and driver when `DATABASE_URL` is present.
 
-Without these settings, in-memory data can be lost on restart and existing tokens may point to users that no longer exist.
+### Safety notes for Supabase
+
+- Never commit the real database password or JWT secret to Git.
+- Use Supabase project secrets or Render environment variables instead of hardcoding them.
+- Keep SSL enabled (`sslmode=require`) for hosted services.
+- Restrict database access to the app and rotate credentials periodically.
+- Use Supabase Row Level Security (RLS) if you later expose the database directly to the frontend.
+- Keep the JWT secret stable across deploys so existing sessions do not become invalid unexpectedly.
+
+Without a durable database and a stable secret, user data and login tokens can disappear or break after restarts or redeploys.
  
 ---
  

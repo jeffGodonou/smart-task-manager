@@ -22,12 +22,49 @@ public class PersistanceManager {
             return DEFAULT_H2_URL;
         }
 
-        String jdbcUrl = environment.get("H2_JDBC_URL");
+        String jdbcUrl = firstNonBlank(
+                environment.get("DATABASE_URL"),
+                environment.get("SUPABASE_DB_URL"),
+                environment.get("POSTGRES_URL"),
+                environment.get("H2_JDBC_URL")
+        );
+
         if (jdbcUrl == null || jdbcUrl.isBlank()) {
             return DEFAULT_H2_URL;
         }
 
         return jdbcUrl;
+    }
+
+    public static String resolveJdbcDriver(String jdbcUrl) {
+        if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:postgresql")) {
+            return "org.postgresql.Driver";
+        }
+        return "org.h2.Driver";
+    }
+
+    public static String resolveHibernateDialect(String jdbcUrl) {
+        if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:postgresql")) {
+            return "org.hibernate.dialect.PostgreSQLDialect";
+        }
+        return "org.hibernate.dialect.H2Dialect";
+    }
+
+    public static String resolveJdbcUser(Map<String, String> environment) {
+        return firstNonBlank(environment.get("DB_USERNAME"), environment.get("POSTGRES_USER"), environment.get("SUPABASE_DB_USER"), "sa");
+    }
+
+    public static String resolveJdbcPassword(Map<String, String> environment) {
+        return firstNonBlank(environment.get("DB_PASSWORD"), environment.get("POSTGRES_PASSWORD"), environment.get("SUPABASE_DB_PASSWORD"), "");
+    }
+
+    private static String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        return null;
     }
 
     /**
@@ -37,9 +74,23 @@ public class PersistanceManager {
      */
     public static synchronized EntityManagerFactory getEmf() {
         if (emf == null) {
+            Map<String, String> environment = System.getenv();
             Map<String, String> overrides = new HashMap<>();
-            String jdbcUrl = resolveJdbcUrl(System.getenv());
+            String jdbcUrl = resolveJdbcUrl(environment);
             overrides.put("jakarta.persistence.jdbc.url", jdbcUrl);
+            overrides.put("jakarta.persistence.jdbc.driver", resolveJdbcDriver(jdbcUrl));
+            overrides.put("hibernate.dialect", resolveHibernateDialect(jdbcUrl));
+
+            String jdbcUser = resolveJdbcUser(environment);
+            if (jdbcUser != null) {
+                overrides.put("jakarta.persistence.jdbc.user", jdbcUser);
+            }
+
+            String jdbcPassword = resolveJdbcPassword(environment);
+            if (jdbcPassword != null) {
+                overrides.put("jakarta.persistence.jdbc.password", jdbcPassword);
+            }
+
             emf = Persistence.createEntityManagerFactory("task-manager-unit", overrides);
         }
         return emf;

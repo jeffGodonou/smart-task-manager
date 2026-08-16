@@ -81,11 +81,16 @@
             <version>6.4.5.Final</version>
         </dependency>
 
-        <!-- H2 -->
+        <!-- Database drivers -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>2.2.224</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.4</version>
         </dependency>
     </dependencies>
 
