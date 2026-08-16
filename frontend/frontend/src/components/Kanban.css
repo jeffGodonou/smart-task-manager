@@ -136,9 +136,31 @@
   background: #fff5f5;
 }
 
+.kanban-card--subtask {
+  border-left: 4px solid #8da9d6;
+  background: #f7faff;
+}
+
 .kanban-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   margin-bottom: 8px;
   min-height: 20px;
+}
+
+.kanban-subtask-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eef3ff;
+  color: #4169aa;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .kanban-card-title {

@@ -53,13 +53,14 @@ export default function KanbanCard({ task, onMove }: KanbanCardProps) {
   const formattedDate = formatDate(task.dueDate);
   const isDone        = currentStatus === 'DONE';
   const isUrgent      = isTaskUrgent(task);
+  const isSubtask     = Boolean(task.isSubtask || task.parentTaskId);
 
   const subtasks = task.subtasks ?? [];
   const completedSubtasks = subtasks.filter(st => st.isCompleted).length;
   const hasSubtasks = subtasks.length > 0;
 
   return (
-    <div className={`kanban-card ${isDone ? 'kanban-card--done' : ''} ${isUrgent ? 'kanban-card--urgent' : ''}`}>
+    <div className={`kanban-card ${isDone ? 'kanban-card--done' : ''} ${isUrgent ? 'kanban-card--urgent' : ''} ${isSubtask ? 'kanban-card--subtask' : ''}`}>
 
       {/* Priority badge + title */}
       <div className="kanban-card-header">
@@ -68,6 +69,7 @@ export default function KanbanCard({ task, onMove }: KanbanCardProps) {
             {task.status}
           </span>
         )}
+        {isSubtask && <span className="kanban-subtask-chip">Subtask</span>}
       </div>
 
       <div className={`kanban-card-title ${isDone ? 'kanban-card-title--done' : ''}`}>

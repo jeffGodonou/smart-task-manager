@@ -47,8 +47,21 @@ export default function KanbanBoard({ refreshKey = 0 }: KanbanBoardProps) {
     }
   };
 
+  const flattenTasks = (taskList: Task[]): Task[] =>
+    taskList.flatMap(task => {
+      const currentTask: Task = { ...task, isSubtask: Boolean(task.parentTaskId || task.isSubtask) };
+      const subtasks = (task.subtasks ?? []).map(subtask => ({
+        ...subtask,
+        parentTaskId: task.id,
+        isSubtask: true,
+      }));
+
+      return [currentTask, ...subtasks];
+    });
+
+  const visibleTasks = flattenTasks(tasks);
   const byStatus = (s: Task['status']) =>
-    tasks.filter(t => (t.status || 'TODO') === s);
+    visibleTasks.filter(t => (t.status || 'TODO') === s);
 
   const columns: { title: string; status: Task['status']; accent: string }[] = [
     { title: 'To Do',       status: 'TODO',        accent: '#1F4E79' },
