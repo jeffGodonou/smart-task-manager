@@ -52,6 +52,9 @@
 }
 
 .task-content {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr 100px; /* Title | Description | Due Date | Status | Actions */
+  align-items: center;
   flex: 1;
   min-width: 0;
   display: flex;
