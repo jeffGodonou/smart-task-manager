@@ -30,7 +30,7 @@ function getStoredTheme(): ThemeName {
 
 function App() {
   const [, setTasks] = React.useState<Task[]>([]);
-  const [view, setView] = React.useState<'list'|'kanban'|'calendar'|'stats'>('list');
+  const [view, setView] = React.useState<'list'|'kanban'|'calendar'|'stats'|'projects'>('list');
   const [isAuthenticated, setIsAuthenticated] = React.useState(Boolean(getStoredToken()));
   const [currentUsername, setCurrentUsername] = React.useState<string | null>(null);
   const [welcomeUser, setWelcomeUser] = React.useState<string | null>(null);
@@ -43,12 +43,17 @@ function App() {
   }, [theme]);
 
   const renderedView = view === 'list'
-             ? <TaskList onTasksChange={setTasks} refreshKey={tasksRefreshKey} />
+             ? <>
+                 <TaskEditor onTaskCreated={() => setTasksRefreshKey(prev => prev + 1)} />
+                 <TaskList onTasksChange={setTasks} refreshKey={tasksRefreshKey} />
+               </>
              : view === 'kanban'
                ? <KanbanBoard refreshKey={tasksRefreshKey} />
                : view === 'calendar'
                  ? <CalendarView refreshKey={tasksRefreshKey} />
-                 : <TaskStats refreshKey={tasksRefreshKey} />
+                 : view === 'stats'
+                   ? <TaskStats refreshKey={tasksRefreshKey} />
+                   : <ProjectView />
 
   if (!isAuthenticated) {
     return <AuthForm onAuthenticated={(username) => {
@@ -76,6 +81,7 @@ function App() {
               <button onClick={() => setView('kanban')} disabled={view==='kanban'}>Kanban</button>
               <button onClick={() => setView('calendar')} disabled={view==='calendar'}>Calendar</button>
               <button onClick={() => setView('stats')} disabled={view==='stats'}>Stats</button>
+              <button onClick={() => setView('projects')} disabled={view==='projects'}>Projects</button>
             </div>
             <ProfileMenu
               username={currentUsername}
@@ -100,8 +106,6 @@ function App() {
           <WelcomeMessage username={welcomeUser} onDismiss={() => setWelcomeUser(null)} />
         )}
         <main>
-          <ProjectView />
-          <TaskEditor onTaskCreated={() => setTasksRefreshKey(prev => prev + 1)} />
           {renderedView}
         </main>
       </div>
