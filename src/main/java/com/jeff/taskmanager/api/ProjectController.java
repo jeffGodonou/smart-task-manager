@@ -185,6 +185,13 @@ public class ProjectController {
     private void sendJson(HttpExchange exchange, int statusCode, String json) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+
+        if ("HEAD".equalsIgnoreCase(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(statusCode, -1);
+            exchange.close();
+            return;
+        }
+
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
         exchange.sendResponseHeaders(statusCode, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
@@ -195,6 +202,13 @@ public class ProjectController {
     private void sendResponse(HttpExchange exchange, int statusCode, String message) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+
+        if ("HEAD".equalsIgnoreCase(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(statusCode, -1);
+            exchange.close();
+            return;
+        }
+
         byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
         exchange.sendResponseHeaders(statusCode, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {

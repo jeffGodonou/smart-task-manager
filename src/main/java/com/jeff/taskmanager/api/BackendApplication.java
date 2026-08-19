@@ -69,6 +69,13 @@ public class BackendApplication {
     }
 
     private static void handleHealth(HttpExchange exchange) throws IOException {
+        if ("HEAD".equalsIgnoreCase(exchange.getRequestMethod())) {
+            exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+            exchange.sendResponseHeaders(200, -1);
+            exchange.close();
+            return;
+        }
+
         byte[] bytes = "ok".getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
         exchange.sendResponseHeaders(200, bytes.length);
@@ -82,6 +89,14 @@ public class BackendApplication {
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
             exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+
+        if ("HEAD".equalsIgnoreCase(exchange.getRequestMethod())) {
+            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            exchange.sendResponseHeaders(200, -1);
+            exchange.close();
             return;
         }
 

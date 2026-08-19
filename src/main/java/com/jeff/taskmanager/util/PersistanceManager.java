@@ -97,7 +97,6 @@ public class PersistanceManager {
             String jdbcUrl = resolveJdbcUrl(environment);
             overrides.put("jakarta.persistence.jdbc.url", jdbcUrl);
             overrides.put("jakarta.persistence.jdbc.driver", resolveJdbcDriver(jdbcUrl));
-            overrides.put("hibernate.dialect", resolveHibernateDialect(jdbcUrl));
 
             String jdbcUser = resolveJdbcUser(environment);
             if (jdbcUser != null) {
