@@ -28,4 +28,16 @@ class PersistanceManagerTest {
         assertTrue(url.contains("jdbc:postgresql://"), "Expected Supabase/Postgres JDBC URL when DATABASE_URL is configured");
         assertTrue(url.contains("sslmode=require"), "Expected SSL mode for Supabase");
     }
+
+    @Test
+    void resolveJdbcUrlAddsJdbcPrefixToPostgresUrlsWithoutIt() {
+        Map<String, String> env = Map.of(
+                "DATABASE_URL", "postgresql://postgres:secret@db.example.supabase.co:5432/postgres?sslmode=require"
+        );
+
+        String url = PersistanceManager.resolveJdbcUrl(env);
+
+        assertTrue(url.startsWith("jdbc:postgresql://"), "Expected a JDBC-formatted PostgreSQL URL");
+        assertTrue(url.contains("sslmode=require"), "Expected SSL mode for Supabase");
+    }
 }

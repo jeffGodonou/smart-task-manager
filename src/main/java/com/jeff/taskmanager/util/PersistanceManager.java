@@ -33,18 +33,36 @@ public class PersistanceManager {
             return DEFAULT_H2_URL;
         }
 
-        return jdbcUrl;
+        return normalizeJdbcUrl(jdbcUrl);
+    }
+
+    public static String normalizeJdbcUrl(String jdbcUrl) {
+        if (jdbcUrl == null || jdbcUrl.isBlank()) {
+            return DEFAULT_H2_URL;
+        }
+
+        String trimmed = jdbcUrl.trim();
+        if (trimmed.startsWith("jdbc:")) {
+            return trimmed;
+        }
+        if (trimmed.startsWith("postgresql://")) {
+            return "jdbc:" + trimmed;
+        }
+        if (trimmed.startsWith("postgres://")) {
+            return "jdbc:postgresql://" + trimmed.substring("postgres://".length());
+        }
+        return trimmed;
     }
 
     public static String resolveJdbcDriver(String jdbcUrl) {
-        if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:postgresql")) {
+        if (jdbcUrl != null && (jdbcUrl.startsWith("jdbc:postgresql") || jdbcUrl.startsWith("jdbc:postgres"))) {
             return "org.postgresql.Driver";
         }
         return "org.h2.Driver";
     }
 
     public static String resolveHibernateDialect(String jdbcUrl) {
-        if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:postgresql")) {
+        if (jdbcUrl != null && (jdbcUrl.startsWith("jdbc:postgresql") || jdbcUrl.startsWith("jdbc:postgres"))) {
             return "org.hibernate.dialect.PostgreSQLDialect";
         }
         return "org.hibernate.dialect.H2Dialect";
