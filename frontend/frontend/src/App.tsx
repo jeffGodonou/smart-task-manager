@@ -10,6 +10,7 @@ import TaskStats from './components/TaskStats';
 import AuthForm from './components/AuthForm';
 import WelcomeMessage from './components/WelcomeMessage';
 import ProfileMenu from './components/ProfileMenu';
+import ProjectView from './components/ProjectView';
 import { clearToken, getStoredToken, saveToken, updateProfile } from './api/auth';
 
 type ThemeName = 'light' | 'dark' | 'blue' | 'forest' | 'gray';
@@ -99,6 +100,7 @@ function App() {
           <WelcomeMessage username={welcomeUser} onDismiss={() => setWelcomeUser(null)} />
         )}
         <main>
+          <ProjectView />
           <TaskEditor onTaskCreated={() => setTasksRefreshKey(prev => prev + 1)} />
           {renderedView}
         </main>

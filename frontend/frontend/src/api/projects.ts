@@ -11,17 +11,22 @@ export type GitProject = {
   branch?: string;
 };
 
-export async function loadProject(): Promise<GitProject | null> {
+export async function loadProjects(): Promise<GitProject[]> {
   const headers = getAuthHeaders();
-  if (!headers.Authorization) return null;
+  if (!headers.Authorization) return [];
 
   const response = await fetch(base, { headers });
-  if (response.status === 404) return null;
+  if (response.status === 404) return [];
   if (!response.ok) {
     throw new Error(`Failed to load project: ${response.status}`);
   }
 
   const projects = await response.json() as GitProject[];
+  return Array.isArray(projects) ? projects : [];
+}
+
+export async function loadProject(): Promise<GitProject | null> {
+  const projects = await loadProjects();
   return projects.length > 0 ? projects[0] : null;
 }
 
