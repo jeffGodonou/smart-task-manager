@@ -2,9 +2,9 @@
 /* Styles for TaskRow component (single task row) */
   /*display: grid;
   grid-template-columns: 2fr 2fr 1fr 100px 110px; /* Title | Description | Due Date | Status | Actions 
-  align-items: center;*/
+  align-items: center;
   display: flex;
-  /*align-items: flex-start;*/
+  align-items: flex-start;*/
   gap: 12px;
   padding: 14px;
   background: white;
