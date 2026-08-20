@@ -65,69 +65,78 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
         aria-label={`Mark ${task.title} as ${task.isCompleted ? 'incomplete' : 'complete'}`}
       />
 
-      <div className="task-content">
+      <div className="task-content task-title-cell">
         <div className="task-title-row">
           <div className="task-title">{task.title}</div>
           {isPriority && <span className="task-priority-badge" title="Priority task">⭐ Priority</span>}
           {isSubtask && <span className="task-subtask-badge">Subtask</span>}
         </div>
+      </div>
 
-        {task.description && (
+      <div className="task-content task-description-cell">
+        {task.description ? (
           <div className="task-description">{task.description}</div>
+        ) : (
+          <span className="task-empty-cell">—</span>
         )}
+      </div>
 
-        {task.dueDate && (
-          <div
-            className={`task-due-date ${isUrgent ? 'task-due-date--urgent' : ''}`}
-          >
+      <div className={`task-content task-due-date-cell ${isUrgent ? 'task-due-date-cell--urgent' : ''}`}>
+        {task.dueDate ? (
+          <div className={`task-due-date ${isUrgent ? 'task-due-date--urgent' : ''}`}>
             {task.dueDate}
           </div>
+        ) : (
+          <span className="task-empty-cell">—</span>
         )}
+      </div>
+
+      <div className="task-content task-status-cell">
+        <div className="task-status-inline">
+          <span className={`task-status-pill task-status-pill--${normalizedStatus.toLowerCase()}`}>
+            {displayStatus}
+          </span>
+        </div>
 
         {hasSubtasks && !isSubtask && (
           <div className="task-subtask-info">
             {completedCount}/{totalCount} subtasks
           </div>
         )}
-
-        <div className="task-status-inline">
-          <span className={`task-status-pill task-status-pill--${normalizedStatus.toLowerCase()}`}>
-            {displayStatus}
-          </span>
-        </div>
-      
-
-      <div className="task-row-actions">
-        <div className="task-action-button-wrapper">
-          <button
-            className="task-open"
-            onClick={() => onOpen(task)}
-            onMouseEnter={() => showTooltip('open')}
-            onMouseLeave={hideTooltip}
-            aria-label={`Open ${task.title}`}
-          >
-            ✎
-          </button>
-          {openTooltip === 'open' && (
-            <div className="task-tooltip">Open task details</div>
-          )}
-        </div>
-
-        <div className="task-action-button-wrapper">
-          <button
-            className="task-delete"
-            onClick={() => onDelete(task)}
-            onMouseEnter={() => showTooltip('delete')}
-            onMouseLeave={hideTooltip}
-            aria-label={`Delete ${task.title}`}
-          >
-            🗑
-          </button>
-          {openTooltip === 'delete' && (
-            <div className="task-tooltip">Delete task</div>
-          )}
-        </div>
       </div>
+
+      <div className="task-content task-actions-cell">
+        <div className="task-row-actions">
+          <div className="task-action-button-wrapper">
+            <button
+              className="task-open"
+              onClick={() => onOpen(task)}
+              onMouseEnter={() => showTooltip('open')}
+              onMouseLeave={hideTooltip}
+              aria-label={`Open ${task.title}`}
+            >
+              ✎
+            </button>
+            {openTooltip === 'open' && (
+              <div className="task-tooltip">Open task details</div>
+            )}
+          </div>
+
+          <div className="task-action-button-wrapper">
+            <button
+              className="task-delete"
+              onClick={() => onDelete(task)}
+              onMouseEnter={() => showTooltip('delete')}
+              onMouseLeave={hideTooltip}
+              aria-label={`Delete ${task.title}`}
+            >
+              🗑
+            </button>
+            {openTooltip === 'delete' && (
+              <div className="task-tooltip">Delete task</div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

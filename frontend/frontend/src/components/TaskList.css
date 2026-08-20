@@ -58,10 +58,11 @@
 
 .task-list-header {
   display: grid;
-  grid-template-columns: 2fr 2fr 1fr 100px 110px;
+  grid-template-columns: 20px minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr) 100px 110px;
   background: #F9FAFB;
   border-bottom: 1px solid #E5E7EB;
   padding: 0 16px;
+  align-items: center;
 }
 
 .task-list-header span {
@@ -71,6 +72,11 @@
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: #9CA3AF;
+}
+
+.task-list-header-spacer {
+  display: block;
+  width: 100%;
 }
 
 /* ─── States ────────────────────────────────────────────────────────────── */

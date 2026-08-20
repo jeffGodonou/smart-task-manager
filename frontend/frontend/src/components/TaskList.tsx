@@ -186,6 +186,7 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
         <div className="task-list">
           {/* Table header */}
           <div className="task-list-header">
+            <span className="task-list-header-spacer" aria-hidden="true" />
             <span>Title</span>
             <span>Description</span>
             <span>Due date</span>
