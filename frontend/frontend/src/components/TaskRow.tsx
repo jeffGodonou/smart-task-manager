@@ -95,7 +95,7 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
             {displayStatus}
           </span>
         </div>
-      </div>
+      
 
       <div className="task-row-actions">
         <div className="task-action-button-wrapper">
@@ -127,6 +127,7 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
             <div className="task-tooltip">Delete task</div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
