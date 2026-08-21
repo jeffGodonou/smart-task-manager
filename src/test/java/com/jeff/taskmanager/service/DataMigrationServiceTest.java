@@ -6,14 +6,10 @@ import com.jeff.taskmanager.repository.TaskRepository;
 import com.jeff.taskmanager.repository.UserRepository;
 import com.jeff.taskmanager.util.PersistanceManager;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
