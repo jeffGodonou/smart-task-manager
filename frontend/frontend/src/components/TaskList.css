@@ -58,7 +58,7 @@
 
 .task-list-header {
   display: grid;
-  grid-template-columns: 20px minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr) 100px 110px;
+  grid-template-columns: 20px minmax(0, 2.1fr) minmax(0, 2.2fr) minmax(0, 1.1fr) minmax(90px, 1fr) 110px;
   background: #F9FAFB;
   border-bottom: 1px solid #E5E7EB;
   padding: 0 16px;
