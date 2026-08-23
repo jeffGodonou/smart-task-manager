@@ -2,6 +2,37 @@ const tokenStorageKey = 'smart-task-manager-token';
 
 const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const payloadPart = token.split('.')[1];
+    if (!payloadPart) return null;
+
+    const normalized = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+    const decoded = typeof window !== 'undefined' && 'atob' in window
+      ? window.atob(padded)
+      : Buffer.from(padded, 'base64').toString('utf8');
+
+    const parsed = JSON.parse(decoded);
+    return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
+  } catch {
+    return null;
+  }
+}
+
+function isTokenValid(token: string | null): boolean {
+  if (!token || token.split('.').length !== 3) {
+    return false;
+  }
+
+  const payload = decodeJwtPayload(token);
+  if (!payload || typeof payload.exp !== 'number') {
+    return false;
+  }
+
+  return payload.exp * 1000 > Date.now();
+}
+
 export type AuthResponse = {
   token: string;
 };
@@ -18,6 +49,11 @@ export type UpdateProfileResponse = {
 };
 
 export function saveToken(token: string) {
+  if (!isTokenValid(token)) {
+    clearToken();
+    return;
+  }
+
   localStorage.setItem(tokenStorageKey, token);
 }
 
@@ -26,7 +62,14 @@ export function clearToken() {
 }
 
 export function getStoredToken() {
-  return localStorage.getItem(tokenStorageKey);
+  const token = localStorage.getItem(tokenStorageKey);
+  if (!isTokenValid(token)) {
+    if (token) {
+      clearToken();
+    }
+    return null;
+  }
+  return token;
 }
 
 export function getAuthHeaders(): Record<string, string> {
