@@ -1,4 +1,4 @@
-import { getAuthHeaders } from './auth';
+import { clearToken, getAuthHeaders } from './auth';
 
 const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 const base = `${apiBaseUrl}/api/projects`;
@@ -17,6 +17,10 @@ export async function loadProjects(): Promise<GitProject[]> {
 
   const response = await fetch(base, { headers });
   if (response.status === 404) return [];
+  if (response.status === 401) {
+    clearToken();
+    throw new Error('Your session expired. Please log in again.');
+  }
   if (!response.ok) {
     throw new Error(`Failed to load project: ${response.status}`);
   }
@@ -51,6 +55,11 @@ export async function saveProject(project: GitProject): Promise<GitProject> {
       branch: project.branch?.trim() || 'main',
     }),
   });
+
+  if (response.status === 401) {
+    clearToken();
+    throw new Error('Your session expired. Please log in again.');
+  }
 
   if (!response.ok) {
     const message = await response.text();
