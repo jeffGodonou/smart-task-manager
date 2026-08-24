@@ -9,9 +9,7 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 
     const normalized = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
     const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
-    const decoded = typeof window !== 'undefined' && 'atob' in window
-      ? window.atob(padded)
-      : Buffer.from(padded, 'base64').toString('utf8');
+    const decoded = typeof atob === 'function' ? atob(padded) : '';
 
     const parsed = JSON.parse(decoded);
     return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
