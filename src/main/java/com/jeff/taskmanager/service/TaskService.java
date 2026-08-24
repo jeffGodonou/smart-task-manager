@@ -1,7 +1,9 @@
 package com.jeff.taskmanager.service;
 
+import com.jeff.taskmanager.model.Project;
 import com.jeff.taskmanager.model.Task;
 import com.jeff.taskmanager.model.User;
+import com.jeff.taskmanager.repository.ProjectRepository;
 import com.jeff.taskmanager.repository.TaskRepository;
 import com.jeff.taskmanager.repository.UserRepository;
 
@@ -21,12 +23,13 @@ public class TaskService {
     private static final int MAX_SUBTASKS_PER_TASK = 4;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
 
     /**
      * Construct a TaskService with default repository implementations.
      */
     public TaskService() {
-        this(new TaskRepository(), new UserRepository());
+        this(new TaskRepository(), new UserRepository(), new ProjectRepository());
     }
 
     /**
@@ -36,8 +39,13 @@ public class TaskService {
      * @param userRepository repository used for user lookup
      */
     public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
+        this(taskRepository, userRepository, new ProjectRepository());
+    }
+
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, ProjectRepository projectRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.projectRepository = projectRepository;
     }
 
     /**
@@ -51,6 +59,9 @@ public class TaskService {
     public Task addTask(Task task, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown user"));
+        if (task != null) {
+            validateProjectAssignment(task, username);
+        }
         task.setOwner(user);
         validateAndNormalizeTaskRules(task);
         return taskRepository.save(task);
@@ -98,6 +109,12 @@ public class TaskService {
         return taskRepository.findByIdAndUser(id, username)
                 .map(existing -> {
                     source.setOwner(existing.getOwner());
+                    if (source.getProjectId() != null) {
+                        validateProjectAssignment(source, username);
+                        existing.setProject(source.getProject());
+                    } else {
+                        existing.setProject(null);
+                    }
                     validateAndNormalizeTaskRules(source);
                     existing.setTitle(source.getTitle());
                     existing.setDescription(source.getDescription());
@@ -110,6 +127,18 @@ public class TaskService {
                     existing.setStatus(source.getStatus());
                     return taskRepository.save(existing);
                 }).orElse(null);
+    }
+
+    private void validateProjectAssignment(Task task, String username) {
+        if (task == null || task.getProjectId() == null) {
+            return;
+        }
+
+        Project project = projectRepository.findById(task.getProjectId()).orElse(null);
+        if (project == null || project.getOwner() == null || !username.equalsIgnoreCase(project.getOwner().getUsername())) {
+            throw new IllegalArgumentException("Project does not belong to this user.");
+        }
+        task.setProject(project);
     }
 
     private void validateAndNormalizeTaskRules(Task task) {
