@@ -2,8 +2,9 @@ import { useForm } from "react-hook-form";
 import { taskSchema, type TaskFormData } from "../validation/taskSchema";
 import { useTaskStore } from "../store/TaskStore";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { loadProject } from '../api/projects';
 import './TaskEditor.css';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * TaskEditor Component
@@ -20,9 +21,18 @@ export default function TaskEditor({ onTaskCreated }: TaskEditorProps) {
   const addTask   = useTaskStore(state => state.addTask);
   const error     = useTaskStore(state => state.error);
   const fetchTasks = useTaskStore(state => state.fetchTasks);
+  const [projectId, setProjectId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTasks();
+    void (async () => {
+      try {
+        const project = await loadProject();
+        setProjectId(project?.id ?? null);
+      } catch {
+        setProjectId(null);
+      }
+    })();
   }, [fetchTasks]);
 
   const {
@@ -39,6 +49,7 @@ export default function TaskEditor({ onTaskCreated }: TaskEditorProps) {
       title: data.title.trim(),
       description: data.description?.trim() || undefined,
       dueDate: data.dueDate || undefined,
+      projectId: projectId ?? null,
       isCompleted: false,
       status: 'TODO' as const,
     };
