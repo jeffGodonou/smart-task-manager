@@ -130,8 +130,12 @@ public class TaskController {
         } catch (TaskRuleViolationException ex) {
             sendResponse(exchange, 409, ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            // Happens when token subject does not map to a persisted user (e.g., DB reset).
-            sendResponse(exchange, 401, "Unknown user. Please log in again.");
+            String message = ex.getMessage() == null ? "Invalid task request" : ex.getMessage();
+            if (message.startsWith("Unknown user")) {
+                sendResponse(exchange, 401, message);
+                return;
+            }
+            sendResponse(exchange, 400, message);
         }
     }
 
@@ -157,6 +161,9 @@ public class TaskController {
             sendJson(exchange, 200, objectMapper.writeValueAsString(updated));
         } catch (TaskRuleViolationException ex) {
             sendResponse(exchange, 409, ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            String message = ex.getMessage() == null ? "Invalid task request" : ex.getMessage();
+            sendResponse(exchange, 400, message);
         }
     }
 
