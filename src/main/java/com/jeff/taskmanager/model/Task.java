@@ -38,6 +38,11 @@ public class Task {
     @JsonIgnore
     private User owner;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    @JsonIgnore
+    private Project project;
+
     private String title;
     
     @Column(length = 2000)
@@ -195,6 +200,31 @@ public class Task {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    @JsonProperty("projectId")
+    public Long getProjectId() {
+        return project == null ? null : project.getId();
+    }
+
+    public void setProjectId(Long projectId) {
+        if (projectId == null) {
+            this.project = null;
+            return;
+        }
+        if (this.project == null || !projectId.equals(this.project.getId())) {
+            Project reference = new Project();
+            reference.setId(projectId);
+            this.project = reference;
+        }
     }
 
     public void setPriority(String priority) {
