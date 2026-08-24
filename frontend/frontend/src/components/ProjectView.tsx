@@ -1,5 +1,6 @@
 import React from 'react';
 import { loadProjects, saveProject, type GitProject } from '../api/projects';
+import { createTask } from '../api/tasks';
 
 const emptyDraft: Omit<GitProject, 'id'> = {
   name: '',
@@ -11,6 +12,7 @@ const emptyDraft: Omit<GitProject, 'id'> = {
 export default function ProjectView() {
   const [projects, setProjects] = React.useState<GitProject[]>([]);
   const [draft, setDraft] = React.useState<Omit<GitProject, 'id'>>(emptyDraft);
+  const [quickTaskDrafts, setQuickTaskDrafts] = React.useState<Record<string, string>>({});
   const [error, setError] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
@@ -61,6 +63,29 @@ export default function ProjectView() {
       setError(err instanceof Error ? err.message : 'Unable to save project.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleCreateTaskForProject = async (project: GitProject) => {
+    const key = project.id ?? project.name;
+    const title = quickTaskDrafts[key]?.trim();
+    if (!title) {
+      setError(`Please enter a task title for ${project.name}.`);
+      return;
+    }
+
+    try {
+      setError(null);
+      await createTask({
+        title,
+        description: undefined,
+        projectId: project.id ?? null,
+        isCompleted: false,
+        status: 'TODO',
+      });
+      setQuickTaskDrafts((current) => ({ ...current, [key]: '' }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Unable to create a task for ${project.name}.`);
     }
   };
 
@@ -124,30 +149,62 @@ export default function ProjectView() {
 
       {error && <p className="task-error" style={{ marginTop: '12px' }}>{error}</p>}
 
-      <div className="project-view-list" style={{ marginTop: '18px', display: 'grid', gap: '12px' }}>
-        {loading ? (
-          <p>Loading projects…</p>
-        ) : projects.length === 0 ? (
-          <p>No projects added yet.</p>
-        ) : (
-          projects.map((project) => (
-            <div key={project.id ?? project.name} className="project-card" style={{
-              border: '1px solid var(--border)',
-              background: 'var(--surface)',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '6px',
-            }}>
-              <strong>{project.name}</strong>
-              <span>{project.repositoryUrl ? `Repo: ${project.repositoryUrl}` : 'Local project only'}</span>
-              {project.localPath && <span>Path: {project.localPath}</span>}
-              {project.branch && <span>Branch: {project.branch}</span>}
-            </div>
-          ))
-        )}
-      </div>
+      {loading ? (
+        <p>Loading projects…</p>
+      ) : projects.length === 0 ? (
+        <p>No projects added yet.</p>
+      ) : (
+        <div style={{ marginTop: '18px', overflowX: 'auto' }}>
+          <table role="table" style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--surface)', border: '1px solid var(--border)' }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Project</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Repository / Path</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Branch</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Task</th>
+              </tr>
+            </thead>
+            <tbody>
+              {projects.map((project) => {
+                const key = project.id ?? project.name;
+                return (
+                  <tr key={key} style={{ borderTop: '1px solid var(--border)' }}>
+                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                      <strong>{project.name}</strong>
+                    </td>
+                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                      {project.repositoryUrl ? project.repositoryUrl : project.localPath || '—'}
+                    </td>
+                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                      {project.branch || 'main'}
+                    </td>
+                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <input
+                          aria-label={`Task title for ${project.name}`}
+                          type="text"
+                          value={quickTaskDrafts[key] ?? ''}
+                          onChange={(event) => setQuickTaskDrafts((current) => ({ ...current, [key]: event.target.value }))}
+                          placeholder="Task title"
+                          style={{ minWidth: '180px', flex: '1 1 180px' }}
+                        />
+                        <button
+                          type="button"
+                          className="task-editor-submit"
+                          aria-label={`Create task for ${project.name}`}
+                          onClick={() => void handleCreateTaskForProject(project)}
+                        >
+                          Create task
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }
