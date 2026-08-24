@@ -33,7 +33,11 @@ public class BackendApplication {
         DataMigrationService.runMigrations();
         
         UserRepository userRepository = new UserRepository();
-        TaskService taskService = new TaskService(new com.jeff.taskmanager.repository.TaskRepository(), userRepository);
+        TaskService taskService = new TaskService(
+                new com.jeff.taskmanager.repository.TaskRepository(),
+                userRepository,
+                new com.jeff.taskmanager.repository.ProjectRepository()
+        );
 
         // Register authentication routes
         AuthController authController = new AuthController(userRepository);
