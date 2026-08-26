@@ -15,9 +15,10 @@ import { useEffect, useState } from "react";
 
 type TaskEditorProps = {
   onTaskCreated?: () => void;
+  onClose?: () => void;
 };
 
-export default function TaskEditor({ onTaskCreated }: TaskEditorProps) {
+export default function TaskEditor({ onTaskCreated, onClose }: TaskEditorProps) {
   const addTask   = useTaskStore(state => state.addTask);
   const error     = useTaskStore(state => state.error);
   const fetchTasks = useTaskStore(state => state.fetchTasks);
@@ -49,7 +50,7 @@ export default function TaskEditor({ onTaskCreated }: TaskEditorProps) {
       title: data.title.trim(),
       description: data.description?.trim() || undefined,
       dueDate: data.dueDate || undefined,
-      projectId: projectId ?? null,
+      projectId: projectId && projectId.trim() ? projectId : null,
       isCompleted: false,
       status: 'TODO' as const,
     };
@@ -59,6 +60,7 @@ export default function TaskEditor({ onTaskCreated }: TaskEditorProps) {
       reset();
       await fetchTasks();
       onTaskCreated?.();
+      onClose?.();
     } catch {
       // Keep form values when create fails so the user can correct and retry.
     }
@@ -67,7 +69,14 @@ export default function TaskEditor({ onTaskCreated }: TaskEditorProps) {
   return (
     <form className="task-editor" onSubmit={handleSubmit(onSubmit)}>
 
-      <p className="task-editor-section-label">Add a new task</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+        <p className="task-editor-section-label" style={{ margin: 0 }}>Add a new task</p>
+        {onClose && (
+          <button type="button" onClick={onClose} aria-label="Close task form" style={{ border: 'none', background: 'transparent', fontSize: '1.25rem', cursor: 'pointer' }}>
+            ×
+          </button>
+        )}
+      </div>
 
       {error && <p className="task-editor-error">{error}</p>}
 

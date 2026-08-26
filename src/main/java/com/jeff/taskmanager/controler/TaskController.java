@@ -136,6 +136,8 @@ public class TaskController {
                 return;
             }
             sendResponse(exchange, 400, message);
+        } catch (IOException ex) {
+            sendResponse(exchange, 400, "Invalid task payload");
         }
     }
 
@@ -164,6 +166,8 @@ public class TaskController {
         } catch (IllegalArgumentException ex) {
             String message = ex.getMessage() == null ? "Invalid task request" : ex.getMessage();
             sendResponse(exchange, 400, message);
+        } catch (IOException ex) {
+            sendResponse(exchange, 400, "Invalid task payload");
         }
     }
 
