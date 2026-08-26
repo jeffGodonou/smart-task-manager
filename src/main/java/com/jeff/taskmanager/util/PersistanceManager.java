@@ -22,18 +22,41 @@ public class PersistanceManager {
             return DEFAULT_H2_URL;
         }
 
+        String h2Url = firstNonBlank(environment.get("H2_JDBC_URL"), DEFAULT_H2_URL);
+        if (!isPostgresEnabled(environment)) {
+            return normalizeJdbcUrl(h2Url);
+        }
+
         String jdbcUrl = firstNonBlank(
                 environment.get("DATABASE_URL"),
                 environment.get("SUPABASE_DB_URL"),
-                environment.get("POSTGRES_URL"),
-                environment.get("H2_JDBC_URL")
+                environment.get("POSTGRES_URL")
         );
 
         if (jdbcUrl == null || jdbcUrl.isBlank()) {
-            return DEFAULT_H2_URL;
+            return normalizeJdbcUrl(h2Url);
         }
 
         return normalizeJdbcUrl(jdbcUrl);
+    }
+
+    private static boolean isPostgresEnabled(Map<String, String> environment) {
+        String postgresFlag = firstNonBlank(
+                environment.get("USE_POSTGRES_DB"),
+                environment.get("USE_POSTGRES"),
+                environment.get("ENABLE_POSTGRES_DB"),
+                environment.get("POSTGRES_ENABLED")
+        );
+
+        if (postgresFlag == null) {
+            return false;
+        }
+
+        String normalized = postgresFlag.trim().toLowerCase();
+        return "true".equals(normalized)
+                || "1".equals(normalized)
+                || "yes".equals(normalized)
+                || "on".equals(normalized);
     }
 
     public static String normalizeJdbcUrl(String jdbcUrl) {
