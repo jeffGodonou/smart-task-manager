@@ -23,7 +23,7 @@ public class PersistanceManager {
         }
 
         String h2Url = firstNonBlank(environment.get("H2_JDBC_URL"), DEFAULT_H2_URL);
-        if (!isPostgresEnabled(environment)) {
+        if (isLocalH2Requested(environment)) {
             return normalizeJdbcUrl(h2Url);
         }
 
@@ -40,19 +40,19 @@ public class PersistanceManager {
         return normalizeJdbcUrl(jdbcUrl);
     }
 
-    private static boolean isPostgresEnabled(Map<String, String> environment) {
-        String postgresFlag = firstNonBlank(
-                environment.get("USE_POSTGRES_DB"),
-                environment.get("USE_POSTGRES"),
-                environment.get("ENABLE_POSTGRES_DB"),
-                environment.get("POSTGRES_ENABLED")
+    private static boolean isLocalH2Requested(Map<String, String> environment) {
+        String h2Flag = firstNonBlank(
+                environment.get("USE_H2_DB"),
+                environment.get("USE_H2"),
+                environment.get("ENABLE_H2_DB"),
+                environment.get("H2_ENABLED")
         );
 
-        if (postgresFlag == null) {
+        if (h2Flag == null) {
             return false;
         }
 
-        String normalized = postgresFlag.trim().toLowerCase();
+        String normalized = h2Flag.trim().toLowerCase();
         return "true".equals(normalized)
                 || "1".equals(normalized)
                 || "yes".equals(normalized)
