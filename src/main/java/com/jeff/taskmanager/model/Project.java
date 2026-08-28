@@ -23,6 +23,9 @@ public class Project {
     @Column(name = "repository_url")
     private String repositoryUrl;
 
+    @Column(name = "github_account")
+    private String githubAccount;
+
     @Column(name = "local_path")
     private String localPath;
 
@@ -62,6 +65,14 @@ public class Project {
 
     public void setRepositoryUrl(String repositoryUrl) {
         this.repositoryUrl = repositoryUrl;
+    }
+
+    public String getGithubAccount() {
+        return githubAccount;
+    }
+
+    public void setGithubAccount(String githubAccount) {
+        this.githubAccount = githubAccount == null || githubAccount.isBlank() ? null : githubAccount.trim();
     }
 
     public String getLocalPath() {
