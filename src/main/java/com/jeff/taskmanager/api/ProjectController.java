@@ -124,12 +124,15 @@ public class ProjectController {
 
         String name = payload.getName() == null ? "" : payload.getName().trim();
         String repositoryUrl = payload.getRepositoryUrl() == null ? "" : payload.getRepositoryUrl().trim();
+        String githubAccount = payload.getGithubAccount() == null ? "" : payload.getGithubAccount().trim();
         String localPath = payload.getLocalPath() == null ? "" : payload.getLocalPath().trim();
 
         if (name.isBlank() || (repositoryUrl.isBlank() && localPath.isBlank())) {
             sendResponse(exchange, 400, "Project name and at least one of repository URL or local path are required");
             return;
         }
+
+        payload.setGithubAccount(githubAccount);
 
         User owner = userRepository.findByUsername(username).orElse(null);
         if (owner == null) {
@@ -166,6 +169,9 @@ public class ProjectController {
         }
         if (payload.getRepositoryUrl() != null) {
             existing.setRepositoryUrl(payload.getRepositoryUrl().trim());
+        }
+        if (payload.getGithubAccount() != null) {
+            existing.setGithubAccount(payload.getGithubAccount());
         }
         if (payload.getLocalPath() != null) {
             existing.setLocalPath(payload.getLocalPath().trim());

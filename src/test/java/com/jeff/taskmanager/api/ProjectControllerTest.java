@@ -19,6 +19,7 @@ class ProjectControllerTest {
         Project project = new Project();
         project.setName("smart-task-manager");
         project.setRepositoryUrl("https://github.com/example/smart-task-manager.git");
+        project.setGithubAccount("example");
         project.setBranch("main");
         project.setLocalPath("/workspace/smart-task-manager");
         project.setOwner(user);
@@ -29,6 +30,7 @@ class ProjectControllerTest {
         assertEquals(1, saved.size());
         assertEquals("smart-task-manager", saved.get(0).getName());
         assertEquals("https://github.com/example/smart-task-manager.git", saved.get(0).getRepositoryUrl());
+        assertEquals("example", saved.get(0).getGithubAccount());
     }
 
     private static class InMemoryProjectRepository extends ProjectRepository {
