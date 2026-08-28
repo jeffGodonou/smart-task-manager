@@ -51,6 +51,7 @@ export default function ProjectView() {
         ...draft,
         name: trimmedName,
         repositoryUrl: trimmedRepo,
+        githubAccount: draft.githubAccount?.trim() ?? '',
         localPath: trimmedLocalPath,
         branch: draft.branch?.trim() || 'main',
       });
@@ -119,6 +120,18 @@ export default function ProjectView() {
         </div>
 
         <div className="task-editor-field">
+          <label htmlFor="project-github-account">GitHub account</label>
+          <input
+            id="project-github-account"
+            className="task-editor-input"
+            type="text"
+            value={draft.githubAccount ?? ''}
+            onChange={(event) => setDraft((current) => ({ ...current, githubAccount: event.target.value }))}
+            placeholder="octocat"
+          />
+        </div>
+
+        <div className="task-editor-field">
           <label htmlFor="project-local-path">Local folder path</label>
           <input
             id="project-local-path"
@@ -174,6 +187,7 @@ export default function ProjectView() {
                     </td>
                     <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
                       {project.repositoryUrl ? project.repositoryUrl : project.localPath || '—'}
+                      {project.githubAccount ? <div style={{ marginTop: '6px', color: 'var(--muted)' }}>GitHub: {project.githubAccount}</div> : null}
                     </td>
                     <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
                       {project.branch || 'main'}

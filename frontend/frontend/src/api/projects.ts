@@ -7,6 +7,7 @@ export type GitProject = {
   id?: string;
   name: string;
   repositoryUrl?: string;
+  githubAccount?: string;
   localPath?: string;
   branch?: string;
 };
@@ -51,6 +52,7 @@ export async function saveProject(project: GitProject): Promise<GitProject> {
       ...project,
       name: project.name.trim(),
       repositoryUrl: project.repositoryUrl?.trim() ?? '',
+      githubAccount: project.githubAccount?.trim() ?? '',
       localPath: project.localPath?.trim() ?? '',
       branch: project.branch?.trim() || 'main',
     }),

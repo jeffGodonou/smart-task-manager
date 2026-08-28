@@ -41,6 +41,7 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
   const [projectFormOpen, setProjectFormOpen] = React.useState(false);
   const [projectName, setProjectName] = React.useState('');
   const [repositoryUrl, setRepositoryUrl] = React.useState('');
+  const [githubAccount, setGithubAccount] = React.useState('');
   const [localPath, setLocalPath] = React.useState('');
   const [branch, setBranch] = React.useState('main');
   const [projectError, setProjectError] = React.useState<string | null>(null);
@@ -58,6 +59,7 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
         if (project) {
           setProjectName(project.name ?? '');
           setRepositoryUrl(project.repositoryUrl ?? '');
+          setGithubAccount(project.githubAccount ?? '');
           setLocalPath(project.localPath ?? '');
           setBranch(project.branch ?? 'main');
         }
@@ -196,6 +198,7 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
                       await saveProject({
                         name: trimmedName,
                         repositoryUrl: trimmedRepo,
+                        githubAccount: githubAccount.trim(),
                         localPath: trimmedLocalPath,
                         branch: branch.trim() || 'main',
                       } as GitProject);
@@ -225,6 +228,16 @@ export default function ProfileMenu({ username, onUpdateProfile, theme, onThemeC
                     value={repositoryUrl}
                     onChange={(event) => setRepositoryUrl(event.target.value)}
                     placeholder="https://github.com/user/repo.git"
+                  />
+
+                  <label className="profile-menu__label" htmlFor="project-github-account">GitHub account</label>
+                  <input
+                    id="project-github-account"
+                    className="profile-menu__input"
+                    type="text"
+                    value={githubAccount}
+                    onChange={(event) => setGithubAccount(event.target.value)}
+                    placeholder="octocat"
                   />
 
                   <label className="profile-menu__label" htmlFor="project-local-path">Local folder path</label>
