@@ -362,9 +362,13 @@ public class AuthController {
         @JsonProperty("token")
         public final String token;
 
-        public ProfileUpdateResponse(String username, String token) {
+        @JsonProperty("githubLogin")
+        public final String githubLogin;
+
+        public ProfileUpdateResponse(String username, String token, String githubLogin) {
             this.username = username;
             this.token = token;
+            this.githubLogin = githubLogin;
         }
     }
 

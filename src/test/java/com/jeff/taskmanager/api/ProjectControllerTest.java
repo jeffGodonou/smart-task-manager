@@ -33,6 +33,14 @@ class ProjectControllerTest {
         assertEquals("example", saved.get(0).getGithubAccount());
     }
 
+    @Test
+    void storesGithubLoginOnUserProfile() {
+        User user = new User("alice", PasswordUtil.hashPassword("secret"));
+        user.setGithubLogin("octocat");
+
+        assertEquals("octocat", user.getGithubLogin());
+    }
+
     private static class InMemoryProjectRepository extends ProjectRepository {
         private final java.util.Map<Long, Project> store = new java.util.LinkedHashMap<>();
 
