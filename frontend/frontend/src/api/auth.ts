@@ -39,11 +39,13 @@ export type UpdateProfileRequest = {
   username?: string;
   currentPassword?: string;
   newPassword?: string;
+  githubLogin?: string;
 };
 
 export type UpdateProfileResponse = {
   username: string;
   token: string;
+  githubLogin?: string | null;
 };
 
 export function saveToken(token: string) {
@@ -142,4 +144,24 @@ export async function updateProfile(payload: UpdateProfileRequest): Promise<Upda
   }
 
   return response.json();
+}
+
+export function startGithubConnectFlow() {
+  const width = 520;
+  const height = 720;
+  const left = window.screenX + (window.innerWidth - width) / 2;
+  const top = window.screenY + (window.innerHeight - height) / 2;
+
+  const githubAuthorizeUrl = 'https://github.com/login/oauth/authorize?client_id=github-client-id&scope=read:user';
+  const popup = window.open(
+    githubAuthorizeUrl,
+    'github-connect',
+    `width=${width},height=${height},left=${left},top=${top}`,
+  );
+
+  if (!popup) {
+    throw new Error('GitHub sign-in was blocked by the browser. Please allow popups and try again.');
+  }
+
+  return popup;
 }
