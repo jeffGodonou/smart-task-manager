@@ -25,6 +25,9 @@ public class User {
     @Column(nullable = false)
     private String passwordHash;
 
+    @Column(name = "github_login")
+    private String githubLogin;
+
     public User() {}
 
     public User(String username, String passwordHash) {
@@ -54,5 +57,13 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public String getGithubLogin() {
+        return githubLogin;
+    }
+
+    public void setGithubLogin(String githubLogin) {
+        this.githubLogin = githubLogin == null || githubLogin.isBlank() ? null : githubLogin.trim();
     }
 }
