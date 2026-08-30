@@ -229,12 +229,14 @@ public class AuthController {
             String nextUsername = request.username == null ? null : request.username.trim();
             String currentPassword = request.currentPassword;
             String newPassword = request.newPassword == null ? null : request.newPassword.trim();
+            String githubLogin = request.githubLogin == null ? null : request.githubLogin.trim();
 
             boolean hasUsernameUpdate = nextUsername != null && !nextUsername.isBlank();
             boolean hasPasswordUpdate = newPassword != null && !newPassword.isBlank();
+            boolean hasGithubUpdate = githubLogin != null;
 
-            if (!hasUsernameUpdate && !hasPasswordUpdate) {
-                sendResponse(exchange, 400, "Provide a username and/or newPassword to update profile.");
+            if (!hasUsernameUpdate && !hasPasswordUpdate && !hasGithubUpdate) {
+                sendResponse(exchange, 400, "Provide a username, GitHub login, and/or newPassword to update profile.");
                 return;
             }
 
@@ -259,9 +261,13 @@ public class AuthController {
                 user.setUsername(nextUsername);
             }
 
+            if (hasGithubUpdate) {
+                user.setGithubLogin(githubLogin);
+            }
+
             User saved = userRepository.save(user);
             String refreshedToken = JwtUtil.generateToken(saved.getUsername());
-            sendJson(exchange, 200, objectMapper.writeValueAsString(new ProfileUpdateResponse(saved.getUsername(), refreshedToken)));
+            sendJson(exchange, 200, objectMapper.writeValueAsString(new ProfileUpdateResponse(saved.getUsername(), refreshedToken, saved.getGithubLogin())));
         } catch (Throwable ex) {
             ex.printStackTrace();
             sendJson(exchange, 500, objectMapper.writeValueAsString(new ErrorResponse("Profile update failed")));
@@ -320,6 +326,7 @@ public class AuthController {
         public String username;
         public String currentPassword;
         public String newPassword;
+        public String githubLogin;
     }
 
     private static class ForgotPasswordRequest {
