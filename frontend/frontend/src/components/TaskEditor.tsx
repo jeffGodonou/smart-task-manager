@@ -16,9 +16,10 @@ import { useEffect, useState } from "react";
 type TaskEditorProps = {
   onTaskCreated?: () => void;
   onClose?: () => void;
+  initialProjectId?: string | null;
 };
 
-export default function TaskEditor({ onTaskCreated, onClose }: TaskEditorProps) {
+export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = null }: TaskEditorProps) {
   const addTask   = useTaskStore(state => state.addTask);
   const error     = useTaskStore(state => state.error);
   const fetchTasks = useTaskStore(state => state.fetchTasks);
@@ -28,13 +29,18 @@ export default function TaskEditor({ onTaskCreated, onClose }: TaskEditorProps) 
     fetchTasks();
     void (async () => {
       try {
+        if (initialProjectId && initialProjectId.trim()) {
+          setProjectId(initialProjectId);
+          return;
+        }
+
         const project = await loadProject();
         setProjectId(project?.id ?? null);
       } catch {
-        setProjectId(null);
+        setProjectId(initialProjectId && initialProjectId.trim() ? initialProjectId : null);
       }
     })();
-  }, [fetchTasks]);
+  }, [fetchTasks, initialProjectId]);
 
   const {
     register,
