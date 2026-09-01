@@ -6,12 +6,16 @@ import * as taskApi from '../api/tasks';
 
 vi.mock('../api/projects', () => ({
   loadProjects: vi.fn(),
+  loadProject: vi.fn().mockResolvedValue({ id: '1', name: 'Backend API' }),
   saveProject: vi.fn(),
   deleteProject: vi.fn(),
 }));
 
 vi.mock('../api/tasks', () => ({
+  listTasks: vi.fn().mockResolvedValue([]),
   createTask: vi.fn(),
+  deleteTask: vi.fn(),
+  updateTask: vi.fn(),
 }));
 
 describe('ProjectView', () => {
@@ -44,8 +48,12 @@ describe('ProjectView', () => {
     expect(screen.getByText('Backend API')).toBeTruthy();
     expect(screen.getByText('Local docs')).toBeTruthy();
 
-    fireEvent.change(screen.getByLabelText('Task title for Backend API'), { target: { value: 'Fix API docs' } });
     fireEvent.click(screen.getByRole('button', { name: /create task for backend api/i }));
+
+    expect(await screen.findByText('Add a new task')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /close task form/i })).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Fix API docs' } });
+    fireEvent.click(screen.getByRole('button', { name: /\+ add task/i }));
 
     await waitFor(() => {
       expect(taskApi.createTask).toHaveBeenCalledWith(
@@ -57,6 +65,7 @@ describe('ProjectView', () => {
       );
     });
 
+    fireEvent.click(screen.getByRole('button', { name: /close task form/i }));
     fireEvent.change(screen.getByLabelText('Project name'), { target: { value: 'New project' } });
     fireEvent.change(screen.getByLabelText('Local folder path'), { target: { value: '/workspace/new-app' } });
     fireEvent.click(screen.getByRole('button', { name: /add project/i }));

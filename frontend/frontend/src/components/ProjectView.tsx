@@ -1,6 +1,6 @@
 import React from 'react';
 import { loadProjects, saveProject, type GitProject } from '../api/projects';
-import { createTask } from '../api/tasks';
+import TaskEditor from './TaskEditor';
 
 const emptyDraft: Omit<GitProject, 'id'> = {
   name: '',
@@ -12,10 +12,10 @@ const emptyDraft: Omit<GitProject, 'id'> = {
 export default function ProjectView() {
   const [projects, setProjects] = React.useState<GitProject[]>([]);
   const [draft, setDraft] = React.useState<Omit<GitProject, 'id'>>(emptyDraft);
-  const [quickTaskDrafts, setQuickTaskDrafts] = React.useState<Record<string, string>>({});
   const [error, setError] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+  const [taskEditorProject, setTaskEditorProject] = React.useState<GitProject | null>(null);
 
   const refreshProjects = React.useCallback(async () => {
     try {
@@ -67,32 +67,23 @@ export default function ProjectView() {
     }
   };
 
-  const handleCreateTaskForProject = async (project: GitProject) => {
-    const key = project.id ?? project.name;
-    const title = quickTaskDrafts[key]?.trim();
-    if (!title) {
-      setError(`Please enter a task title for ${project.name}.`);
-      return;
-    }
+  const handleCreateTaskForProject = (project: GitProject) => {
+    setTaskEditorProject(project);
+    setError(null);
+  };
 
-    try {
-      setError(null);
-      await createTask({
-        title,
-        description: undefined,
-        projectId: project.id ?? null,
-        isCompleted: false,
-        status: 'TODO',
-      });
-      setQuickTaskDrafts((current) => ({ ...current, [key]: '' }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : `Unable to create a task for ${project.name}.`);
-    }
+  const closeTaskEditor = () => {
+    setTaskEditorProject(null);
   };
 
   return (
     <section className="task-editor">
-      <h2>Project view</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+        <h2 style={{ margin: 0 }}>Project view</h2>
+        <button type="button" className="task-editor-submit" onClick={() => handleCreateTaskForProject({ name: 'General task', branch: 'main' })}>
+          Create task
+        </button>
+      </div>
 
       <form onSubmit={handleSubmit} className="task-editor-fields" style={{ gridTemplateColumns: '1.4fr 1.5fr 1.2fr 1fr auto' }}>
         <div className="task-editor-field">
@@ -162,6 +153,20 @@ export default function ProjectView() {
 
       {error && <p className="task-error" style={{ marginTop: '12px' }}>{error}</p>}
 
+      {taskEditorProject && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ width: 'min(700px, 100%)', maxHeight: '90vh', overflowY: 'auto', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
+            <TaskEditor
+              initialProjectId={taskEditorProject.id ?? null}
+              onTaskCreated={() => {
+                setTaskEditorProject(null);
+              }}
+              onClose={closeTaskEditor}
+            />
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <p>Loading projects…</p>
       ) : projects.length === 0 ? (
@@ -193,24 +198,14 @@ export default function ProjectView() {
                       {project.branch || 'main'}
                     </td>
                     <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <input
-                          aria-label={`Task title for ${project.name}`}
-                          type="text"
-                          value={quickTaskDrafts[key] ?? ''}
-                          onChange={(event) => setQuickTaskDrafts((current) => ({ ...current, [key]: event.target.value }))}
-                          placeholder="Task title"
-                          style={{ minWidth: '180px', flex: '1 1 180px' }}
-                        />
-                        <button
-                          type="button"
-                          className="task-editor-submit"
-                          aria-label={`Create task for ${project.name}`}
-                          onClick={() => void handleCreateTaskForProject(project)}
-                        >
-                          Create task
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        className="task-editor-submit"
+                        aria-label={`Create task for ${project.name}`}
+                        onClick={() => handleCreateTaskForProject(project)}
+                      >
+                        Create task
+                      </button>
                     </td>
                   </tr>
                 );
