@@ -2,7 +2,6 @@ import React from 'react';
 
 import './App.css';
 import TaskList from './components/TaskList';
-import TaskEditor from './components/TaskEditor';
 import type { Task } from './api/tasks';
 import KanbanBoard from './components/KanbanBoard';
 import CalendarView from './components/CalendarView';
@@ -35,7 +34,6 @@ function App() {
   const [currentUsername, setCurrentUsername] = React.useState<string | null>(null);
   const [welcomeUser, setWelcomeUser] = React.useState<string | null>(null);
   const [tasksRefreshKey, setTasksRefreshKey] = React.useState(0);
-  const [taskEditorOpen, setTaskEditorOpen] = React.useState(false);
   const [theme, setTheme] = React.useState<ThemeName>(() => getStoredTheme());
 
   React.useEffect(() => {
@@ -44,32 +42,7 @@ function App() {
   }, [theme]);
 
   const renderedView = view === 'list'
-             ? <>
-                 {!taskEditorOpen && (
-                   <button
-                     type="button"
-                     className="task-editor-submit"
-                     onClick={() => setTaskEditorOpen(true)}
-                     style={{ marginBottom: '16px' }}
-                   >
-                     Add task
-                   </button>
-                 )}
-                 {taskEditorOpen && (
-                   <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-                     <div style={{ width: 'min(700px, 100%)', maxHeight: '90vh', overflowY: 'auto', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-                       <TaskEditor
-                         onTaskCreated={() => {
-                           setTasksRefreshKey(prev => prev + 1);
-                           setTaskEditorOpen(false);
-                         }}
-                         onClose={() => setTaskEditorOpen(false)}
-                       />
-                     </div>
-                   </div>
-                 )}
-                 <TaskList onTasksChange={setTasks} refreshKey={tasksRefreshKey} />
-               </>
+             ? <TaskList onTasksChange={setTasks} refreshKey={tasksRefreshKey} />
              : view === 'kanban'
                ? <KanbanBoard refreshKey={tasksRefreshKey} />
                : view === 'calendar'
