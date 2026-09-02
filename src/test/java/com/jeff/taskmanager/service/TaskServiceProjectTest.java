@@ -104,7 +104,7 @@ class TaskServiceProjectTest {
     @Test
     void addTask_rejectsProjectThatDoesNotBelongToUser() {
         InMemoryUserRepository userRepository = new InMemoryUserRepository();
-        User alice = userRepository.save(new User("alice", "password"));
+        userRepository.save(new User("alice", "password"));
         User bob = userRepository.save(new User("bob", "password"));
         InMemoryProjectRepository projectRepository = new InMemoryProjectRepository();
         Project bobProject = new Project();

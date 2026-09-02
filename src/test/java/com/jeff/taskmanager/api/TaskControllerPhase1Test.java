@@ -4,7 +4,6 @@ import com.jeff.taskmanager.model.Task;
 import com.jeff.taskmanager.model.User;
 import com.jeff.taskmanager.service.TaskRuleViolationException;
 import com.jeff.taskmanager.service.TaskService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @DisplayName("TaskController Phase 1 API Responses")
 class TaskControllerPhase1Test {
-    private ObjectMapper objectMapper;
     private TaskService taskService;
 
     /**
@@ -45,7 +43,6 @@ class TaskControllerPhase1Test {
      */
     @BeforeEach
     void setup() {
-        objectMapper = new ObjectMapper();
         // For full integration test, would use a real TaskService with test DB
         // Here we use the mock setup from the service test
         taskService = createMockTaskService();
@@ -183,7 +180,7 @@ class TaskControllerPhase1Test {
     void testDerivedCompletionOnUpdate() {
         Task task = new Task("Parent task", "", LocalDate.now(), false);
         task.setSubtasks(new ArrayList<>());
-        Task saved = taskService.addTask(task, "testuser");
+        taskService.addTask(task, "testuser");
 
         // Update with completed subtasks
         Task updatePayload = new Task("Parent task", "", LocalDate.now(), false);
