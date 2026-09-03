@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *       <ul>
  *         <li>All children done → parent DONE</li>
  *         <li>Some done → parent IN_PROGRESS</li>
- *         <li>None done → parent TODO</li>
+ *         <li>None done → parent TO DO </li>
  *       </ul>
  *   </li>
  *   <li><strong>Ownership propagation:</strong> All subtasks inherit parent's owner</li>
@@ -248,9 +248,9 @@ class TaskServicePhase1Test {
     }
 
     /**
-     * Derived completion rule 3: No children done → parent TODO.
+     * Derived completion rule 3: No children done → parent TO DO.
      * Rule: Work not yet started; all children pending.
-     * isCompleted=false, status=TODO signals unstarted work.
+     * isCompleted=false, status=TO DO signals unstarted work.
      */
     @Test
     @DisplayName("Should derive parent completion: none completed -> parent todo")
