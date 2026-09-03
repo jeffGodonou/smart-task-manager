@@ -33,7 +33,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = React.useState(Boolean(getStoredToken()));
   const [currentUsername, setCurrentUsername] = React.useState<string | null>(null);
   const [welcomeUser, setWelcomeUser] = React.useState<string | null>(null);
-  const [tasksRefreshKey, setTasksRefreshKey] = React.useState(0);
+  const [tasksRefreshKey] = React.useState(0);
   const [theme, setTheme] = React.useState<ThemeName>(() => getStoredTheme());
 
   React.useEffect(() => {
