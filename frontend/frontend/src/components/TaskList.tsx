@@ -4,6 +4,7 @@ import type { Task } from '../api/tasks.ts';
 import TaskRow from './TaskRow.tsx';
 import TaskDetailsModal from './TaskDetailsModal';
 import './TaskList.css';
+import TaskEditor from './TaskEditor.tsx';
 
 /**
  * TaskList Component
@@ -156,6 +157,12 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
   });
 
   return (
+    <>
+    <TaskEditor
+      onTaskCreated={() => handleSaveTaskDetails}
+      onClose={() => setSelectedTask(null)}
+    />
+
     <div className="task-list-shell">
 
       {/* Filter tabs + count */}
@@ -215,5 +222,5 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
         />
       )}
     </div>
-  );
+  </> );
 }
