@@ -85,7 +85,7 @@ export default function ProjectView() {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="task-editor-fields" style={{ gridTemplateColumns: '1.4fr 1.5fr 1.2fr 1fr auto' }}>
+      <form onSubmit={handleSubmit} className="task-editor-fields" style={{ gridTemplateColumns: '1.3fr 1.5fr 1.1fr 1.3fr 0.8fr auto' }}>
         <div className="task-editor-field">
           <label htmlFor="project-name">Project name</label>
           <input
@@ -176,10 +176,11 @@ export default function ProjectView() {
           <table role="table" style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--surface)', border: '1px solid var(--border)' }}>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Project</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Repository / Path</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Branch</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Task</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', minWidth: '150px' }}>Project</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', minWidth: '220px' }}>Repository / Path</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', minWidth: '120px' }}>GitHub</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', minWidth: '90px' }}>Branch</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', minWidth: '260px' }}>Task</th>
               </tr>
             </thead>
             <tbody>
@@ -192,7 +193,9 @@ export default function ProjectView() {
                     </td>
                     <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
                       {project.repositoryUrl ? project.repositoryUrl : project.localPath || '—'}
-                      {project.githubAccount ? <div style={{ marginTop: '6px', color: 'var(--muted)' }}>GitHub: {project.githubAccount}</div> : null}
+                    </td>
+                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                      {project.githubAccount || '—'}
                     </td>
                     <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
                       {project.branch || 'main'}

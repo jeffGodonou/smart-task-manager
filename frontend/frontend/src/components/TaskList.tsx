@@ -15,7 +15,6 @@ import TaskEditor from './TaskEditor.tsx';
  * - Handle delete and toggle complete actions
  * - Show loading / error / empty states
  */
-
 type TaskListProps = {
   onTasksChange?: (tasks: any[]) => void;
   refreshKey?: number;
