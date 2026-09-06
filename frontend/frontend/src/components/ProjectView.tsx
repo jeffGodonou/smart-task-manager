@@ -76,6 +76,8 @@ export default function ProjectView() {
     setTaskEditorProject(null);
   };
 
+  const projectGridTemplate = '18% 28% 12% 12% 30% auto';
+
   return (
     <section className="task-editor">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
@@ -85,7 +87,7 @@ export default function ProjectView() {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="task-editor-fields" style={{ gridTemplateColumns: '1.3fr 1.5fr 1.1fr 1.3fr 0.8fr auto' }}>
+      <form onSubmit={handleSubmit} className="task-editor-fields" style={{ gridTemplateColumns: projectGridTemplate }}>
         <div className="task-editor-field">
           <label htmlFor="project-name">Project name</label>
           <input
@@ -173,14 +175,30 @@ export default function ProjectView() {
         <p>No projects added yet.</p>
       ) : (
         <div style={{ marginTop: '18px', overflowX: 'auto' }}>
-          <table role="table" style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--surface)', border: '1px solid var(--border)' }}>
+          <table
+            role="table"
+            style={{
+              width: '100%',
+              tableLayout: 'fixed',
+              borderCollapse: 'collapse',
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+            }}
+          >
+            <colgroup>
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '28%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '30%' }} />
+            </colgroup>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '10px 12px', minWidth: '150px' }}>Project</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', minWidth: '220px' }}>Repository / Path</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', minWidth: '120px' }}>GitHub</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', minWidth: '90px' }}>Branch</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', minWidth: '260px' }}>Task</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Project</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Repository / Path</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px' }}>GitHub</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Branch</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Task</th>
               </tr>
             </thead>
             <tbody>
