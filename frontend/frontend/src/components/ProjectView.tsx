@@ -76,7 +76,12 @@ export default function ProjectView() {
     setTaskEditorProject(null);
   };
 
-  const projectGridTemplate = '18% 28% 12% 12% 30% auto';
+  // Using fr units (not %) so the trailing `auto` submit-button column can
+  // size itself to its content first; the fr tracks then split only the
+  // remaining space in the same 18:28:12:12:30 ratio. With % tracks that sum
+  // to 100 plus an extra auto column, the row overflows its container and
+  // the browser shrinks the button, causing "Add project" to wrap.
+  const projectGridTemplate = '18fr 28fr 12fr 12fr 30fr auto';
 
   return (
     <section className="task-editor">
@@ -148,7 +153,12 @@ export default function ProjectView() {
           />
         </div>
 
-        <button type="submit" className="task-editor-submit" disabled={saving}>
+        <button
+          type="submit"
+          className="task-editor-submit"
+          disabled={saving}
+          style={{ whiteSpace: 'nowrap' }}
+        >
           {saving ? 'Saving...' : 'Add project'}
         </button>
       </form>
