@@ -1,0 +1,99 @@
+.project-view {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.project-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.project-view-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+}
+
+.project-view-form {
+  display: grid;
+  gap: 12px;
+  align-items: end;
+}
+
+.project-view-form .task-editor-submit {
+  white-space: nowrap;
+}
+
+.project-view-table-wrapper {
+  margin-top: 18px;
+  overflow-x: auto;
+}
+
+.project-view-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.project-view-table th,
+.project-view-table td {
+  text-align: left;
+  padding: 10px 12px;
+  vertical-align: top;
+}
+
+.project-view-table thead th {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.project-view-table tbody tr {
+  border-top: 1px solid var(--border);
+}
+
+.project-view-table td strong {
+  font-weight: 600;
+}
+
+.project-view-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.project-view-modal-card {
+  width: min(700px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+@media (max-width: 768px) {
+  .project-view-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .project-view-form {
+    grid-template-columns: 1fr;
+  }
+}

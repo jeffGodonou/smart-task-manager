@@ -1,5 +1,6 @@
 import React from 'react';
 import { loadProjects, saveProject, type GitProject } from '../api/projects';
+import './ProjectView.css';
 import TaskEditor from './TaskEditor';
 
 const emptyDraft: Omit<GitProject, 'id'> = {
@@ -84,15 +85,15 @@ export default function ProjectView() {
   const projectGridTemplate = '18fr 28fr 12fr 12fr 30fr auto';
 
   return (
-    <section className="task-editor">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-        <h2 style={{ margin: 0 }}>Project view</h2>
+    <section className="project-view">
+      <div className="project-view-header">
+        <h2 className="project-view-title">Project view</h2>
         <button type="button" className="task-editor-submit" onClick={() => handleCreateTaskForProject({ name: 'General task', branch: 'main' })}>
           Create task
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="task-editor-fields" style={{ gridTemplateColumns: projectGridTemplate }}>
+      <form onSubmit={handleSubmit} className="task-editor-fields project-view-form" style={{ gridTemplateColumns: projectGridTemplate }}>
         <div className="task-editor-field">
           <label htmlFor="project-name">Project name</label>
           <input
@@ -166,8 +167,8 @@ export default function ProjectView() {
       {error && <p className="task-error" style={{ marginTop: '12px' }}>{error}</p>}
 
       {taskEditorProject && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ width: 'min(700px, 100%)', maxHeight: '90vh', overflowY: 'auto', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
+        <div className="project-view-modal-backdrop">
+          <div className="project-view-modal-card">
             <TaskEditor
               initialProjectId={taskEditorProject.id ?? null}
               onTaskCreated={() => {
@@ -184,17 +185,8 @@ export default function ProjectView() {
       ) : projects.length === 0 ? (
         <p>No projects added yet.</p>
       ) : (
-        <div style={{ marginTop: '18px', overflowX: 'auto' }}>
-          <table
-            role="table"
-            style={{
-              width: '100%',
-              tableLayout: 'fixed',
-              borderCollapse: 'collapse',
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-            }}
-          >
+        <div className="project-view-table-wrapper">
+          <table role="table" className="project-view-table">
             <colgroup>
               <col style={{ width: '18%' }} />
               <col style={{ width: '28%' }} />
@@ -204,31 +196,31 @@ export default function ProjectView() {
             </colgroup>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Project</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Repository / Path</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px' }}>GitHub</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Branch</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px' }}>Task</th>
+                <th>Project</th>
+                <th>Repository / Path</th>
+                <th>GitHub</th>
+                <th>Branch</th>
+                <th>Task</th>
               </tr>
             </thead>
             <tbody>
               {projects.map((project) => {
                 const key = project.id ?? project.name;
                 return (
-                  <tr key={key} style={{ borderTop: '1px solid var(--border)' }}>
-                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                  <tr key={key}>
+                    <td>
                       <strong>{project.name}</strong>
                     </td>
-                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                    <td>
                       {project.repositoryUrl ? project.repositoryUrl : project.localPath || '—'}
                     </td>
-                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                    <td>
                       {project.githubAccount || '—'}
                     </td>
-                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                    <td>
                       {project.branch || 'main'}
                     </td>
-                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                    <td>
                       <button
                         type="button"
                         className="task-editor-submit"
