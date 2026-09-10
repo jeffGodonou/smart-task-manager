@@ -16,6 +16,7 @@ export default function ProjectView() {
   const [error, setError] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+  const [showTaskEditor, setShowTaskEditor] = React.useState(false);
   const [taskEditorProject, setTaskEditorProject] = React.useState<GitProject | null>(null);
 
   const refreshProjects = React.useCallback(async () => {
@@ -68,12 +69,14 @@ export default function ProjectView() {
     }
   };
 
-  const handleCreateTaskForProject = (project: GitProject) => {
-    setTaskEditorProject(project);
+  const handleCreateTaskForProject = (project?: GitProject) => {
+    setTaskEditorProject(project ?? null);
+    setShowTaskEditor(true);
     setError(null);
   };
 
   const closeTaskEditor = () => {
+    setShowTaskEditor(false);
     setTaskEditorProject(null);
   };
 
@@ -88,7 +91,7 @@ export default function ProjectView() {
     <section className="project-view">
       <div className="project-view-header">
         <h2 className="project-view-title">Project view</h2>
-        <button type="button" className="task-editor-submit" onClick={() => handleCreateTaskForProject({ name: 'General task', branch: 'main' })}>
+        <button type="button" className="task-editor-submit" onClick={() => handleCreateTaskForProject()}>
           Create task
         </button>
       </div>
@@ -166,12 +169,13 @@ export default function ProjectView() {
 
       {error && <p className="task-error" style={{ marginTop: '12px' }}>{error}</p>}
 
-      {taskEditorProject && (
+      {showTaskEditor && (
         <div className="project-view-modal-backdrop">
           <div className="project-view-modal-card">
             <TaskEditor
-              initialProjectId={taskEditorProject.id ?? null}
+              initialProjectId={taskEditorProject?.id ?? null}
               onTaskCreated={() => {
+                setShowTaskEditor(false);
                 setTaskEditorProject(null);
               }}
               onClose={closeTaskEditor}

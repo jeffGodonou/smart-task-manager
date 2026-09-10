@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { taskSchema, type TaskFormData } from "../validation/taskSchema";
 import { useTaskStore } from "../store/TaskStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loadProject } from '../api/projects';
 import './TaskEditor.css';
 import { useEffect, useState } from "react";
 
@@ -26,20 +25,8 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
   const [projectId, setProjectId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchTasks();
-    void (async () => {
-      try {
-        if (initialProjectId && initialProjectId.trim()) {
-          setProjectId(initialProjectId);
-          return;
-        }
-
-        const project = await loadProject();
-        setProjectId(project?.id ?? null);
-      } catch {
-        setProjectId(initialProjectId && initialProjectId.trim() ? initialProjectId : null);
-      }
-    })();
+    void fetchTasks();
+    setProjectId(initialProjectId && initialProjectId.trim() ? initialProjectId : null);
   }, [fetchTasks, initialProjectId]);
 
   const {
