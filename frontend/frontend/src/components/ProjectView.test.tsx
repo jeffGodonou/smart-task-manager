@@ -1,7 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ProjectView from './ProjectView';
-import TaskEditor from './TaskEditor';
 import * as projectApi from '../api/projects';
 import * as taskApi from '../api/tasks';
 
