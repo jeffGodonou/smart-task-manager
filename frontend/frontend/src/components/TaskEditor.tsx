@@ -16,9 +16,10 @@ type TaskEditorProps = {
   onTaskCreated?: () => void;
   onClose?: () => void;
   initialProjectId?: string | null;
+  showCloseButton?: boolean;
 };
 
-export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = null }: TaskEditorProps) {
+export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = null, showCloseButton = true }: TaskEditorProps) {
   const addTask   = useTaskStore(state => state.addTask);
   const error     = useTaskStore(state => state.error);
   const fetchTasks = useTaskStore(state => state.fetchTasks);
@@ -64,7 +65,7 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
         <p className="task-editor-section-label" style={{ margin: 0 }}>Add a new task</p>
-        {onClose && (
+        {showCloseButton && onClose && (
           <button type="button" onClick={onClose} aria-label="Close task form" style={{ border: 'none', background: 'transparent', fontSize: '1.25rem', cursor: 'pointer' }}>
             ×
           </button>

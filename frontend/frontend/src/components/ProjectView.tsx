@@ -91,9 +91,6 @@ export default function ProjectView() {
     <section className="project-view">
       <div className="project-view-header">
         <h2 className="project-view-title">Project view</h2>
-        <button type="button" className="task-editor-submit" onClick={() => handleCreateTaskForProject()}>
-          Create task
-        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="task-editor-fields project-view-form" style={{ gridTemplateColumns: projectGridTemplate }}>
@@ -174,6 +171,7 @@ export default function ProjectView() {
           <div className="project-view-modal-card">
             <TaskEditor
               initialProjectId={taskEditorProject?.id ?? null}
+              showCloseButton={false}
               onTaskCreated={() => {
                 setShowTaskEditor(false);
                 setTaskEditorProject(null);
