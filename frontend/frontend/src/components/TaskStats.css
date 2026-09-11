@@ -47,7 +47,8 @@
   font-weight: 700;
 }
 
-.stats-trend {
+.stats-trend,
+.stats-late {
   margin-top: 10px;
   padding: 16px;
   border-radius: 12px;
@@ -113,7 +114,8 @@
   overflow-x: auto;
 }
 
-.trend-chart {
+.trend-chart,
+.late-chart {
   width: 100%;
   min-width: 420px;
   height: auto;
@@ -156,6 +158,11 @@
 
 .trend-point.completed {
   fill: #21b27f;
+}
+
+.late-bar {
+  fill: #f5576c;
+  opacity: 0.9;
 }
 
 @media (max-width: 640px) {

@@ -107,6 +107,40 @@ export default function TaskStats({ refreshKey = 0 }: TaskStatsProps) {
 
   const yTicks = [0, 0.25, 0.5, 0.75, 1].map(scale => Math.round(maxY * scale));
 
+  const lateTaskBuckets = new Map<string, number>();
+  for (const task of tasks) {
+    if (!task.dueDate || task.isCompleted || task.dueDate >= today) continue;
+    lateTaskBuckets.set(task.dueDate, (lateTaskBuckets.get(task.dueDate) ?? 0) + 1);
+  }
+
+  const lateTaskRows = Array.from(lateTaskBuckets.entries())
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([date, count]) => ({ date, count }));
+
+  const hasLateTaskData = lateTaskRows.length > 0;
+  const lateMaxY = Math.max(1, ...lateTaskRows.map(row => row.count));
+  const lateChartWidth = 560;
+  const lateChartHeight = 200;
+  const latePadding = { top: 16, right: 16, bottom: 30, left: 38 };
+  const lateInnerWidth = lateChartWidth - latePadding.left - latePadding.right;
+  const lateInnerHeight = lateChartHeight - latePadding.top - latePadding.bottom;
+  const lateBarWidth = lateTaskRows.length > 0 ? Math.max(18, (lateInnerWidth / lateTaskRows.length) * 0.72) : 0;
+
+  const getLateX = (index: number) => {
+    if (lateTaskRows.length <= 1) {
+      return latePadding.left + lateInnerWidth / 2 - lateBarWidth / 2;
+    }
+
+    const step = lateInnerWidth / lateTaskRows.length;
+    return latePadding.left + index * step + (step - lateBarWidth) / 2;
+  };
+
+  const getLateY = (count: number) => {
+    return latePadding.top + lateInnerHeight - (count / lateMaxY) * lateInnerHeight;
+  };
+
+  const lateYTicks = [0, 0.25, 0.5, 0.75, 1].map(scale => Math.round(lateMaxY * scale));
+
   const formatShortDate = (value: string) => {
     const parsed = new Date(`${value}T00:00:00`);
     if (Number.isNaN(parsed.getTime())) return value;
@@ -219,6 +253,50 @@ export default function TaskStats({ refreshKey = 0 }: TaskStatsProps) {
                   </svg>
                 </div>
               </>
+            )}
+          </section>
+
+          <section className="stats-late" aria-label="Late task chart">
+            <div className="trend-header">
+              <h3>Late tasks</h3>
+              <p>Overdue tasks by due date</p>
+            </div>
+            {!hasLateTaskData && (
+              <div className="trend-empty">
+                No tasks are overdue right now.
+              </div>
+            )}
+            {hasLateTaskData && (
+              <div className="trend-chart-wrap">
+                <svg className="late-chart" viewBox={`0 0 ${lateChartWidth} ${lateChartHeight}`} role="img" aria-label="Bar chart of late tasks by due date">
+                  {lateYTicks.map((tick, index) => {
+                    const y = latePadding.top + lateInnerHeight - (tick / lateMaxY) * lateInnerHeight;
+                    return (
+                      <g key={`${tick}-${index}`}>
+                        <line x1={latePadding.left} y1={y} x2={lateChartWidth - latePadding.right} y2={y} className="trend-grid-line" />
+                        <text x={latePadding.left - 8} y={y + 4} className="trend-y-label">{tick}</text>
+                      </g>
+                    );
+                  })}
+
+                  <line x1={latePadding.left} y1={latePadding.top} x2={latePadding.left} y2={lateChartHeight - latePadding.bottom} className="trend-axis" />
+                  <line x1={latePadding.left} y1={lateChartHeight - latePadding.bottom} x2={lateChartWidth - latePadding.right} y2={lateChartHeight - latePadding.bottom} className="trend-axis" />
+
+                  {lateTaskRows.map((row, index) => {
+                    const x = getLateX(index);
+                    const height = lateChartHeight - latePadding.bottom - getLateY(row.count);
+                    const y = getLateY(row.count);
+                    return (
+                      <g key={row.date}>
+                        <rect x={x} y={y} width={lateBarWidth} height={height} rx={5} className="late-bar" />
+                        <text x={x + lateBarWidth / 2} y={lateChartHeight - 8} className="trend-x-label" textAnchor="middle">
+                          {formatShortDate(row.date)}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </svg>
+              </div>
             )}
           </section>
         </>
