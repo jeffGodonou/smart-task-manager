@@ -1,5 +1,6 @@
 import React from 'react';
 import { loadProjects, saveProject, type GitProject } from '../api/projects';
+import { listTasks } from '../api/tasks';
 import './ProjectView.css';
 import TaskEditor from './TaskEditor';
 
@@ -18,6 +19,7 @@ export default function ProjectView() {
   const [loading, setLoading] = React.useState(true);
   const [showTaskEditor, setShowTaskEditor] = React.useState(false);
   const [taskEditorProject, setTaskEditorProject] = React.useState<GitProject | null>(null);
+  const [taskCounts, setTaskCounts] = React.useState<Record<string, number>>({});
 
   const refreshProjects = React.useCallback(async () => {
     try {
@@ -30,9 +32,28 @@ export default function ProjectView() {
     }
   }, []);
 
+  const refreshTaskCounts = React.useCallback(async () => {
+    try {
+      const tasks = await listTasks();
+      const counts = tasks.reduce<Record<string, number>>((accumulator, task) => {
+        if (!task.projectId) {
+          return accumulator;
+        }
+
+        accumulator[task.projectId] = (accumulator[task.projectId] ?? 0) + 1;
+        return accumulator;
+      }, {});
+
+      setTaskCounts(counts);
+    } catch {
+      setTaskCounts({});
+    }
+  }, []);
+
   React.useEffect(() => {
     void refreshProjects();
-  }, [refreshProjects]);
+    void refreshTaskCounts();
+  }, [refreshProjects, refreshTaskCounts]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -173,6 +194,7 @@ export default function ProjectView() {
               initialProjectId={taskEditorProject?.id ?? null}
               showCloseButton={false}
               onTaskCreated={() => {
+                void refreshTaskCounts();
                 setShowTaskEditor(false);
                 setTaskEditorProject(null);
               }}
@@ -223,14 +245,19 @@ export default function ProjectView() {
                       {project.branch || 'main'}
                     </td>
                     <td>
-                      <button
-                        type="button"
-                        className="task-editor-submit"
-                        aria-label={`Create task for ${project.name}`}
-                        onClick={() => handleCreateTaskForProject(project)}
-                      >
-                        Create task
-                      </button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ minWidth: '3ch', fontWeight: 600, color: '#2d3748' }}>
+                          {`${taskCounts[project.id ?? ''] ?? 0} task${(taskCounts[project.id ?? ''] ?? 0) === 1 ? '' : 's'}`}
+                        </span>
+                        <button
+                          type="button"
+                          className="task-editor-submit"
+                          aria-label={`Create task for ${project.name}`}
+                          onClick={() => handleCreateTaskForProject(project)}
+                        >
+                          Create task
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
