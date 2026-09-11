@@ -117,6 +117,11 @@ export default function TaskStats({ refreshKey = 0 }: TaskStatsProps) {
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([date, count]) => ({ date, count }));
 
+  const overdueTaskList = tasks
+    .filter(task => task.dueDate && task.dueDate < today && !task.isCompleted)
+    .sort((left, right) => (left.dueDate ?? '').localeCompare(right.dueDate ?? ''))
+    .slice(0, 5);
+
   const hasLateTaskData = lateTaskRows.length > 0;
   const lateMaxY = Math.max(1, ...lateTaskRows.map(row => row.count));
   const lateChartWidth = 560;
@@ -267,36 +272,50 @@ export default function TaskStats({ refreshKey = 0 }: TaskStatsProps) {
               </div>
             )}
             {hasLateTaskData && (
-              <div className="trend-chart-wrap">
-                <svg className="late-chart" viewBox={`0 0 ${lateChartWidth} ${lateChartHeight}`} role="img" aria-label="Bar chart of late tasks by due date">
-                  {lateYTicks.map((tick, index) => {
-                    const y = latePadding.top + lateInnerHeight - (tick / lateMaxY) * lateInnerHeight;
-                    return (
-                      <g key={`${tick}-${index}`}>
-                        <line x1={latePadding.left} y1={y} x2={lateChartWidth - latePadding.right} y2={y} className="trend-grid-line" />
-                        <text x={latePadding.left - 8} y={y + 4} className="trend-y-label">{tick}</text>
-                      </g>
-                    );
-                  })}
+              <>
+                <div className="trend-chart-wrap">
+                  <svg className="late-chart" viewBox={`0 0 ${lateChartWidth} ${lateChartHeight}`} role="img" aria-label="Bar chart of late tasks by due date">
+                    {lateYTicks.map((tick, index) => {
+                      const y = latePadding.top + lateInnerHeight - (tick / lateMaxY) * lateInnerHeight;
+                      return (
+                        <g key={`${tick}-${index}`}>
+                          <line x1={latePadding.left} y1={y} x2={lateChartWidth - latePadding.right} y2={y} className="trend-grid-line" />
+                          <text x={latePadding.left - 8} y={y + 4} className="trend-y-label">{tick}</text>
+                        </g>
+                      );
+                    })}
 
-                  <line x1={latePadding.left} y1={latePadding.top} x2={latePadding.left} y2={lateChartHeight - latePadding.bottom} className="trend-axis" />
-                  <line x1={latePadding.left} y1={lateChartHeight - latePadding.bottom} x2={lateChartWidth - latePadding.right} y2={lateChartHeight - latePadding.bottom} className="trend-axis" />
+                    <line x1={latePadding.left} y1={latePadding.top} x2={latePadding.left} y2={lateChartHeight - latePadding.bottom} className="trend-axis" />
+                    <line x1={latePadding.left} y1={lateChartHeight - latePadding.bottom} x2={lateChartWidth - latePadding.right} y2={lateChartHeight - latePadding.bottom} className="trend-axis" />
 
-                  {lateTaskRows.map((row, index) => {
-                    const x = getLateX(index);
-                    const height = lateChartHeight - latePadding.bottom - getLateY(row.count);
-                    const y = getLateY(row.count);
-                    return (
-                      <g key={row.date}>
-                        <rect x={x} y={y} width={lateBarWidth} height={height} rx={5} className="late-bar" />
-                        <text x={x + lateBarWidth / 2} y={lateChartHeight - 8} className="trend-x-label" textAnchor="middle">
-                          {formatShortDate(row.date)}
-                        </text>
-                      </g>
-                    );
-                  })}
-                </svg>
-              </div>
+                    {lateTaskRows.map((row, index) => {
+                      const x = getLateX(index);
+                      const height = lateChartHeight - latePadding.bottom - getLateY(row.count);
+                      const y = getLateY(row.count);
+                      return (
+                        <g key={row.date}>
+                          <rect x={x} y={y} width={lateBarWidth} height={height} rx={5} className="late-bar" />
+                          <text x={x + lateBarWidth / 2} y={lateChartHeight - 8} className="trend-x-label" textAnchor="middle">
+                            {formatShortDate(row.date)}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                </div>
+
+                <div className="late-task-list">
+                  <h4>Top overdue</h4>
+                  <ul>
+                    {overdueTaskList.map(task => (
+                      <li key={task.id ?? `${task.title}-${task.dueDate}`}>
+                        <span>{task.title}</span>
+                        <span>{task.dueDate ? formatShortDate(task.dueDate) : 'No date'}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
             )}
           </section>
         </>
