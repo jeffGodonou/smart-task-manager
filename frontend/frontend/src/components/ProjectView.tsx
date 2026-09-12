@@ -192,7 +192,7 @@ export default function ProjectView() {
           <div className="project-view-modal-card">
             <TaskEditor
               initialProjectId={taskEditorProject?.id ?? null}
-              showCloseButton={false}
+              showCloseButton={true}
               onTaskCreated={() => {
                 void refreshTaskCounts();
                 setShowTaskEditor(false);

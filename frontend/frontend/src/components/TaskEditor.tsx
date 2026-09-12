@@ -19,7 +19,7 @@ type TaskEditorProps = {
   showCloseButton?: boolean;
 };
 
-export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = null, showCloseButton = true }: TaskEditorProps) {
+export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = null, showCloseButton = false }: TaskEditorProps) {
   const addTask   = useTaskStore(state => state.addTask);
   const error     = useTaskStore(state => state.error);
   const fetchTasks = useTaskStore(state => state.fetchTasks);
