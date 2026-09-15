@@ -28,16 +28,17 @@
 .stats-overview {
   padding: 16px 16px 10px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(17, 24, 39, 0.04);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(17, 24, 39, 0.05);
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.04);
+  backdrop-filter: blur(12px);
 }
 
 .stats-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   gap: 10px;
 }
 
@@ -75,7 +76,7 @@
 .metrics-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0 5px;
+  border-spacing: 0 6px;
 }
 
 .metrics-table th {
@@ -89,38 +90,38 @@
 }
 
 .metrics-table td {
-  padding: 11px 10px;
-  background: rgba(255, 255, 255, 0.75);
-  border-top: 1px solid rgba(17, 24, 39, 0.03);
-  border-bottom: 1px solid rgba(17, 24, 39, 0.03);
+  padding: 12px 10px;
+  background: rgba(255, 255, 255, 0.82);
+  border-top: 1px solid rgba(17, 24, 39, 0.04);
+  border-bottom: 1px solid rgba(17, 24, 39, 0.04);
   color: #1f2937;
   font-size: 0.92rem;
 }
 
 .metrics-table td:first-child {
-  border-left: 1px solid rgba(17, 24, 39, 0.03);
+  border-left: 1px solid rgba(17, 24, 39, 0.04);
   border-radius: 10px 0 0 10px;
 }
 
 .metrics-table td:last-child {
-  border-right: 1px solid rgba(17, 24, 39, 0.03);
+  border-right: 1px solid rgba(17, 24, 39, 0.04);
   border-radius: 0 10px 10px 0;
 }
 
 .metric-row.positive td {
-  background: rgba(16, 185, 129, 0.04);
+  background: rgba(16, 185, 129, 0.05);
 }
 
 .metric-row.warning td {
-  background: rgba(245, 158, 11, 0.04);
+  background: rgba(245, 158, 11, 0.05);
 }
 
 .metric-row.danger td {
-  background: rgba(239, 68, 68, 0.04);
+  background: rgba(239, 68, 68, 0.05);
 }
 
 .metric-value {
-  font-size: 1.06rem;
+  font-size: 1.08rem;
   font-weight: 700;
   color: #111827;
 }
@@ -158,96 +159,14 @@
 .stats-late {
   padding: 14px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(17, 24, 39, 0.04);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.04);
 }
 
 @media (max-width: 900px) {
   .stats-layout {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .task-stats {
-    background: #111827;
-    color: #f3f4f6;
-  }
-
-  .stats-overview,
-  .stats-trend,
-  .stats-late {
-    background: rgba(17, 24, 39, 0.9);
-    border-color: rgba(148, 163, 184, 0.12);
-    box-shadow: none;
-  }
-
-  .stats-kicker,
-  .stats-heading h2,
-  .metrics-table th,
-  .metrics-table td,
-  .metric-value,
-  .trend-header h3,
-  .trend-header p,
-  .trend-empty,
-  .trend-y-label,
-  .trend-x-label,
-  .late-task-list h4,
-  .late-task-list li {
-    color: #e5e7eb;
-  }
-
-  .metrics-table td,
-  .metric-row.positive td,
-  .metric-row.warning td,
-  .metric-row.danger td {
-    background: rgba(31, 41, 55, 0.9);
-    border-top-color: rgba(148, 163, 184, 0.08);
-    border-bottom-color: rgba(148, 163, 184, 0.08);
-  }
-
-  .metric-pill.neutral {
-    background: rgba(148, 163, 184, 0.12);
-    color: #dbeafe;
-  }
-
-  .metric-pill.positive {
-    background: rgba(16, 185, 129, 0.12);
-    color: #a7f3d0;
-  }
-
-  .metric-pill.warning {
-    background: rgba(245, 158, 11, 0.12);
-    color: #fcd34d;
-  }
-
-  .metric-pill.danger {
-    background: rgba(239, 68, 68, 0.12);
-    color: #fca5a5;
-  }
-
-  .stats-live-badge {
-    background: rgba(148, 163, 184, 0.12);
-    color: #e5e7eb;
-  }
-
-  .trend-grid-line {
-    stroke: rgba(148, 163, 184, 0.22);
-  }
-
-  .trend-axis {
-    stroke: rgba(148, 163, 184, 0.4);
-  }
-
-  .trend-y-label,
-  .trend-x-label {
-    fill: #cbd5e1;
-  }
-
-  .late-task-list li {
-    background: rgba(31, 41, 55, 0.9);
-    border-color: rgba(148, 163, 184, 0.12);
   }
 }
 
