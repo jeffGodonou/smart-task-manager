@@ -168,7 +168,7 @@ export default function TaskStats({ refreshKey = 0 }: TaskStatsProps) {
     <div className="task-stats">
       {loading && <div className="stats-loading">Loading...</div>}
       {!loading && (
-        <>
+        <div className="stats-layout">
           <section className="stats-overview" aria-label="Task metrics overview">
             <div className="stats-heading">
               <div>
@@ -206,123 +206,125 @@ export default function TaskStats({ refreshKey = 0 }: TaskStatsProps) {
             </div>
           </section>
 
-          <section className="stats-trend" aria-label="Task trend over time">
-            <div className="trend-header">
-              <h3>Trend Through Time</h3>
-              <p>Cumulative tasks by due date</p>
-            </div>
-            {!hasTrendData && (
-              <div className="trend-empty">
-                Add due dates to tasks to visualize how your workload evolves through time.
+          <div className="stats-analytics">
+            <section className="stats-trend" aria-label="Task trend over time">
+              <div className="trend-header">
+                <h3>Trend Through Time</h3>
+                <p>Cumulative tasks by due date</p>
               </div>
-            )}
-            {hasTrendData && (
-              <>
-                <div className="trend-legend">
-                  <span><i className="legend-swatch total" />Total</span>
-                  <span><i className="legend-swatch completed" />Completed</span>
+              {!hasTrendData && (
+                <div className="trend-empty">
+                  Add due dates to tasks to visualize how your workload evolves through time.
                 </div>
-                <div className="trend-chart-wrap">
-                  <svg className="trend-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Line chart of cumulative tasks and completed tasks by due date">
-                    {yTicks.map((tick, index) => {
-                      const y = getY(tick);
-                      return (
-                        <g key={`${tick}-${index}`}>
-                          <line x1={padding.left} y1={y} x2={chartWidth - padding.right} y2={y} className="trend-grid-line" />
-                          <text x={padding.left - 8} y={y + 4} className="trend-y-label">{tick}</text>
-                        </g>
-                      );
-                    })}
+              )}
+              {hasTrendData && (
+                <>
+                  <div className="trend-legend">
+                    <span><i className="legend-swatch total" />Total</span>
+                    <span><i className="legend-swatch completed" />Completed</span>
+                  </div>
+                  <div className="trend-chart-wrap">
+                    <svg className="trend-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Line chart of cumulative tasks and completed tasks by due date">
+                      {yTicks.map((tick, index) => {
+                        const y = getY(tick);
+                        return (
+                          <g key={`${tick}-${index}`}>
+                            <line x1={padding.left} y1={y} x2={chartWidth - padding.right} y2={y} className="trend-grid-line" />
+                            <text x={padding.left - 8} y={y + 4} className="trend-y-label">{tick}</text>
+                          </g>
+                        );
+                      })}
 
-                    <line x1={padding.left} y1={padding.top} x2={padding.left} y2={chartHeight - padding.bottom} className="trend-axis" />
-                    <line x1={padding.left} y1={chartHeight - padding.bottom} x2={chartWidth - padding.right} y2={chartHeight - padding.bottom} className="trend-axis" />
+                      <line x1={padding.left} y1={padding.top} x2={padding.left} y2={chartHeight - padding.bottom} className="trend-axis" />
+                      <line x1={padding.left} y1={chartHeight - padding.bottom} x2={chartWidth - padding.right} y2={chartHeight - padding.bottom} className="trend-axis" />
 
-                    <polyline points={totalPoints} className="trend-line total" />
-                    <polyline points={completedPoints} className="trend-line completed" />
+                      <polyline points={totalPoints} className="trend-line total" />
+                      <polyline points={completedPoints} className="trend-line completed" />
 
-                    {cumulativeRows.map((row, index) => {
-                      const x = getX(index);
-                      return (
-                        <g key={row.date}>
-                          <circle cx={x} cy={getY(row.cumulativeTotal)} r={3.5} className="trend-point total" />
-                          <circle cx={x} cy={getY(row.cumulativeCompleted)} r={3.5} className="trend-point completed" />
-                        </g>
-                      );
-                    })}
+                      {cumulativeRows.map((row, index) => {
+                        const x = getX(index);
+                        return (
+                          <g key={row.date}>
+                            <circle cx={x} cy={getY(row.cumulativeTotal)} r={3.5} className="trend-point total" />
+                            <circle cx={x} cy={getY(row.cumulativeCompleted)} r={3.5} className="trend-point completed" />
+                          </g>
+                        );
+                      })}
 
-                    {cumulativeRows.map((row, index) => {
-                      if (index !== 0 && index !== cumulativeRows.length - 1) return null;
-                      const x = getX(index);
-                      return (
-                        <text key={`label-${row.date}`} x={x} y={chartHeight - 8} className="trend-x-label" textAnchor={index === 0 ? 'start' : 'end'}>
-                          {formatShortDate(row.date)}
-                        </text>
-                      );
-                    })}
-                  </svg>
-                </div>
-              </>
-            )}
-          </section>
-
-          <section className="stats-late" aria-label="Late task chart">
-            <div className="trend-header">
-              <h3>Late tasks</h3>
-              <p>Overdue tasks by due date</p>
-            </div>
-            {!hasLateTaskData && (
-              <div className="trend-empty">
-                No tasks are overdue right now.
-              </div>
-            )}
-            {hasLateTaskData && (
-              <>
-                <div className="trend-chart-wrap">
-                  <svg className="late-chart" viewBox={`0 0 ${lateChartWidth} ${lateChartHeight}`} role="img" aria-label="Bar chart of late tasks by due date">
-                    {lateYTicks.map((tick, index) => {
-                      const y = latePadding.top + lateInnerHeight - (tick / lateMaxY) * lateInnerHeight;
-                      return (
-                        <g key={`${tick}-${index}`}>
-                          <line x1={latePadding.left} y1={y} x2={lateChartWidth - latePadding.right} y2={y} className="trend-grid-line" />
-                          <text x={latePadding.left - 8} y={y + 4} className="trend-y-label">{tick}</text>
-                        </g>
-                      );
-                    })}
-
-                    <line x1={latePadding.left} y1={latePadding.top} x2={latePadding.left} y2={lateChartHeight - latePadding.bottom} className="trend-axis" />
-                    <line x1={latePadding.left} y1={lateChartHeight - latePadding.bottom} x2={lateChartWidth - latePadding.right} y2={lateChartHeight - latePadding.bottom} className="trend-axis" />
-
-                    {lateTaskRows.map((row, index) => {
-                      const x = getLateX(index);
-                      const height = lateChartHeight - latePadding.bottom - getLateY(row.count);
-                      const y = getLateY(row.count);
-                      return (
-                        <g key={row.date}>
-                          <rect x={x} y={y} width={lateBarWidth} height={height} rx={5} className="late-bar" />
-                          <text x={x + lateBarWidth / 2} y={lateChartHeight - 8} className="trend-x-label" textAnchor="middle">
+                      {cumulativeRows.map((row, index) => {
+                        if (index !== 0 && index !== cumulativeRows.length - 1) return null;
+                        const x = getX(index);
+                        return (
+                          <text key={`label-${row.date}`} x={x} y={chartHeight - 8} className="trend-x-label" textAnchor={index === 0 ? 'start' : 'end'}>
                             {formatShortDate(row.date)}
                           </text>
-                        </g>
-                      );
-                    })}
-                  </svg>
-                </div>
+                        );
+                      })}
+                    </svg>
+                  </div>
+                </>
+              )}
+            </section>
 
-                <div className="late-task-list">
-                  <h4>Top overdue</h4>
-                  <ul>
-                    {overdueTaskList.map(task => (
-                      <li key={task.id ?? `${task.title}-${task.dueDate}`}>
-                        <span>{task.title}</span>
-                        <span>{task.dueDate ? formatShortDate(task.dueDate) : 'No date'}</span>
-                      </li>
-                    ))}
-                  </ul>
+            <section className="stats-late" aria-label="Late task chart">
+              <div className="trend-header">
+                <h3>Late tasks</h3>
+                <p>Overdue tasks by due date</p>
+              </div>
+              {!hasLateTaskData && (
+                <div className="trend-empty">
+                  No tasks are overdue right now.
                 </div>
-              </>
-            )}
-          </section>
-        </>
+              )}
+              {hasLateTaskData && (
+                <>
+                  <div className="trend-chart-wrap">
+                    <svg className="late-chart" viewBox={`0 0 ${lateChartWidth} ${lateChartHeight}`} role="img" aria-label="Bar chart of late tasks by due date">
+                      {lateYTicks.map((tick, index) => {
+                        const y = latePadding.top + lateInnerHeight - (tick / lateMaxY) * lateInnerHeight;
+                        return (
+                          <g key={`${tick}-${index}`}>
+                            <line x1={latePadding.left} y1={y} x2={lateChartWidth - latePadding.right} y2={y} className="trend-grid-line" />
+                            <text x={latePadding.left - 8} y={y + 4} className="trend-y-label">{tick}</text>
+                          </g>
+                        );
+                      })}
+
+                      <line x1={latePadding.left} y1={latePadding.top} x2={latePadding.left} y2={lateChartHeight - latePadding.bottom} className="trend-axis" />
+                      <line x1={latePadding.left} y1={lateChartHeight - latePadding.bottom} x2={lateChartWidth - latePadding.right} y2={lateChartHeight - latePadding.bottom} className="trend-axis" />
+
+                      {lateTaskRows.map((row, index) => {
+                        const x = getLateX(index);
+                        const height = lateChartHeight - latePadding.bottom - getLateY(row.count);
+                        const y = getLateY(row.count);
+                        return (
+                          <g key={row.date}>
+                            <rect x={x} y={y} width={lateBarWidth} height={height} rx={5} className="late-bar" />
+                            <text x={x + lateBarWidth / 2} y={lateChartHeight - 8} className="trend-x-label" textAnchor="middle">
+                              {formatShortDate(row.date)}
+                            </text>
+                          </g>
+                        );
+                      })}
+                    </svg>
+                  </div>
+
+                  <div className="late-task-list">
+                    <h4>Top overdue</h4>
+                    <ul>
+                      {overdueTaskList.map(task => (
+                        <li key={task.id ?? `${task.title}-${task.dueDate}`}>
+                          <span>{task.title}</span>
+                          <span>{task.dueDate ? formatShortDate(task.dueDate) : 'No date'}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+            </section>
+          </div>
+        </div>
       )}
     </div>
   );

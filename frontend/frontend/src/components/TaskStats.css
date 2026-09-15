@@ -2,6 +2,7 @@
   padding: 12px;
   background: #f5f5f7;
   border-radius: 18px;
+  color: #111827;
 }
 
 .stats-loading {
@@ -11,8 +12,20 @@
   font-weight: 500;
 }
 
+.stats-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 330px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.stats-analytics {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .stats-overview {
-  margin-bottom: 18px;
   padding: 16px 16px 10px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.72);
@@ -143,12 +156,99 @@
 
 .stats-trend,
 .stats-late {
-  margin-top: 12px;
   padding: 14px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.78);
   border: 1px solid rgba(17, 24, 39, 0.04);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+@media (max-width: 900px) {
+  .stats-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .task-stats {
+    background: #111827;
+    color: #f3f4f6;
+  }
+
+  .stats-overview,
+  .stats-trend,
+  .stats-late {
+    background: rgba(17, 24, 39, 0.9);
+    border-color: rgba(148, 163, 184, 0.12);
+    box-shadow: none;
+  }
+
+  .stats-kicker,
+  .stats-heading h2,
+  .metrics-table th,
+  .metrics-table td,
+  .metric-value,
+  .trend-header h3,
+  .trend-header p,
+  .trend-empty,
+  .trend-y-label,
+  .trend-x-label,
+  .late-task-list h4,
+  .late-task-list li {
+    color: #e5e7eb;
+  }
+
+  .metrics-table td,
+  .metric-row.positive td,
+  .metric-row.warning td,
+  .metric-row.danger td {
+    background: rgba(31, 41, 55, 0.9);
+    border-top-color: rgba(148, 163, 184, 0.08);
+    border-bottom-color: rgba(148, 163, 184, 0.08);
+  }
+
+  .metric-pill.neutral {
+    background: rgba(148, 163, 184, 0.12);
+    color: #dbeafe;
+  }
+
+  .metric-pill.positive {
+    background: rgba(16, 185, 129, 0.12);
+    color: #a7f3d0;
+  }
+
+  .metric-pill.warning {
+    background: rgba(245, 158, 11, 0.12);
+    color: #fcd34d;
+  }
+
+  .metric-pill.danger {
+    background: rgba(239, 68, 68, 0.12);
+    color: #fca5a5;
+  }
+
+  .stats-live-badge {
+    background: rgba(148, 163, 184, 0.12);
+    color: #e5e7eb;
+  }
+
+  .trend-grid-line {
+    stroke: rgba(148, 163, 184, 0.22);
+  }
+
+  .trend-axis {
+    stroke: rgba(148, 163, 184, 0.4);
+  }
+
+  .trend-y-label,
+  .trend-x-label {
+    fill: #cbd5e1;
+  }
+
+  .late-task-list li {
+    background: rgba(31, 41, 55, 0.9);
+    border-color: rgba(148, 163, 184, 0.12);
+  }
 }
 
 .trend-header {
