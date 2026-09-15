@@ -152,55 +152,59 @@ export default function TaskStats({ refreshKey = 0 }: TaskStatsProps) {
     return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   };
 
+  const metrics = [
+    { label: 'Total tasks', value: total, tone: 'neutral' },
+    { label: 'Completed', value: completed, tone: 'positive' },
+    { label: 'Remaining', value: remaining, tone: 'neutral' },
+    { label: 'To do', value: byStatus.todo, tone: 'neutral' },
+    { label: 'In progress', value: byStatus.inProgress, tone: 'warning' },
+    { label: 'Done', value: byStatus.done, tone: 'positive' },
+    ...(overdue > 0 ? [{ label: 'Overdue', value: overdue, tone: 'danger' }] : []),
+    ...(totalSubtasks > 0 ? [{ label: 'Subtasks done', value: `${completedSubtasks}/${totalSubtasks}`, tone: 'neutral' }] : []),
+    ...(totalSubtasks > 0 ? [{ label: 'Tasks with subtasks', value: tasksWithSubtasks, tone: 'neutral' }] : []),
+  ];
+
   return (
     <div className="task-stats">
       {loading && <div className="stats-loading">Loading...</div>}
       {!loading && (
         <>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-label">Total</div>
-              <div className="stat-value">{total}</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">Completed</div>
-              <div className="stat-value">{completed}</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">Remaining</div>
-              <div className="stat-value">{remaining}</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">To Do</div>
-              <div className="stat-value">{byStatus.todo}</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">In Progress</div>
-              <div className="stat-value">{byStatus.inProgress}</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">Done</div>
-              <div className="stat-value">{byStatus.done}</div>
-            </div>
-            {overdue > 0 && (
-              <div className="stat-card stat-warning">
-                <div className="stat-label">Overdue</div>
-                <div className="stat-value">{overdue}</div>
+          <section className="stats-overview" aria-label="Task metrics overview">
+            <div className="stats-heading">
+              <div>
+                <p className="stats-kicker">Overview</p>
+                <h2>Task metrics</h2>
               </div>
-            )}
-            {totalSubtasks > 0 && (
-              <>
-                <div className="stat-card">
-                  <div className="stat-label">Subtasks done</div>
-                  <div className="stat-value">{completedSubtasks}/{totalSubtasks}</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-label">Tasks with subtasks</div>
-                  <div className="stat-value">{tasksWithSubtasks}</div>
-                </div>
-              </>
-            )}
-          </div>
+              <span className="stats-live-badge">Live</span>
+            </div>
+
+            <div className="metrics-table-wrap">
+              <table className="metrics-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {metrics.map(metric => (
+                    <tr key={metric.label} className={`metric-row ${metric.tone}`}>
+                      <td>{metric.label}</td>
+                      <td className="metric-value">{metric.value}</td>
+                      <td>
+                        <span className={`metric-pill ${metric.tone}`}>
+                          {metric.tone === 'positive' ? 'Healthy' :
+                            metric.tone === 'warning' ? 'Active' :
+                            metric.tone === 'danger' ? 'Attention' : 'Tracked'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
 
           <section className="stats-trend" aria-label="Task trend over time">
             <div className="trend-header">
