@@ -19,16 +19,6 @@ describe('TaskList UI edit flow', () => {
     vi.clearAllMocks();
   });
 
-  it('opens the create task modal when the create task button is clicked', async () => {
-    listTasksMock.mockResolvedValue([]);
-
-    render(<TaskList />);
-
-    fireEvent.click(screen.getByRole('button', { name: /create task/i }));
-
-    expect(await screen.findByText('Add a new task')).toBeTruthy();
-  });
-
   it('transitions parent task from IN_PROGRESS to DONE after completing remaining subtask', async () => {
     const initialTask: Task = {
       id: 'parent-1',

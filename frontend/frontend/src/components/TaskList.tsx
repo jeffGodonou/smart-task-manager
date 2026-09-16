@@ -26,7 +26,6 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
   const [error, setError]     = useState<string | null>(null);
   const [filter, setFilter]   = useState<'all' | 'active' | 'completed'>('all');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [showTaskEditor, setShowTaskEditor] = useState(false);
 
   useEffect(() => {
     loadTasks();
@@ -158,6 +157,11 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
 
   return (
     <>
+    <TaskEditor
+      onTaskCreated={() => handleSaveTaskDetails}
+      onClose={() => setSelectedTask(null)}
+    />
+
     <div className="task-list-shell">
 
       {/* Filter tabs + count */}
@@ -173,18 +177,9 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
             </button>
           ))}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span className="task-count">
-            {filteredTasks.length} {filteredTasks.length === 1 ? 'task' : 'tasks'}
-          </span>
-          <button
-            type="button"
-            className="task-editor-submit"
-            onClick={() => setShowTaskEditor(true)}
-          >
-            Create task
-          </button>
-        </div>
+        <span className="task-count">
+          {filteredTasks.length} {filteredTasks.length === 1 ? 'task' : 'tasks'}
+        </span>
       </div>
 
       {filteredTasks.length === 0 ? (
@@ -215,21 +210,6 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
               onOpen={setSelectedTask}
             />
           ))}
-        </div>
-      )}
-
-      {showTaskEditor && (
-        <div className="task-modal-overlay" onClick={() => setShowTaskEditor(false)}>
-          <div className="task-modal" onClick={(event) => event.stopPropagation()}>
-            <TaskEditor
-              showCloseButton={true}
-              onTaskCreated={async () => {
-                await loadTasks();
-                setShowTaskEditor(false);
-              }}
-              onClose={() => setShowTaskEditor(false)}
-            />
-          </div>
         </div>
       )}
 
