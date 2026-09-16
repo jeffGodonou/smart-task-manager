@@ -66,4 +66,16 @@ describe('ProjectView', () => {
       );
     });
   });
+
+  it('opens the task modal for a project row even when the project id is a non-string value', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: 42 as unknown as string, name: 'Numeric project', repositoryUrl: 'https://github.com/acme/project.git', branch: 'main' },
+    ]);
+
+    render(<ProjectView />);
+
+    fireEvent.click(screen.getByRole('button', { name: /create task for numeric project/i }));
+
+    expect(await screen.findByText('Add a new task')).toBeTruthy();
+  });
 });

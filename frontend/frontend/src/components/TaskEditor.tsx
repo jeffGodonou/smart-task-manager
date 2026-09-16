@@ -27,7 +27,14 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
 
   useEffect(() => {
     void fetchTasks();
-    setProjectId(initialProjectId && initialProjectId.trim() ? initialProjectId : null);
+
+    const normalizedProjectId = initialProjectId == null
+      ? null
+      : typeof initialProjectId === 'string'
+        ? initialProjectId.trim() || null
+        : String(initialProjectId).trim() || null;
+
+    setProjectId(normalizedProjectId);
   }, [fetchTasks, initialProjectId]);
 
   const {
