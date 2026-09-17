@@ -4,7 +4,7 @@ const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 const base = `${apiBaseUrl}/api/projects`;
 
 export type GitProject = {
-  id?: string;
+  id?: string | number;
   name: string;
   repositoryUrl?: string;
   githubAccount?: string;

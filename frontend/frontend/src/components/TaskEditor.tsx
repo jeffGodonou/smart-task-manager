@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 type TaskEditorProps = {
   onTaskCreated?: () => void;
   onClose?: () => void;
-  initialProjectId?: string | null;
+  initialProjectId?: string | number | null;
   showCloseButton?: boolean;
 };
 
@@ -23,18 +23,19 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
   const addTask   = useTaskStore(state => state.addTask);
   const error     = useTaskStore(state => state.error);
   const fetchTasks = useTaskStore(state => state.fetchTasks);
-  const [projectId, setProjectId] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<number | null>(null);
 
   useEffect(() => {
     void fetchTasks();
 
-    const normalizedProjectId = initialProjectId == null
-      ? null
-      : typeof initialProjectId === 'string'
-        ? initialProjectId.trim() || null
-        : String(initialProjectId).trim() || null;
+    if (initialProjectId == null) {
+      setProjectId(null);
+      return;
+    }
 
-    setProjectId(normalizedProjectId);
+    const rawValue = typeof initialProjectId === 'string' ? initialProjectId.trim() : String(initialProjectId).trim();
+    const normalizedProjectId = rawValue ? Number(rawValue) : null;
+    setProjectId(Number.isFinite(normalizedProjectId) ? normalizedProjectId : null);
   }, [fetchTasks, initialProjectId]);
 
   const {
@@ -51,7 +52,7 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
       title: data.title.trim(),
       description: data.description?.trim() || undefined,
       dueDate: data.dueDate || undefined,
-      projectId: projectId && projectId.trim() ? projectId : null,
+      projectId: projectId ?? null,
       isCompleted: false,
       status: 'TODO' as const,
     };
