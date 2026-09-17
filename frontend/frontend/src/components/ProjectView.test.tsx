@@ -78,4 +78,35 @@ describe('ProjectView', () => {
 
     expect(await screen.findByText('Add a new task')).toBeTruthy();
   });
+
+  it('sends a numeric projectId when creating a task from a project modal', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '42', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main' },
+    ]);
+    vi.mocked(taskApi.createTask).mockResolvedValue({
+      id: '99',
+      title: 'Planned task',
+      projectId: 42,
+      status: 'TODO',
+      isCompleted: false,
+    });
+
+    render(<ProjectView />);
+
+    fireEvent.click(screen.getByRole('button', { name: /create task for backend api/i }));
+
+    expect(await screen.findByText('Add a new task')).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Planned task' } });
+    fireEvent.click(screen.getByRole('button', { name: /\+ add task/i }));
+
+    await waitFor(() => {
+      expect(taskApi.createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Planned task',
+          projectId: 42,
+          status: 'TODO',
+        }),
+      );
+    });
+  });
 });
