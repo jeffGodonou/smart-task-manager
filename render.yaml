@@ -10,6 +10,8 @@ services:
         mountPath: /var/data
         sizeGB: 1
     envVars:
+      - key: PORT
+        value: "10000"
       - key: H2_JDBC_URL
         value: jdbc:h2:file:/var/data/taskdb;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
       - key: JWT_SECRET
