@@ -100,8 +100,8 @@ public class ProjectController {
             return;
         }
 
-        Project project = projectRepository.findById(id).orElse(null);
-        if (project == null || project.getOwner() == null || !username.equalsIgnoreCase(project.getOwner().getUsername())) {
+        Project project = projectRepository.findByIdAndOwnerUsername(id, username).orElse(null);
+        if (project == null) {
             sendResponse(exchange, 404, "Project not found");
             return;
         }
@@ -152,8 +152,8 @@ public class ProjectController {
             return;
         }
 
-        Project existing = projectRepository.findById(id).orElse(null);
-        if (existing == null || existing.getOwner() == null || !username.equalsIgnoreCase(existing.getOwner().getUsername())) {
+        Project existing = projectRepository.findByIdAndOwnerUsername(id, username).orElse(null);
+        if (existing == null) {
             sendResponse(exchange, 404, "Project not found");
             return;
         }
