@@ -134,8 +134,8 @@ public class TaskService {
             return;
         }
 
-        Project project = projectRepository.findById(task.getProjectId()).orElse(null);
-        if (project == null || project.getOwner() == null || !username.equalsIgnoreCase(project.getOwner().getUsername())) {
+        Project project = projectRepository.findByIdAndOwnerUsername(task.getProjectId(), username).orElse(null);
+        if (project == null) {
             throw new IllegalArgumentException("Project does not belong to this user.");
         }
         task.setProject(project);
