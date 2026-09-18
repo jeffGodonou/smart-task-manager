@@ -38,6 +38,35 @@ public class ProjectRepository {
         }
     }
 
+    public Optional<Project> findByIdWithOwner(Long id) {
+        EntityManager em = PersistanceManager.getEntityManager();
+        try {
+            TypedQuery<Project> query = em.createQuery(
+                    "SELECT p FROM Project p JOIN FETCH p.owner o WHERE p.id = :id",
+                    Project.class
+            );
+            query.setParameter("id", id);
+            return query.getResultStream().findFirst();
+        } finally {
+            em.close();
+        }
+    }
+
+    public Optional<Project> findByIdAndOwnerUsername(Long id, String username) {
+        EntityManager em = PersistanceManager.getEntityManager();
+        try {
+            TypedQuery<Project> query = em.createQuery(
+                    "SELECT p FROM Project p JOIN FETCH p.owner o WHERE p.id = :id AND LOWER(o.username) = :username",
+                    Project.class
+            );
+            query.setParameter("id", id);
+            query.setParameter("username", username == null ? "" : username.toLowerCase());
+            return query.getResultStream().findFirst();
+        } finally {
+            em.close();
+        }
+    }
+
     public List<Project> findByOwnerUsername(String username) {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
