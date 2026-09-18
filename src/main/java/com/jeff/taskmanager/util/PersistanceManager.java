@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class PersistanceManager {
     private static volatile EntityManagerFactory emf;
-    private static final String DEFAULT_H2_URL = "jdbc:h2:file:./data/taskdb;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE;MODE=PostgreSQL";
+    private static final String DEFAULT_H2_URL = "jdbc:h2:file:./data/taskdb;AUTO_SERVER=TRUE;MODE=PostgreSQL";
 
     public static String resolveJdbcUrl(Map<String, String> environment) {
         if (environment == null || environment.isEmpty()) {
