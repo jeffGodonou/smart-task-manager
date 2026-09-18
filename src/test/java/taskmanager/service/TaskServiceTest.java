@@ -1,7 +1,9 @@
 package taskmanager.service;
 
+import com.jeff.taskmanager.model.Project;
 import com.jeff.taskmanager.model.Task;
 import com.jeff.taskmanager.model.User;
+import com.jeff.taskmanager.repository.ProjectRepository;
 import com.jeff.taskmanager.repository.TaskRepository;
 import com.jeff.taskmanager.repository.UserRepository;
 import com.jeff.taskmanager.service.TaskService;
@@ -112,6 +114,29 @@ class TaskServiceTest {
         }
     }
 
+    private static class LazyOwnerProjectRepository extends ProjectRepository {
+        private final Project validProject;
+
+        private LazyOwnerProjectRepository(Project validProject) {
+            this.validProject = validProject;
+        }
+
+        @Override
+        public Optional<Project> findById(Long id) {
+            return Optional.of(new Project() {
+                @Override
+                public User getOwner() {
+                    throw new IllegalStateException("Detached lazy owner access should never happen");
+                }
+            });
+        }
+
+        @Override
+        public Optional<Project> findByIdAndOwnerUsername(Long id, String username) {
+            return Optional.of(validProject);
+        }
+    }
+
     private TaskService taskService;
     private TaskRepository taskRepository;
     private Task sample;
@@ -139,6 +164,26 @@ class TaskServiceTest {
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> taskService.addTask(sample, "missing"));
         assertEquals("Unknown user", error.getMessage());
+    }
+
+    @Test
+    void addTask_usesOwnerAwareProjectLookupToAvoidDetachedLazyProxy() {
+        User owner = new User("user", "password-hash");
+        Project project = new Project();
+        project.setId(42L);
+        project.setName("Alpha");
+        project.setOwner(owner);
+
+        Task task = new Task("Project Task", "Created with project", LocalDate.now(), false);
+        task.setProjectId(42L);
+
+        TaskService guardedService = new TaskService(taskRepository, userRepository, new LazyOwnerProjectRepository(project));
+
+        Task saved = guardedService.addTask(task, "user");
+
+        assertNotNull(saved);
+        assertEquals(project, saved.getProject());
+        assertEquals("user", saved.getOwner().getUsername());
     }
 
     @Test
