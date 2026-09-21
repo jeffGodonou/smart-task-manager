@@ -66,92 +66,109 @@ export default function AuthForm({ onAuthenticated }: AuthFormProps) {
 
   return (
     <div className="auth-page">
-      <div className="auth-shell">
-        <div className="auth-branding">
-          <span className="auth-badge">SMART TASK MANAGER</span>
-        </div>
+      <div className="auth-panel">
+        <aside className="auth-visual">
+          <div className="auth-visual-inner">
+            <img
+              src="/header-lockup-translucent.svg"
+              alt="Smart Task Manager"
+              className="auth-logo"
+            />
+            <div className="auth-visual-copy">
+              <span className="auth-mini-label">Productivity hub</span>
+              <h3>Plan smarter, execute faster.</h3>
+              <p>Keep projects moving with better visibility across your tasks, priorities, and deadlines.</p>
+            </div>
+          </div>
+        </aside>
 
-        <h2>{mode === 'login' ? 'Welcome back' : mode === 'register' ? 'Create an account' : 'Reset your password'}</h2>
-        <p>
-          {isForgotPassword
-            ? 'Enter your username and choose a new password.'
-            : 'Use any username and password to start managing tasks.'}
-        </p>
+        <div className="auth-shell">
+          <div className="auth-branding">
+            <span className="auth-badge">SMART TASK MANAGER</span>
+          </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            required
-          />
-          <div className="auth-password-field">
+          <h2>{mode === 'login' ? 'Welcome back' : mode === 'register' ? 'Create an account' : 'Reset your password'}</h2>
+          <p>
+            {isForgotPassword
+              ? 'Enter your username and choose a new password.'
+              : 'Use any username and password to start managing tasks.'}
+          </p>
+
+          <form className="auth-form" onSubmit={handleSubmit}>
             <input
-              type={showPassword ? 'text' : 'password'}
-              placeholder={isForgotPassword ? 'New password' : 'Password'}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
               required
             />
-            <button
-              type="button"
-              className="auth-password-toggle"
-              onClick={() => setShowPassword((current) => !current)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              <EyeIcon visible={showPassword} />
-              <span className="auth-password-tooltip">
-                {showPassword ? 'Hide password' : 'Show password'}
+            <div className="auth-password-field">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder={isForgotPassword ? 'New password' : 'Password'}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="auth-password-toggle"
+                onClick={() => setShowPassword((current) => !current)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                <EyeIcon visible={showPassword} />
+                <span className="auth-password-tooltip">
+                  {showPassword ? 'Hide password' : 'Show password'}
+                </span>
+              </button>
+            </div>
+            {error && <div className="auth-error">{error}</div>}
+            {success && <div className="auth-success">{success}</div>}
+            <button type="submit" className="auth-submit" disabled={loading}>
+              {loading
+                ? 'Working...'
+                : isForgotPassword
+                  ? 'Reset password'
+                  : mode === 'login'
+                    ? 'Log in'
+                    : 'Create account'}
+            </button>
+          </form>
+
+          <div className="auth-toggle">
+            {mode === 'login' ? (
+              <span>
+                No account yet? <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('register'); }}>Create one</button>
               </span>
-            </button>
+            ) : mode === 'register' ? (
+              <span>
+                Already have an account? <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('login'); }}>Log in</button>
+              </span>
+            ) : (
+              <span>
+                Remembered it? <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('login'); }}>Back to login</button>
+              </span>
+            )}
           </div>
-          {error && <div className="auth-error">{error}</div>}
-          {success && <div className="auth-success">{success}</div>}
-          <button type="submit" className="auth-submit" disabled={loading}>
-            {loading
-              ? 'Working...'
-              : isForgotPassword
-                ? 'Reset password'
-                : mode === 'login'
-                  ? 'Log in'
-                  : 'Create account'}
-          </button>
-        </form>
 
-        <div className="auth-toggle">
-          {mode === 'login' ? (
-            <span>
-              No account yet? <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('register'); }}>Create one</button>
-            </span>
-          ) : mode === 'register' ? (
-            <span>
-              Already have an account? <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('login'); }}>Log in</button>
-            </span>
-          ) : (
-            <span>
-              Remembered it? <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('login'); }}>Back to login</button>
-            </span>
+          {mode === 'login' && (
+            <div className="auth-toggle auth-subtle-link">
+              <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('forgot-password'); }}>
+                Forgot password?
+              </button>
+            </div>
           )}
-        </div>
 
-        {mode === 'login' && (
-          <div className="auth-toggle auth-subtle-link">
-            <button type="button" onClick={() => { setError(null); setSuccess(null); setMode('forgot-password'); }}>
-              Forgot password?
+          <div className="auth-toggle">
+            <button type="button" onClick={() => {
+              clearToken();
+              setError(null);
+              setSuccess(null);
+              onAuthenticated();
+            }}>
+              Continue without login
             </button>
           </div>
-        )}
-
-        <div className="auth-toggle">
-          <button type="button" onClick={() => {
-            clearToken();
-            setError(null);
-            setSuccess(null);
-            onAuthenticated();
-          }}>
-            Continue without login
-          </button>
         </div>
       </div>
     </div>

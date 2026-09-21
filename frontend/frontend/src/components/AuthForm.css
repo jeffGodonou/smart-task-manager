@@ -3,17 +3,83 @@
   display: grid;
   place-items: center;
   padding: 2rem 1.25rem;
-  background: linear-gradient(180deg, #eef6ff 0%, #f8fafc 100%);
+  background: linear-gradient(135deg, #edf6ff 0%, #f8fafc 32%, #eef2ff 100%);
+}
+
+.auth-panel {
+  width: min(100%, 980px);
+  min-height: 680px;
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 30px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+.auth-visual {
+  position: relative;
+  background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.28), transparent 32%),
+    linear-gradient(135deg, #0f172a 0%, #1d4e89 52%, #2563eb 100%);
+  color: white;
+  display: flex;
+  align-items: flex-end;
+}
+
+.auth-visual-inner {
+  width: 100%;
+  padding: 2rem 2.2rem 2.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.auth-logo {
+  width: min(80%, 300px);
+  filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.2));
+}
+
+.auth-visual-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 350px;
+}
+
+.auth-mini-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(191, 219, 254, 0.9);
+  font-weight: 700;
+}
+
+.auth-visual-copy h3 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+  color: white;
+}
+
+.auth-visual-copy p {
+  margin: 0;
+  color: rgba(224, 242, 254, 0.88);
+  line-height: 1.6;
+  font-size: 1rem;
 }
 
 .auth-shell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: min(100%, 430px);
-  padding: 2rem 1.6rem 1.5rem;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  border-radius: 24px;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
-  backdrop-filter: blur(8px);
+  margin: 0 auto;
+  padding: 2.4rem 2rem 1.8rem;
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .auth-branding {
@@ -192,4 +258,20 @@
 
 .auth-toggle button:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 820px) {
+  .auth-panel {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .auth-visual {
+    min-height: 260px;
+  }
+
+  .auth-shell {
+    width: 100%;
+    padding: 2rem 1.25rem 1.5rem;
+  }
 }
