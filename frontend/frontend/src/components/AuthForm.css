@@ -21,14 +21,45 @@
 
 .auth-visual {
   position: relative;
-  background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.28), transparent 32%),
-    linear-gradient(135deg, #0f172a 0%, #1d4e89 52%, #2563eb 100%);
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 64, 175, 0.65)),
+    radial-gradient(circle at top left, rgba(147, 197, 253, 0.36), transparent 32%),
+    linear-gradient(135deg, #0f172a 0%, #113a6d 38%, #1d4ed8 100%);
   color: white;
   display: flex;
   align-items: flex-end;
+  overflow: hidden;
+}
+
+.auth-visual::before,
+.auth-visual::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.auth-visual::before {
+  width: 520px;
+  height: 520px;
+  right: -140px;
+  top: -120px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.auth-visual::after {
+  width: 360px;
+  height: 360px;
+  left: -120px;
+  bottom: -150px;
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .auth-visual-inner {
+  position: relative;
+  z-index: 1;
   width: 100%;
   padding: 2rem 2.2rem 2.4rem;
   display: flex;
@@ -39,21 +70,27 @@
 
 .auth-logo {
   width: min(80%, 300px);
-  filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.2));
+  filter: drop-shadow(0 14px 24px rgba(15, 23, 42, 0.28));
 }
 
 .auth-visual-copy {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  max-width: 350px;
+  max-width: 360px;
 }
 
 .auth-mini-label {
-  font-size: 0.72rem;
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(191, 219, 254, 0.12);
+  border: 1px solid rgba(191, 219, 254, 0.18);
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: rgba(191, 219, 254, 0.9);
+  color: rgba(191, 219, 254, 0.96);
   font-weight: 700;
 }
 
@@ -61,7 +98,7 @@
   margin: 0;
   font-size: clamp(2rem, 3vw, 2.8rem);
   line-height: 1.05;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.06em;
   color: white;
 }
 
