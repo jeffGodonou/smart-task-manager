@@ -19,6 +19,26 @@ describe('TaskList UI edit flow', () => {
     vi.clearAllMocks();
   });
 
+  it('keeps incomplete tasks above completed ones and sorts each group by due date ascending', async () => {
+    listTasksMock.mockResolvedValue([
+      { id: 'done-late', title: 'Late done task', isCompleted: true, dueDate: '2026-09-20' },
+      { id: 'open-2', title: 'Second open task', isCompleted: false, dueDate: '2026-09-12' },
+      { id: 'done-early', title: 'Early done task', isCompleted: true, dueDate: '2026-09-10' },
+      { id: 'open-1', title: 'First open task', isCompleted: false, dueDate: '2026-09-09' },
+    ]);
+
+    render(<TaskList />);
+
+    await screen.findByText('First open task');
+
+    const taskTitles = screen.getAllByText(/(First open task|Second open task|Early done task|Late done task)/i)
+      .map((node) => node.textContent);
+
+    expect(taskTitles.indexOf('First open task')).toBeLessThan(taskTitles.indexOf('Second open task'));
+    expect(taskTitles.indexOf('Second open task')).toBeLessThan(taskTitles.indexOf('Early done task'));
+    expect(taskTitles.indexOf('Early done task')).toBeLessThan(taskTitles.indexOf('Late done task'));
+  });
+
   it('transitions parent task from IN_PROGRESS to DONE after completing remaining subtask', async () => {
     const initialTask: Task = {
       id: 'parent-1',
