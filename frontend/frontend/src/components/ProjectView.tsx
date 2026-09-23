@@ -329,15 +329,19 @@ export default function ProjectView() {
       {loading ? (
         <p>Loading projects…</p>
       ) : visibleProjects.length === 0 ? (
-        <p>No {activeProjectType === 'CODING' ? 'coding' : 'non-coding'} projects added yet.</p>
+        <div className="project-view-empty-state">
+          <div className="project-view-empty-state-icon">○</div>
+          <h3>No {activeProjectType === 'CODING' ? 'coding' : 'non-coding'} projects yet</h3>
+          <p>Switch project type or add a new {activeProjectType === 'CODING' ? 'coding' : 'non-coding'} project to populate this list.</p>
+        </div>
       ) : (
         <div className="project-view-table-wrapper">
           <table role="table" className="project-view-table">
             <colgroup>
               <col style={{ width: '18%' }} />
-              <col style={{ width: '24%' }} />
-              <col style={{ width: '16%' }} />
-              <col style={{ width: '16%' }} />
+              <col style={{ width: '30%' }} />
+              <col style={{ width: '14%' }} />
+              <col style={{ width: '12%' }} />
               <col style={{ width: '26%' }} />
             </colgroup>
             <thead>
@@ -394,6 +398,26 @@ export default function ProjectView() {
                           <span className="project-view-progress-fill" style={{ width: `${percentage}%` }} />
                         </div>
                         <small>{completedTasks}/{totalTasks} done</small>
+                        <div className="project-view-status-actions">
+                          <button
+                            type="button"
+                            className="project-view-mini-button project-view-add-button"
+                            aria-label={`Create task for ${project.name}`}
+                            title={`Create task for ${project.name}`}
+                            onClick={() => handleCreateTaskForProject(project)}
+                          >
+                            ＋
+                          </button>
+                          <button
+                            type="button"
+                            className="project-view-mini-button project-view-edit-button"
+                            aria-label={`Edit ${project.name}`}
+                            title={`Edit ${project.name}`}
+                            onClick={() => beginEditProject(project)}
+                          >
+                            ✎
+                          </button>
+                        </div>
                       </div>
                     </td>
                   </tr>
