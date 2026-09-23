@@ -29,8 +29,8 @@ public class Project {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "project_type", nullable = false)
-    private ProjectType projectType = ProjectType.CODING;
+    @Column(name = "project_type")
+    private ProjectType projectType = ProjectType.NON_CODING;
 
     @Column(name = "project_category")
     private String projectCategory;
@@ -90,7 +90,7 @@ public class Project {
     }
 
     public void setProjectType(ProjectType projectType) {
-        this.projectType = projectType == null ? ProjectType.CODING : projectType;
+        this.projectType = projectType == null ? ProjectType.NON_CODING : projectType;
     }
 
     public String getProjectCategory() {
