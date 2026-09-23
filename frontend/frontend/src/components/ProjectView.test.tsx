@@ -40,7 +40,7 @@ describe('ProjectView', () => {
     expect(screen.getByText('Local docs')).toBeTruthy();
   });
 
-  it('supports non-coding projects with description, category, and end date fields', async () => {
+  it('defaults new projects to non-coding and allows switching back to coding', async () => {
     vi.mocked(projectApi.loadProjects).mockResolvedValue([]);
     vi.mocked(projectApi.saveProject).mockResolvedValue({
       id: '3',
@@ -53,21 +53,21 @@ describe('ProjectView', () => {
 
     render(<ProjectView />);
 
+    expect((screen.getByLabelText('Project type') as HTMLSelectElement).value).toBe('NON_CODING');
+
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+    expect((screen.getByLabelText('Project type') as HTMLSelectElement).value).toBe('CODING');
+
     fireEvent.change(screen.getByLabelText('Project name'), { target: { value: 'Theatre production' } });
-    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'NON_CODING' } });
-    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Prepare the fall show.' } });
-    fireEvent.change(screen.getByLabelText('Project category'), { target: { value: 'Theatre' } });
-    fireEvent.change(screen.getByLabelText('End date'), { target: { value: '2026-10-15' } });
+    fireEvent.change(screen.getByLabelText('Git repository URL'), { target: { value: 'https://github.com/acme/show.git' } });
     fireEvent.click(screen.getByRole('button', { name: /add project/i }));
 
     await waitFor(() => {
       expect(projectApi.saveProject).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'Theatre production',
-          description: 'Prepare the fall show.',
-          projectType: 'NON_CODING',
-          projectCategory: 'Theatre',
-          endDate: '2026-10-15',
+          projectType: 'CODING',
+          repositoryUrl: 'https://github.com/acme/show.git',
         }),
       );
     });

@@ -8,7 +8,7 @@ import { sortTasksByCompletionAndDueDate } from '../utils/taskOrdering';
 const emptyDraft: Omit<GitProject, 'id'> = {
   name: '',
   description: '',
-  projectType: 'CODING',
+  projectType: 'NON_CODING',
   projectCategory: '',
   endDate: '',
   repositoryUrl: '',
@@ -25,6 +25,7 @@ export default function ProjectView() {
   const [showTaskEditor, setShowTaskEditor] = React.useState(false);
   const [taskEditorProject, setTaskEditorProject] = React.useState<GitProject | null>(null);
   const [taskCounts, setTaskCounts] = React.useState<Record<string, number>>({});
+  const [editingProjectId, setEditingProjectId] = React.useState<string | number | null>(null);
 
   const refreshProjects = React.useCallback(async () => {
     try {
@@ -79,18 +80,14 @@ export default function ProjectView() {
       return;
     }
 
-    if (!isCodingProject && (!draft.description?.trim() || !draft.projectCategory?.trim())) {
-      setError('Non-coding projects require a description and a project category.');
-      return;
-    }
-
     try {
       setSaving(true);
       const saved = await saveProject({
         ...draft,
+        id: editingProjectId ?? undefined,
         name: trimmedName,
         description: draft.description?.trim() ?? '',
-        projectType: draft.projectType ?? 'CODING',
+        projectType: draft.projectType ?? 'NON_CODING',
         projectCategory: draft.projectCategory?.trim() ?? '',
         endDate: draft.endDate?.trim() ?? '',
         repositoryUrl: trimmedRepo,
@@ -102,12 +99,35 @@ export default function ProjectView() {
         const next = current.filter((project) => project.id !== saved.id);
         return [...next, saved];
       });
+      setEditingProjectId(null);
       setDraft(emptyDraft);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to save project.');
     } finally {
       setSaving(false);
     }
+  };
+
+  const beginEditProject = (project: GitProject) => {
+    setEditingProjectId(project.id ?? null);
+    setDraft({
+      name: project.name ?? '',
+      description: project.description ?? '',
+      projectType: project.projectType ?? 'NON_CODING',
+      projectCategory: project.projectCategory ?? '',
+      endDate: project.endDate ?? '',
+      repositoryUrl: project.repositoryUrl ?? '',
+      githubAccount: project.githubAccount ?? '',
+      localPath: project.localPath ?? '',
+      branch: project.branch ?? 'main',
+    });
+    setError(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingProjectId(null);
+    setDraft(emptyDraft);
+    setError(null);
   };
 
   const handleCreateTaskForProject = (project?: GitProject) => {
@@ -144,6 +164,11 @@ export default function ProjectView() {
       </div>
 
       <form onSubmit={handleSubmit} className="task-editor-fields project-view-form" style={{ gridTemplateColumns: projectGridTemplate }}>
+        {editingProjectId !== null && (
+          <div className="task-editor-field" style={{ gridColumn: '1 / -1', marginBottom: '8px' }}>
+            <button type="button" className="task-editor-submit" onClick={cancelEdit}>Cancel edit</button>
+          </div>
+        )}
         <div className="task-editor-field">
           <label htmlFor="project-name">Project name</label>
           <input
@@ -161,10 +186,10 @@ export default function ProjectView() {
           <select
             id="project-type"
             className="task-editor-input"
-            value={draft.projectType ?? 'CODING'}
+            value={draft.projectType ?? 'NON_CODING'}
             onChange={(event) => setDraft((current) => ({
               ...current,
-              projectType: event.target.value === 'NON_CODING' ? 'NON_CODING' : 'CODING',
+              projectType: event.target.value === 'CODING' ? 'CODING' : 'NON_CODING',
             }))}
           >
             <option value="CODING">Coding project</option>
@@ -267,7 +292,7 @@ export default function ProjectView() {
           disabled={saving}
           style={{ whiteSpace: 'nowrap' }}
         >
-          {saving ? 'Saving...' : 'Add project'}
+          {saving ? 'Saving...' : editingProjectId !== null ? 'Save changes' : 'Add project'}
         </button>
       </form>
 
@@ -354,6 +379,13 @@ export default function ProjectView() {
                           onClick={() => handleCreateTaskForProject(project)}
                         >
                           Create task
+                        </button>
+                        <button
+                          type="button"
+                          className="task-editor-submit"
+                          onClick={() => beginEditProject(project)}
+                        >
+                          Edit
                         </button>
                       </div>
                     </td>
