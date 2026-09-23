@@ -115,59 +115,85 @@
   color: #0f766e;
 }
 
-.project-view-actions-column {
-  text-align: right;
+.project-view-status-column {
+  text-align: left;
 }
 
-.project-view-action-cell {
-  padding-left: 24px;
+.project-view-status-cell {
+  vertical-align: middle;
 }
 
-.project-view-action-stack {
+.project-view-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 112px;
+}
+
+.project-view-status-header {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding-left: 20px;
+  justify-content: space-between;
+  gap: 6px;
 }
 
-.project-view-task-count {
-  min-width: 3ch;
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.78rem;
+.project-view-status-value {
+  font-weight: 700;
+  color: #111827;
+  font-size: 0.76rem;
 }
 
-.project-view-icon-button {
+.project-view-status-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #1f2937;
-  font-size: 1rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.project-view-icon-button:hover {
-  background: #f3f4f6;
-  border-color: #cbd5e1;
-  transform: translateY(-1px);
+.project-view-status-pill.neutral {
+  background: #e2e8f0;
+  color: #475569;
 }
 
-.project-view-add-button {
-  color: #0f766e;
+.project-view-status-pill.not-started {
+  background: #fef3c7;
+  color: #92400e;
 }
 
-.project-view-edit-button {
+.project-view-status-pill.in-progress {
+  background: #dbeafe;
   color: #1d4ed8;
+}
+
+.project-view-status-pill.complete {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.project-view-progress-track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.project-view-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f59e0b 0%, #22c55e 100%);
+}
+
+.project-view-status small {
+  color: #64748b;
+  font-size: 0.68rem;
 }
 
 .project-view-modal-backdrop {

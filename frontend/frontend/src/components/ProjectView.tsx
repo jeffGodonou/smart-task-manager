@@ -24,7 +24,7 @@ export default function ProjectView() {
   const [loading, setLoading] = React.useState(true);
   const [showTaskEditor, setShowTaskEditor] = React.useState(false);
   const [taskEditorProject, setTaskEditorProject] = React.useState<GitProject | null>(null);
-  const [taskCounts, setTaskCounts] = React.useState<Record<string, number>>({});
+  const [taskProgress, setTaskProgress] = React.useState<Record<string, { total: number; completed: number }>>({});
   const [editingProjectId, setEditingProjectId] = React.useState<string | number | null>(null);
 
   const refreshProjects = React.useCallback(async () => {
@@ -41,18 +41,26 @@ export default function ProjectView() {
   const refreshTaskCounts = React.useCallback(async () => {
     try {
       const tasks = sortTasksByCompletionAndDueDate(await listTasks());
-      const counts = tasks.reduce<Record<string, number>>((accumulator, task) => {
+      const progress = tasks.reduce<Record<string, { total: number; completed: number }>>((accumulator, task) => {
         if (!task.projectId) {
           return accumulator;
         }
 
-        accumulator[task.projectId] = (accumulator[task.projectId] ?? 0) + 1;
+        const key = String(task.projectId);
+        const current = accumulator[key] ?? { total: 0, completed: 0 };
+
+        current.total += 1;
+        if (task.isCompleted || task.status === 'DONE') {
+          current.completed += 1;
+        }
+
+        accumulator[key] = current;
         return accumulator;
       }, {});
 
-      setTaskCounts(counts);
+      setTaskProgress(progress);
     } catch {
-      setTaskCounts({});
+      setTaskProgress({});
     }
   }, []);
 
@@ -147,7 +155,9 @@ export default function ProjectView() {
   // to 100 plus an extra auto column, the row overflows its container and
   // the browser shrinks the button, causing "Add project" to wrap.
   const projectGridTemplate = '18fr 28fr 12fr 12fr 30fr auto';
-  const showCodingFields = draft.projectType === 'CODING';
+  const activeProjectType = draft.projectType ?? 'NON_CODING';
+  const showCodingFields = activeProjectType === 'CODING';
+  const visibleProjects = projects.filter((project) => (project.projectType ?? 'NON_CODING') === activeProjectType);
 
   return (
     <section className="project-view">
@@ -318,8 +328,8 @@ export default function ProjectView() {
 
       {loading ? (
         <p>Loading projects…</p>
-      ) : projects.length === 0 ? (
-        <p>No projects added yet.</p>
+      ) : visibleProjects.length === 0 ? (
+        <p>No {activeProjectType === 'CODING' ? 'coding' : 'non-coding'} projects added yet.</p>
       ) : (
         <div className="project-view-table-wrapper">
           <table role="table" className="project-view-table">
@@ -333,17 +343,22 @@ export default function ProjectView() {
             <thead>
               <tr>
                 <th>Project</th>
-                <th>{projects.some((project) => project.projectType === 'NON_CODING') ? 'Details' : 'Repository / Path'}</th>
-                <th>{projects.some((project) => project.projectType === 'NON_CODING') ? 'Category / Timeline' : 'GitHub'}</th>
-                <th>{projects.some((project) => project.projectType === 'NON_CODING') ? 'End date' : 'Branch'}</th>
-                <th className="project-view-actions-column">Actions</th>
+                <th>{activeProjectType === 'NON_CODING' ? 'Details' : 'Repository / Path'}</th>
+                <th>{activeProjectType === 'NON_CODING' ? 'Category / Timeline' : 'GitHub'}</th>
+                <th>{activeProjectType === 'NON_CODING' ? 'End date' : 'Branch'}</th>
+                <th className="project-view-status-column">Status</th>
               </tr>
             </thead>
             <tbody>
-              {projects.map((project) => {
+              {visibleProjects.map((project) => {
                 const key = project.id ?? project.name;
                 const isCodingProject = project.projectType === 'CODING';
-                const taskCount = taskCounts[project.id ?? ''] ?? 0;
+                const projectProgress = taskProgress[String(project.id ?? '')] ?? { total: 0, completed: 0 };
+                const totalTasks = projectProgress.total;
+                const completedTasks = projectProgress.completed;
+                const percentage = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+                const statusText = totalTasks === 0 ? 'No tasks' : percentage === 100 ? 'Complete' : percentage > 0 ? 'In progress' : 'Not started';
+                const statusTone = totalTasks === 0 ? 'neutral' : percentage === 100 ? 'complete' : percentage > 0 ? 'in-progress' : 'not-started';
                 const badgeClassName = isCodingProject ? 'project-view-type-badge coding' : 'project-view-type-badge non-coding';
 
                 return (
@@ -369,29 +384,16 @@ export default function ProjectView() {
                         ? (project.branch || 'main')
                         : (project.endDate || '—')}
                     </td>
-                    <td className="project-view-action-cell">
-                      <div className="project-view-action-stack">
-                        <span className="project-view-task-count">
-                          {`${taskCount} task${taskCount === 1 ? '' : 's'}`}
-                        </span>
-                        <button
-                          type="button"
-                          className="project-view-icon-button project-view-add-button"
-                          aria-label={`Create task for ${project.name}`}
-                          title={`Create task for ${project.name}`}
-                          onClick={() => handleCreateTaskForProject(project)}
-                        >
-                          +
-                        </button>
-                        <button
-                          type="button"
-                          className="project-view-icon-button project-view-edit-button"
-                          aria-label={`Edit ${project.name}`}
-                          title={`Edit ${project.name}`}
-                          onClick={() => beginEditProject(project)}
-                        >
-                          ✎
-                        </button>
+                    <td className="project-view-status-cell">
+                      <div className="project-view-status">
+                        <div className="project-view-status-header">
+                          <span className="project-view-status-value">{percentage}%</span>
+                          <span className={`project-view-status-pill ${statusTone}`}>{statusText}</span>
+                        </div>
+                        <div className="project-view-progress-track" aria-label={`${project.name} progress`}>
+                          <span className="project-view-progress-fill" style={{ width: `${percentage}%` }} />
+                        </div>
+                        <small>{completedTasks}/{totalTasks} done</small>
                       </div>
                     </td>
                   </tr>
