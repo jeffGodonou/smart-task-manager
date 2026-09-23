@@ -73,6 +73,44 @@ describe('ProjectView', () => {
     });
   });
 
+  it('shows only the projects matching the active project type', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main', projectType: 'CODING' },
+      { id: '2', name: 'Theatre production', description: 'Prepare the fall show.', projectType: 'NON_CODING', projectCategory: 'Theatre', endDate: '2026-10-15' },
+      { id: '3', name: 'Launch plan', description: 'Marketing launch.', projectType: 'NON_CODING', projectCategory: 'Marketing', endDate: '2026-11-01' },
+    ]);
+
+    render(<ProjectView />);
+
+    expect(await screen.findByText('Theatre production')).toBeTruthy();
+    expect(screen.getByText('Launch plan')).toBeTruthy();
+    expect(screen.queryByText('Backend API')).toBeNull();
+
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+
+    await waitFor(() => {
+      expect(screen.getByText('Backend API')).toBeTruthy();
+    });
+    expect(screen.queryByText('Theatre production')).toBeNull();
+    expect(screen.queryByText('Launch plan')).toBeNull();
+  });
+
+  it('shows project advancement in the status column', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main', projectType: 'CODING' },
+    ]);
+    vi.mocked(taskApi.listTasks).mockResolvedValue([
+      { id: 'a', title: 'Setup', projectId: '1', status: 'TODO', isCompleted: false },
+      { id: 'b', title: 'Ship', projectId: '1', status: 'DONE', isCompleted: true },
+    ]);
+
+    render(<ProjectView />);
+
+    expect(await screen.findByText('Status')).toBeTruthy();
+    expect(screen.getByText('50%')).toBeTruthy();
+    expect(screen.getByText(/in progress|complete|started/i)).toBeTruthy();
+  });
+
   it('allows creating a standalone task from the list view without assigning a project', async () => {
     vi.mocked(projectApi.loadProjects).mockResolvedValue([
       { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main' },
