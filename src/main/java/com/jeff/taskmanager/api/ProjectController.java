@@ -57,7 +57,12 @@ public class ProjectController {
         }
 
         if ((PREFIX.equals(path) || (PREFIX + "/").equals(path)) && "POST".equalsIgnoreCase(method)) {
-            handleCreate(exchange);
+            try {
+                handleCreate(exchange);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                sendJson(exchange, 500, "{\"error\":\"Failed to create project\"}");
+            }
             return;
         }
 
@@ -74,7 +79,12 @@ public class ProjectController {
             }
 
             if ("PUT".equalsIgnoreCase(method)) {
-                handleUpdate(exchange, id);
+                try {
+                    handleUpdate(exchange, id);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    sendJson(exchange, 500, "{\"error\":\"Failed to update project\"}");
+                }
                 return;
             }
         }

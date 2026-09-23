@@ -73,8 +73,19 @@ export async function saveProject(project: GitProject): Promise<GitProject> {
   }
 
   if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || 'Failed to save project');
+    let message = 'Failed to save project';
+
+    try {
+      const payload = await response.json() as { error?: string; message?: string };
+      message = payload.error || payload.message || message;
+    } catch {
+      const fallbackMessage = await response.text();
+      if (fallbackMessage) {
+        message = fallbackMessage;
+      }
+    }
+
+    throw new Error(message);
   }
 
   return response.json() as Promise<GitProject>;
