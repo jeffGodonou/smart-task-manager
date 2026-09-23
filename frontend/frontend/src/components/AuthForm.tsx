@@ -78,6 +78,23 @@ export default function AuthForm({ onAuthenticated }: AuthFormProps) {
               <span className="auth-mini-label">Productivity hub</span>
               <h3>Plan smarter, execute faster.</h3>
               <p>Keep projects moving with better visibility across your tasks, priorities, and deadlines.</p>
+
+              <div className="auth-visual-footer">
+                <div className="auth-mini-card">
+                  <span className="auth-card-dot blue" />
+                  <div>
+                    <strong>12</strong>
+                    <small>Open projects</small>
+                  </div>
+                </div>
+                <div className="auth-mini-card">
+                  <span className="auth-card-dot gold" />
+                  <div>
+                    <strong>3</strong>
+                    <small>Priority tasks</small>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </aside>

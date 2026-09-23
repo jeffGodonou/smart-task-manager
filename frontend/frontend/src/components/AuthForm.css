@@ -109,6 +109,61 @@
   font-size: 1rem;
 }
 
+.auth-visual-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.auth-mini-card {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.18);
+  border: 1px solid rgba(191, 219, 254, 0.14);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.auth-card-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.auth-card-dot.blue {
+  background: #7dd3fc;
+  box-shadow: 0 0 0 5px rgba(125, 211, 252, 0.18);
+}
+
+.auth-card-dot.gold {
+  background: #facc15;
+  box-shadow: 0 0 0 5px rgba(250, 204, 21, 0.18);
+}
+
+.auth-mini-card strong,
+.auth-mini-card small {
+  display: block;
+}
+
+.auth-mini-card strong {
+  font-size: 1.1rem;
+  line-height: 1.1;
+  color: white;
+}
+
+.auth-mini-card small {
+  margin-top: 0.1rem;
+  color: rgba(224, 242, 254, 0.8);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
 .auth-shell {
   display: flex;
   flex-direction: column;
