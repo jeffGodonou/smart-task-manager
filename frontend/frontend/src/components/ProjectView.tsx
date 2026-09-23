@@ -116,7 +116,7 @@ export default function ProjectView() {
     }
   };
 
-  /*const beginEditProject = (project: GitProject) => {
+  const beginEditProject = (project: GitProject) => {
     setEditingProjectId(project.id ?? null);
     setDraft({
       name: project.name ?? '',
@@ -130,7 +130,7 @@ export default function ProjectView() {
       branch: project.branch ?? 'main',
     });
     setError(null);
-  };*/
+  };
 
   const cancelEdit = () => {
     setEditingProjectId(null);
