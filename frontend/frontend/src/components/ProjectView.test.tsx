@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ProjectView from './ProjectView';
 import * as projectApi from '../api/projects';
 import * as taskApi from '../api/tasks';
@@ -23,6 +23,10 @@ describe('ProjectView', () => {
     vi.clearAllMocks();
   });
 
+  afterEach(() => {
+    cleanup();
+  });
+
   it('renders all available projects in the list view', async () => {
     vi.mocked(projectApi.loadProjects).mockResolvedValue([
       { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main' },
@@ -34,6 +38,39 @@ describe('ProjectView', () => {
     expect(await screen.findByRole('table')).toBeTruthy();
     expect(screen.getByText('Backend API')).toBeTruthy();
     expect(screen.getByText('Local docs')).toBeTruthy();
+  });
+
+  it('supports non-coding projects with description, category, and end date fields', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([]);
+    vi.mocked(projectApi.saveProject).mockResolvedValue({
+      id: '3',
+      name: 'Theatre production',
+      description: 'Prepare the fall show.',
+      projectType: 'NON_CODING',
+      projectCategory: 'Theatre',
+      endDate: '2026-10-15',
+    });
+
+    render(<ProjectView />);
+
+    fireEvent.change(screen.getByLabelText('Project name'), { target: { value: 'Theatre production' } });
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'NON_CODING' } });
+    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Prepare the fall show.' } });
+    fireEvent.change(screen.getByLabelText('Project category'), { target: { value: 'Theatre' } });
+    fireEvent.change(screen.getByLabelText('End date'), { target: { value: '2026-10-15' } });
+    fireEvent.click(screen.getByRole('button', { name: /add project/i }));
+
+    await waitFor(() => {
+      expect(projectApi.saveProject).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Theatre production',
+          description: 'Prepare the fall show.',
+          projectType: 'NON_CODING',
+          projectCategory: 'Theatre',
+          endDate: '2026-10-15',
+        }),
+      );
+    });
   });
 
   it('allows creating a standalone task from the list view without assigning a project', async () => {
@@ -50,7 +87,8 @@ describe('ProjectView', () => {
 
     render(<ProjectView />);
 
-    fireEvent.click(screen.getAllByRole('button', { name: /^create task$/i })[0]);
+    const taskButton = await screen.findByRole('button', { name: /^create task$/i });
+    fireEvent.click(taskButton);
 
     expect(await screen.findByText('Add a new task')).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'General task' } });
@@ -74,7 +112,8 @@ describe('ProjectView', () => {
 
     render(<ProjectView />);
 
-    fireEvent.click(screen.getByRole('button', { name: /create task for numeric project/i }));
+    const numericTaskButton = await screen.findByRole('button', { name: /create task for numeric project/i });
+    fireEvent.click(numericTaskButton);
 
     expect(await screen.findByText('Add a new task')).toBeTruthy();
   });
@@ -93,7 +132,8 @@ describe('ProjectView', () => {
 
     render(<ProjectView />);
 
-    fireEvent.click(screen.getByRole('button', { name: /create task for backend api/i }));
+    const projectTaskButton = await screen.findByRole('button', { name: /create task for backend api/i });
+    fireEvent.click(projectTaskButton);
 
     expect(await screen.findByText('Add a new task')).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Planned task' } });
