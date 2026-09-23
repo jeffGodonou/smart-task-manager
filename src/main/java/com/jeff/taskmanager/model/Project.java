@@ -8,6 +8,11 @@ import jakarta.persistence.*;
 @Table(name = "projects")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Project {
+    public enum ProjectType {
+        CODING,
+        NON_CODING
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,6 +24,19 @@ public class Project {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(length = 2000)
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "project_type", nullable = false)
+    private ProjectType projectType = ProjectType.CODING;
+
+    @Column(name = "project_category")
+    private String projectCategory;
+
+    @Column(name = "end_date")
+    private String endDate;
 
     @Column(name = "repository_url")
     private String repositoryUrl;
@@ -56,7 +74,39 @@ public class Project {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name == null ? null : name.trim();
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description == null || description.isBlank() ? null : description.trim();
+    }
+
+    public ProjectType getProjectType() {
+        return projectType;
+    }
+
+    public void setProjectType(ProjectType projectType) {
+        this.projectType = projectType == null ? ProjectType.CODING : projectType;
+    }
+
+    public String getProjectCategory() {
+        return projectCategory;
+    }
+
+    public void setProjectCategory(String projectCategory) {
+        this.projectCategory = projectCategory == null || projectCategory.isBlank() ? null : projectCategory.trim();
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate == null || endDate.isBlank() ? null : endDate.trim();
     }
 
     public String getRepositoryUrl() {
@@ -64,7 +114,7 @@ public class Project {
     }
 
     public void setRepositoryUrl(String repositoryUrl) {
-        this.repositoryUrl = repositoryUrl;
+        this.repositoryUrl = repositoryUrl == null || repositoryUrl.isBlank() ? null : repositoryUrl.trim();
     }
 
     public String getGithubAccount() {
@@ -80,7 +130,7 @@ public class Project {
     }
 
     public void setLocalPath(String localPath) {
-        this.localPath = localPath;
+        this.localPath = localPath == null || localPath.isBlank() ? null : localPath.trim();
     }
 
     public String getBranch() {

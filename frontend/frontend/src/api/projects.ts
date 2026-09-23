@@ -3,9 +3,15 @@ import { clearToken, getAuthHeaders } from './auth';
 const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 const base = `${apiBaseUrl}/api/projects`;
 
+export type ProjectType = 'CODING' | 'NON_CODING';
+
 export type GitProject = {
   id?: string | number;
   name: string;
+  description?: string;
+  projectType?: ProjectType;
+  projectCategory?: string;
+  endDate?: string;
   repositoryUrl?: string;
   githubAccount?: string;
   localPath?: string;
@@ -41,9 +47,8 @@ export async function saveProject(project: GitProject): Promise<GitProject> {
     throw new Error('You must be logged in to manage a project.');
   }
 
-  const existing = await loadProject();
-  const method = existing?.id ? 'PUT' : 'POST';
-  const url = existing?.id ? `${base}/${existing.id}` : base;
+  const method = project.id ? 'PUT' : 'POST';
+  const url = project.id ? `${base}/${project.id}` : base;
 
   const response = await fetch(url, {
     method,
@@ -51,6 +56,10 @@ export async function saveProject(project: GitProject): Promise<GitProject> {
     body: JSON.stringify({
       ...project,
       name: project.name.trim(),
+      description: project.description?.trim() ?? '',
+      projectType: project.projectType ?? 'CODING',
+      projectCategory: project.projectCategory?.trim() ?? '',
+      endDate: project.endDate?.trim() ?? '',
       repositoryUrl: project.repositoryUrl?.trim() ?? '',
       githubAccount: project.githubAccount?.trim() ?? '',
       localPath: project.localPath?.trim() ?? '',
