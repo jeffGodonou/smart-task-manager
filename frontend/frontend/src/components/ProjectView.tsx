@@ -324,68 +324,71 @@ export default function ProjectView() {
           <table role="table" className="project-view-table">
             <colgroup>
               <col style={{ width: '18%' }} />
-              <col style={{ width: '28%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '30%' }} />
+              <col style={{ width: '24%' }} />
+              <col style={{ width: '16%' }} />
+              <col style={{ width: '16%' }} />
+              <col style={{ width: '26%' }} />
             </colgroup>
             <thead>
               <tr>
                 <th>Project</th>
-                <th>Repository / Path</th>
-                <th>GitHub</th>
-                <th>Branch</th>
-                <th>Task</th>
+                <th>{projects.some((project) => project.projectType === 'NON_CODING') ? 'Details' : 'Repository / Path'}</th>
+                <th>{projects.some((project) => project.projectType === 'NON_CODING') ? 'Category / Timeline' : 'GitHub'}</th>
+                <th>{projects.some((project) => project.projectType === 'NON_CODING') ? 'End date' : 'Branch'}</th>
+                <th className="project-view-actions-column">Actions</th>
               </tr>
             </thead>
             <tbody>
               {projects.map((project) => {
                 const key = project.id ?? project.name;
+                const isCodingProject = project.projectType === 'CODING';
+                const taskCount = taskCounts[project.id ?? ''] ?? 0;
+
                 return (
                   <tr key={key}>
                     <td>
                       <strong>{project.name}</strong>
-                      {project.projectType === 'NON_CODING' && (
-                        <div style={{ fontSize: '0.75rem', color: '#4a5568', marginTop: '4px' }}>
-                          {project.projectCategory || 'Non-coding project'}
-                        </div>
-                      )}
+                      <div className="project-view-type-badge">
+                        {isCodingProject ? 'Coding' : 'Non-coding'}
+                      </div>
                     </td>
                     <td>
-                      {project.projectType === 'NON_CODING'
-                        ? (project.description || '—')
-                        : (project.repositoryUrl ? project.repositoryUrl : project.localPath || '—')}
+                      {isCodingProject
+                        ? (project.repositoryUrl ? project.repositoryUrl : project.localPath || '—')
+                        : (project.description || '—')}
                     </td>
                     <td>
-                      {project.projectType === 'NON_CODING'
-                        ? (project.endDate || '—')
-                        : (project.githubAccount || '—')}
+                      {isCodingProject
+                        ? (project.githubAccount || '—')
+                        : (project.projectCategory || 'General')}
                     </td>
                     <td>
-                      {project.projectType === 'NON_CODING'
-                        ? (project.projectCategory || 'General')
-                        : (project.branch || 'main')}
+                      {isCodingProject
+                        ? (project.branch || 'main')
+                        : (project.endDate || '—')}
                     </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                        <span style={{ minWidth: '3ch', fontWeight: 600, color: '#2d3748' }}>
-                          {`${taskCounts[project.id ?? ''] ?? 0} task${(taskCounts[project.id ?? ''] ?? 0) === 1 ? '' : 's'}`}
+                    <td className="project-view-action-cell">
+                      <div className="project-view-action-stack">
+                        <span className="project-view-task-count">
+                          {`${taskCount} task${taskCount === 1 ? '' : 's'}`}
                         </span>
                         <button
                           type="button"
-                          className="task-editor-submit"
+                          className="project-view-icon-button project-view-add-button"
                           aria-label={`Create task for ${project.name}`}
                           title={`Create task for ${project.name}`}
                           onClick={() => handleCreateTaskForProject(project)}
                         >
-                          Create task
+                          +
                         </button>
                         <button
                           type="button"
-                          className="task-editor-submit"
+                          className="project-view-icon-button project-view-edit-button"
+                          aria-label={`Edit ${project.name}`}
+                          title={`Edit ${project.name}`}
                           onClick={() => beginEditProject(project)}
                         >
-                          Edit
+                          ✎
                         </button>
                       </div>
                     </td>

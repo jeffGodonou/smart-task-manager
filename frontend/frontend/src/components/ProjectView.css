@@ -66,6 +66,71 @@
   font-weight: 600;
 }
 
+.project-view-type-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.project-view-actions-column {
+  text-align: right;
+}
+
+.project-view-action-cell {
+  padding-left: 24px;
+}
+
+.project-view-action-stack {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-left: 18px;
+}
+
+.project-view-task-count {
+  min-width: 3ch;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.project-view-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.project-view-icon-button:hover {
+  background: #f3f4f6;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.project-view-add-button {
+  color: #0f766e;
+}
+
+.project-view-edit-button {
+  color: #1d4ed8;
+}
+
 .project-view-modal-backdrop {
   position: fixed;
   inset: 0;
