@@ -155,11 +155,12 @@ export default function ProjectView() {
         <h2 className="project-view-title">Project view</h2>
         <button
           type="button"
-          className="task-editor-submit"
+          className="project-view-header-button"
           aria-label="Create task"
           onClick={() => handleCreateTaskForProject()}
         >
-          Create task
+          <span aria-hidden="true">＋</span>
+          <span>Task</span>
         </button>
       </div>
 
@@ -343,12 +344,13 @@ export default function ProjectView() {
                 const key = project.id ?? project.name;
                 const isCodingProject = project.projectType === 'CODING';
                 const taskCount = taskCounts[project.id ?? ''] ?? 0;
+                const badgeClassName = isCodingProject ? 'project-view-type-badge coding' : 'project-view-type-badge non-coding';
 
                 return (
                   <tr key={key}>
                     <td>
                       <strong>{project.name}</strong>
-                      <div className="project-view-type-badge">
+                      <div className={badgeClassName}>
                         {isCodingProject ? 'Coding' : 'Non-coding'}
                       </div>
                     </td>

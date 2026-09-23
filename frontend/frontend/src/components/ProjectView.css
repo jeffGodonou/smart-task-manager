@@ -11,7 +11,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .project-view-title {
@@ -21,6 +21,26 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #6b7280;
+}
+
+.project-view-header-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #111827;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.project-view-header-button:hover {
+  background: #eef2ff;
+  border-color: #c7d2fe;
 }
 
 .project-view-form {
@@ -49,17 +69,25 @@
 .project-view-table th,
 .project-view-table td {
   text-align: left;
-  padding: 10px 12px;
+  padding: 8px 10px;
   vertical-align: top;
 }
 
 .project-view-table thead th {
   font-weight: 700;
   color: var(--text);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .project-view-table tbody tr {
   border-top: 1px solid var(--border);
+  transition: background-color 0.15s ease;
+}
+
+.project-view-table tbody tr:hover {
+  background: #f8fafc;
 }
 
 .project-view-table td strong {
@@ -68,14 +96,23 @@
 
 .project-view-type-badge {
   display: inline-block;
-  margin-top: 4px;
+  margin-top: 6px;
   padding: 3px 8px;
   border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.project-view-type-badge.coding {
   background: #eef2ff;
   color: #4338ca;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+}
+
+.project-view-type-badge.non-coding {
+  background: #ecfeff;
+  color: #0f766e;
 }
 
 .project-view-actions-column {
@@ -92,21 +129,23 @@
   justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
-  padding-left: 18px;
+  padding-left: 20px;
 }
 
 .project-view-task-count {
   min-width: 3ch;
   font-weight: 600;
-  color: #2d3748;
+  color: #475569;
+  font-size: 0.78rem;
 }
 
 .project-view-icon-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: #ffffff;
