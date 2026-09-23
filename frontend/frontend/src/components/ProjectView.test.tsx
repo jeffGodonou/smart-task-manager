@@ -85,6 +85,7 @@ describe('ProjectView', () => {
     expect(await screen.findByText('Theatre production')).toBeTruthy();
     expect(screen.getByText('Launch plan')).toBeTruthy();
     expect(screen.queryByText('Backend API')).toBeNull();
+    expect(screen.getByRole('button', { name: /edit theatre production/i })).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
 
@@ -106,9 +107,12 @@ describe('ProjectView', () => {
 
     render(<ProjectView />);
 
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+
     expect(await screen.findByText('Status')).toBeTruthy();
     expect(screen.getByText('50%')).toBeTruthy();
     expect(screen.getByText(/in progress|complete|started/i)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /edit backend api/i })).toBeTruthy();
   });
 
   it('allows creating a standalone task from the list view without assigning a project', async () => {
