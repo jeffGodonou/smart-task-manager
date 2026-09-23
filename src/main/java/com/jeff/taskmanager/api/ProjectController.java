@@ -130,7 +130,9 @@ public class ProjectController {
         try {
             payload = readRequestBody(exchange.getRequestBody(), Project.class);
         } catch (Exception e) {
-            sendJson(exchange, 400, "{\"error\":\"Invalid project payload: " + e.getMessage().replace('"', '\\"') + "\"}");
+            String rawMessage = e.getMessage() == null ? "Unknown error" : e.getMessage();
+            String safeMessage = rawMessage.replace("\\", "\\\\").replace("\"", "\\\"");
+            sendJson(exchange, 400, "{\"error\":\"Invalid project payload: " + safeMessage + "\"}");
             return;
         }
 
