@@ -8,6 +8,7 @@ import React from 'react';
 import { listTasks, updateTask } from '../api/tasks';
 import type { Task } from '../api/tasks';
 import KanbanColumn from './KanbanColumn';
+import { sortTasksByCompletionAndDueDate } from '../utils/taskOrdering';
 
 type KanbanBoardProps = {
   refreshKey?: number;
@@ -59,7 +60,7 @@ export default function KanbanBoard({ refreshKey = 0 }: KanbanBoardProps) {
       return [currentTask, ...subtasks];
     });
 
-  const visibleTasks = flattenTasks(tasks);
+  const visibleTasks = sortTasksByCompletionAndDueDate(flattenTasks(tasks));
   const byStatus = (s: Task['status']) =>
     visibleTasks.filter(t => (t.status || 'TODO') === s);
 

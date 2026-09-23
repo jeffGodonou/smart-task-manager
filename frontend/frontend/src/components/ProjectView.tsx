@@ -3,6 +3,7 @@ import { loadProjects, saveProject, type GitProject } from '../api/projects';
 import { listTasks } from '../api/tasks';
 import './ProjectView.css';
 import TaskEditor from './TaskEditor';
+import { sortTasksByCompletionAndDueDate } from '../utils/taskOrdering';
 
 const emptyDraft: Omit<GitProject, 'id'> = {
   name: '',
@@ -34,7 +35,7 @@ export default function ProjectView() {
 
   const refreshTaskCounts = React.useCallback(async () => {
     try {
-      const tasks = await listTasks();
+      const tasks = sortTasksByCompletionAndDueDate(await listTasks());
       const counts = tasks.reduce<Record<string, number>>((accumulator, task) => {
         if (!task.projectId) {
           return accumulator;
