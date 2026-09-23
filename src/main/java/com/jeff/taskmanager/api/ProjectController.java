@@ -126,12 +126,30 @@ public class ProjectController {
         String repositoryUrl = payload.getRepositoryUrl() == null ? "" : payload.getRepositoryUrl().trim();
         String githubAccount = payload.getGithubAccount() == null ? "" : payload.getGithubAccount().trim();
         String localPath = payload.getLocalPath() == null ? "" : payload.getLocalPath().trim();
+        Project.ProjectType projectType = payload.getProjectType() == null ? Project.ProjectType.CODING : payload.getProjectType();
 
-        if (name.isBlank() || (repositoryUrl.isBlank() && localPath.isBlank())) {
-            sendResponse(exchange, 400, "Project name and at least one of repository URL or local path are required");
+        if (name.isBlank()) {
+            sendResponse(exchange, 400, "Project name is required");
             return;
         }
 
+        if (projectType == Project.ProjectType.CODING && repositoryUrl.isBlank() && localPath.isBlank()) {
+            sendResponse(exchange, 400, "Coding projects require a repository URL or local path");
+            return;
+        }
+
+        if (projectType == Project.ProjectType.NON_CODING) {
+            if (payload.getDescription() == null || payload.getDescription().isBlank()) {
+                sendResponse(exchange, 400, "Non-coding projects require a description");
+                return;
+            }
+            if (payload.getProjectCategory() == null || payload.getProjectCategory().isBlank()) {
+                sendResponse(exchange, 400, "Non-coding projects require a project category");
+                return;
+            }
+        }
+
+        payload.setProjectType(projectType);
         payload.setGithubAccount(githubAccount);
 
         User owner = userRepository.findByUsername(username).orElse(null);
@@ -167,14 +185,26 @@ public class ProjectController {
         if (payload.getName() != null && !payload.getName().trim().isEmpty()) {
             existing.setName(payload.getName().trim());
         }
+        if (payload.getDescription() != null) {
+            existing.setDescription(payload.getDescription());
+        }
+        if (payload.getProjectType() != null) {
+            existing.setProjectType(payload.getProjectType());
+        }
+        if (payload.getProjectCategory() != null) {
+            existing.setProjectCategory(payload.getProjectCategory());
+        }
+        if (payload.getEndDate() != null) {
+            existing.setEndDate(payload.getEndDate());
+        }
         if (payload.getRepositoryUrl() != null) {
-            existing.setRepositoryUrl(payload.getRepositoryUrl().trim());
+            existing.setRepositoryUrl(payload.getRepositoryUrl());
         }
         if (payload.getGithubAccount() != null) {
             existing.setGithubAccount(payload.getGithubAccount());
         }
         if (payload.getLocalPath() != null) {
-            existing.setLocalPath(payload.getLocalPath().trim());
+            existing.setLocalPath(payload.getLocalPath());
         }
         if (payload.getBranch() != null) {
             existing.setBranch(payload.getBranch());
