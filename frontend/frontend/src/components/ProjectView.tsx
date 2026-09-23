@@ -7,6 +7,10 @@ import { sortTasksByCompletionAndDueDate } from '../utils/taskOrdering';
 
 const emptyDraft: Omit<GitProject, 'id'> = {
   name: '',
+  description: '',
+  projectType: 'CODING',
+  projectCategory: '',
+  endDate: '',
   repositoryUrl: '',
   localPath: '',
   branch: 'main',
@@ -63,9 +67,20 @@ export default function ProjectView() {
     const trimmedName = draft.name.trim();
     const trimmedRepo = draft.repositoryUrl?.trim() ?? '';
     const trimmedLocalPath = draft.localPath?.trim() ?? '';
+    const isCodingProject = draft.projectType === 'CODING';
 
-    if (!trimmedName || (!trimmedRepo && !trimmedLocalPath)) {
-      setError('Project name and at least one of repository URL or local path are required.');
+    if (!trimmedName) {
+      setError('Project name is required.');
+      return;
+    }
+
+    if (isCodingProject && !trimmedRepo && !trimmedLocalPath) {
+      setError('Coding projects require a repository URL or a local path.');
+      return;
+    }
+
+    if (!isCodingProject && (!draft.description?.trim() || !draft.projectCategory?.trim())) {
+      setError('Non-coding projects require a description and a project category.');
       return;
     }
 
@@ -74,6 +89,10 @@ export default function ProjectView() {
       const saved = await saveProject({
         ...draft,
         name: trimmedName,
+        description: draft.description?.trim() ?? '',
+        projectType: draft.projectType ?? 'CODING',
+        projectCategory: draft.projectCategory?.trim() ?? '',
+        endDate: draft.endDate?.trim() ?? '',
         repositoryUrl: trimmedRepo,
         githubAccount: draft.githubAccount?.trim() ?? '',
         localPath: trimmedLocalPath,
@@ -108,11 +127,20 @@ export default function ProjectView() {
   // to 100 plus an extra auto column, the row overflows its container and
   // the browser shrinks the button, causing "Add project" to wrap.
   const projectGridTemplate = '18fr 28fr 12fr 12fr 30fr auto';
+  const showCodingFields = draft.projectType === 'CODING';
 
   return (
     <section className="project-view">
       <div className="project-view-header">
         <h2 className="project-view-title">Project view</h2>
+        <button
+          type="button"
+          className="task-editor-submit"
+          aria-label="Create task"
+          onClick={() => handleCreateTaskForProject()}
+        >
+          Create task
+        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="task-editor-fields project-view-form" style={{ gridTemplateColumns: projectGridTemplate }}>
@@ -129,52 +157,109 @@ export default function ProjectView() {
         </div>
 
         <div className="task-editor-field">
-          <label htmlFor="project-repository-url">Git repository URL</label>
-          <input
-            id="project-repository-url"
+          <label htmlFor="project-type">Project type</label>
+          <select
+            id="project-type"
             className="task-editor-input"
-            type="text"
-            value={draft.repositoryUrl}
-            onChange={(event) => setDraft((current) => ({ ...current, repositoryUrl: event.target.value }))}
-            placeholder="https://github.com/user/repo.git"
-          />
+            value={draft.projectType ?? 'CODING'}
+            onChange={(event) => setDraft((current) => ({
+              ...current,
+              projectType: event.target.value === 'NON_CODING' ? 'NON_CODING' : 'CODING',
+            }))}
+          >
+            <option value="CODING">Coding project</option>
+            <option value="NON_CODING">Non-coding project</option>
+          </select>
         </div>
 
-        <div className="task-editor-field">
-          <label htmlFor="project-github-account">GitHub account</label>
-          <input
-            id="project-github-account"
-            className="task-editor-input"
-            type="text"
-            value={draft.githubAccount ?? ''}
-            onChange={(event) => setDraft((current) => ({ ...current, githubAccount: event.target.value }))}
-            placeholder="octocat"
-          />
-        </div>
+        {showCodingFields ? (
+          <>
+            <div className="task-editor-field">
+              <label htmlFor="project-repository-url">Git repository URL</label>
+              <input
+                id="project-repository-url"
+                className="task-editor-input"
+                type="text"
+                value={draft.repositoryUrl}
+                onChange={(event) => setDraft((current) => ({ ...current, repositoryUrl: event.target.value }))}
+                placeholder="https://github.com/user/repo.git"
+              />
+            </div>
 
-        <div className="task-editor-field">
-          <label htmlFor="project-local-path">Local folder path</label>
-          <input
-            id="project-local-path"
-            className="task-editor-input"
-            type="text"
-            value={draft.localPath}
-            onChange={(event) => setDraft((current) => ({ ...current, localPath: event.target.value }))}
-            placeholder="/workspace/my-project"
-          />
-        </div>
+            <div className="task-editor-field">
+              <label htmlFor="project-github-account">GitHub account</label>
+              <input
+                id="project-github-account"
+                className="task-editor-input"
+                type="text"
+                value={draft.githubAccount ?? ''}
+                onChange={(event) => setDraft((current) => ({ ...current, githubAccount: event.target.value }))}
+                placeholder="octocat"
+              />
+            </div>
 
-        <div className="task-editor-field">
-          <label htmlFor="project-branch">Branch</label>
-          <input
-            id="project-branch"
-            className="task-editor-input"
-            type="text"
-            value={draft.branch}
-            onChange={(event) => setDraft((current) => ({ ...current, branch: event.target.value }))}
-            placeholder="main"
-          />
-        </div>
+            <div className="task-editor-field">
+              <label htmlFor="project-local-path">Local folder path</label>
+              <input
+                id="project-local-path"
+                className="task-editor-input"
+                type="text"
+                value={draft.localPath}
+                onChange={(event) => setDraft((current) => ({ ...current, localPath: event.target.value }))}
+                placeholder="/workspace/my-project"
+              />
+            </div>
+
+            <div className="task-editor-field">
+              <label htmlFor="project-branch">Branch</label>
+              <input
+                id="project-branch"
+                className="task-editor-input"
+                type="text"
+                value={draft.branch}
+                onChange={(event) => setDraft((current) => ({ ...current, branch: event.target.value }))}
+                placeholder="main"
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="task-editor-field">
+              <label htmlFor="project-description">Description</label>
+              <input
+                id="project-description"
+                className="task-editor-input"
+                type="text"
+                value={draft.description ?? ''}
+                onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
+                placeholder="Project overview and goals"
+              />
+            </div>
+
+            <div className="task-editor-field">
+              <label htmlFor="project-category">Project category</label>
+              <input
+                id="project-category"
+                className="task-editor-input"
+                type="text"
+                value={draft.projectCategory ?? ''}
+                onChange={(event) => setDraft((current) => ({ ...current, projectCategory: event.target.value }))}
+                placeholder="Theatre"
+              />
+            </div>
+
+            <div className="task-editor-field">
+              <label htmlFor="project-end-date">End date</label>
+              <input
+                id="project-end-date"
+                className="task-editor-input"
+                type="date"
+                value={draft.endDate ?? ''}
+                onChange={(event) => setDraft((current) => ({ ...current, endDate: event.target.value }))}
+              />
+            </div>
+          </>
+        )}
 
         <button
           type="submit"
@@ -235,15 +320,26 @@ export default function ProjectView() {
                   <tr key={key}>
                     <td>
                       <strong>{project.name}</strong>
+                      {project.projectType === 'NON_CODING' && (
+                        <div style={{ fontSize: '0.75rem', color: '#4a5568', marginTop: '4px' }}>
+                          {project.projectCategory || 'Non-coding project'}
+                        </div>
+                      )}
                     </td>
                     <td>
-                      {project.repositoryUrl ? project.repositoryUrl : project.localPath || '—'}
+                      {project.projectType === 'NON_CODING'
+                        ? (project.description || '—')
+                        : (project.repositoryUrl ? project.repositoryUrl : project.localPath || '—')}
                     </td>
                     <td>
-                      {project.githubAccount || '—'}
+                      {project.projectType === 'NON_CODING'
+                        ? (project.endDate || '—')
+                        : (project.githubAccount || '—')}
                     </td>
                     <td>
-                      {project.branch || 'main'}
+                      {project.projectType === 'NON_CODING'
+                        ? (project.projectCategory || 'General')
+                        : (project.branch || 'main')}
                     </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -254,6 +350,7 @@ export default function ProjectView() {
                           type="button"
                           className="task-editor-submit"
                           aria-label={`Create task for ${project.name}`}
+                          title={`Create task for ${project.name}`}
                           onClick={() => handleCreateTaskForProject(project)}
                         >
                           Create task
