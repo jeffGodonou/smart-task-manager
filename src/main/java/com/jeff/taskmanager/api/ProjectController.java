@@ -126,7 +126,14 @@ public class ProjectController {
             return;
         }
 
-        Project payload = readRequestBody(exchange.getRequestBody(), Project.class);
+        Project payload;
+        try {
+            payload = readRequestBody(exchange.getRequestBody(), Project.class);
+        } catch (Exception e) {
+            sendJson(exchange, 400, "{\"error\":\"Invalid project payload: " + e.getMessage().replace('"', '\\"') + "\"}");
+            return;
+        }
+
         if (payload == null) {
             sendResponse(exchange, 400, "Project payload is required");
             return;
@@ -136,7 +143,7 @@ public class ProjectController {
         String repositoryUrl = payload.getRepositoryUrl() == null ? "" : payload.getRepositoryUrl().trim();
         String githubAccount = payload.getGithubAccount() == null ? "" : payload.getGithubAccount().trim();
         String localPath = payload.getLocalPath() == null ? "" : payload.getLocalPath().trim();
-        Project.ProjectType projectType = payload.getProjectType() == null ? Project.ProjectType.CODING : payload.getProjectType();
+        Project.ProjectType projectType = payload.getProjectType() == null ? Project.ProjectType.NON_CODING : payload.getProjectType();
 
         if (name.isBlank()) {
             sendResponse(exchange, 400, "Project name is required");
@@ -150,12 +157,10 @@ public class ProjectController {
 
         if (projectType == Project.ProjectType.NON_CODING) {
             if (payload.getDescription() == null || payload.getDescription().isBlank()) {
-                sendResponse(exchange, 400, "Non-coding projects require a description");
-                return;
+                payload.setDescription("General project overview");
             }
             if (payload.getProjectCategory() == null || payload.getProjectCategory().isBlank()) {
-                sendResponse(exchange, 400, "Non-coding projects require a project category");
-                return;
+                payload.setProjectCategory("General");
             }
         }
 

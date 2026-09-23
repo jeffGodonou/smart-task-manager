@@ -24,6 +24,7 @@ public class DataMigrationService {
         EntityManager em = PersistanceManager.getEntityManager();
         try {
             migrateEmbeddedSubtasksToParentChild(em);
+            migrateProjectTypeDefaults(em);
             LOGGER.info("Data migrations completed successfully");
         } catch (Exception e) {
             LOGGER.warning("Data migration encountered an issue: " + e.getMessage());
@@ -83,6 +84,36 @@ public class DataMigrationService {
                 em.getTransaction().rollback();
             }
             LOGGER.warning("Could not migrate legacy subtasks: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static void migrateProjectTypeDefaults(EntityManager em) {
+        try {
+            boolean projectsTableExists = tableExists(em, "projects");
+            if (!projectsTableExists) {
+                LOGGER.info("No projects table found; skipping project-type backfill.");
+                return;
+            }
+
+            boolean transactionWasActive = em.getTransaction().isActive();
+            if (!transactionWasActive) {
+                em.getTransaction().begin();
+            }
+
+            em.createNativeQuery("ALTER TABLE projects ADD COLUMN IF NOT EXISTS project_type VARCHAR(32) DEFAULT 'NON_CODING'").executeUpdate();
+            em.createNativeQuery("ALTER TABLE projects ADD COLUMN IF NOT EXISTS project_category VARCHAR(255)").executeUpdate();
+            em.createNativeQuery("ALTER TABLE projects ADD COLUMN IF NOT EXISTS end_date VARCHAR(255)").executeUpdate();
+            em.createNativeQuery("UPDATE projects SET project_type = 'NON_CODING' WHERE project_type IS NULL OR LOWER(project_type) = ''").executeUpdate();
+            if (!transactionWasActive) {
+                em.getTransaction().commit();
+            }
+            LOGGER.info("Backfilled legacy project rows as NON_CODING.");
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            LOGGER.warning("Could not backfill legacy project types: " + e.getMessage());
             e.printStackTrace();
         }
     }
