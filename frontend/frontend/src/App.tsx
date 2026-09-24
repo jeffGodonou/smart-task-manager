@@ -47,9 +47,10 @@ function App() {
                ? <KanbanBoard refreshKey={tasksRefreshKey} />
                : view === 'calendar'
                  ? <CalendarView refreshKey={tasksRefreshKey} />
-                 : view === 'stats'
-                   ? <TaskStats refreshKey={tasksRefreshKey} />
-                   : <ProjectView />
+                 : view === 'projects'
+                   ? <ProjectView />
+                   : <TaskStats refreshKey={tasksRefreshKey} />
+                  
 
   if (!isAuthenticated) {
     return <AuthForm onAuthenticated={(username) => {
