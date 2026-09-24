@@ -28,7 +28,7 @@
 
 .task-editor-fields {
   display: grid;
-  grid-template-columns: 2fr 2fr 1.2fr auto;
+  grid-template-columns: 1.6fr 2fr 2fr 1.2fr auto;
   gap: 14px;
   align-items: end;
 }
@@ -39,13 +39,18 @@
   gap: 5px;
 }
 
+.task-editor-project-field {
+  min-width: 0;
+}
+
 .task-editor-field label {
   font-size: 12px;
   font-weight: 500;
   color: #6B7280;
 }
 
-.task-editor-field input {
+.task-editor-field input,
+.task-editor-field select {
   font-family: inherit;
   font-size: 13px;
   color: #1A1A2E;
@@ -62,9 +67,52 @@
   color: #9CA3AF;
 }
 
-.task-editor-field input:focus {
+.task-editor-field input:focus,
+.task-editor-field select:focus {
   border-color: #1F4E79;
   box-shadow: 0 0 0 3px rgba(31,78,121,0.1);
+}
+
+.task-editor-project-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-editor-project-row select {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.task-editor-inline-button {
+  border: 1px solid #D1D5DB;
+  background: #F8FAFC;
+  color: #111827;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.task-editor-save-project {
+  margin-left: auto;
+}
+
+.task-editor-project-creator {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #E5E7EB;
+}
+
+.task-editor-project-creator-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
 }
 
 .task-editor-submit {
