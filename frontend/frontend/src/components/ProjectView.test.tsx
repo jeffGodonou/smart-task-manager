@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ProjectView from './ProjectView';
+import TaskEditor from './TaskEditor';
 import * as projectApi from '../api/projects';
 import * as taskApi from '../api/tasks';
 
@@ -113,6 +114,38 @@ describe('ProjectView', () => {
     expect(screen.getByText('50%')).toBeTruthy();
     expect(screen.getByText(/in progress|complete|started/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /edit backend api/i })).toBeTruthy();
+  });
+
+  it('lets a task be linked to an existing project', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main', projectType: 'CODING' },
+      { id: '2', name: 'Launch plan', description: 'Marketing launch', projectType: 'NON_CODING', projectCategory: 'Marketing', endDate: '2026-11-01' },
+    ]);
+    vi.mocked(taskApi.createTask).mockResolvedValue({
+      id: '99',
+      title: 'Project-linked task',
+      projectId: 1,
+      status: 'TODO',
+      isCompleted: false,
+    });
+
+    render(<TaskEditor />);
+
+    expect(await screen.findByLabelText('Project')).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText('Project'), { target: { value: '1' } });
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Project-linked task' } });
+    fireEvent.click(screen.getByRole('button', { name: /\+ add task/i }));
+
+    await waitFor(() => {
+      expect(taskApi.createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Project-linked task',
+          projectId: 1,
+          status: 'TODO',
+        }),
+      );
+    });
   });
 
   it('allows creating a standalone task from the list view without assigning a project', async () => {
