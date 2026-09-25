@@ -186,13 +186,49 @@
   font-weight: 600;
 }
 
-.task-modal-field textarea {
+.task-modal-field textarea,
+.task-modal-field input,
+.task-modal-field select {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   padding: 8px 10px;
   font-family: inherit;
   font-size: 13px;
-  resize: vertical;
+}
+
+.task-project-inline-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.task-project-select {
+  flex: 1;
+}
+
+.task-project-inline-button {
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.task-project-creator-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.task-project-creator-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .task-modal-grid {

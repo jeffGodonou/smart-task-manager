@@ -1,10 +1,33 @@
 import React from 'react';
 import type { Task } from '../api/tasks';
+import { loadProjects, saveProject, type GitProject } from '../api/projects';
 
 type TaskDetailsModalProps = {
   task: Task;
   onClose: () => void;
   onSave: (updates: Partial<Task>) => Promise<void>;
+};
+
+type ProjectDraft = {
+  name: string;
+  projectType: 'NON_CODING' | 'CODING';
+  description: string;
+  projectCategory: string;
+  endDate: string;
+  repositoryUrl: string;
+  localPath: string;
+  branch: string;
+};
+
+const emptyProjectDraft: ProjectDraft = {
+  name: '',
+  projectType: 'NON_CODING',
+  description: '',
+  projectCategory: '',
+  endDate: '',
+  repositoryUrl: '',
+  localPath: '',
+  branch: 'main',
 };
 
 export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsModalProps) {
@@ -16,11 +39,23 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
   const [status, setStatus] = React.useState<Task['status']>(task.status ?? 'TODO');
   const [isCompleted, setIsCompleted] = React.useState(Boolean(task.isCompleted));
   const [isPriority, setIsPriority] = React.useState(Boolean(task.isPriority));
+  const [projectId, setProjectId] = React.useState<number | null>(task.projectId != null ? Number(task.projectId) : null);
+  const [projects, setProjects] = React.useState<GitProject[]>([]);
+  const [showProjectCreator, setShowProjectCreator] = React.useState(false);
+  const [projectDraft, setProjectDraft] = React.useState<ProjectDraft>(emptyProjectDraft);
+  const [projectError, setProjectError] = React.useState<string | null>(null);
+  const [isSavingProject, setIsSavingProject] = React.useState(false);
   const [subtasks, setSubtasks] = React.useState<Task[]>(task.subtasks ?? []);
   const [newSubtask, setNewSubtask] = React.useState('');
   const [newSubtaskDueDate, setNewSubtaskDueDate] = React.useState('');
   const [saving, setSaving] = React.useState(false);
   const [subtaskError, setSubtaskError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    void loadProjects()
+      .then((loadedProjects) => setProjects(loadedProjects))
+      .catch(() => setProjects([]));
+  }, []);
 
   const isSubtask = Boolean(task.parentTaskId || task.isSubtask);
   const completedSubtasks = subtasks.filter(st => Boolean(st.isCompleted)).length;
@@ -56,6 +91,53 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
     setNewSubtaskDueDate('');
   };
 
+  const handleCreateProject = async () => {
+    const trimmedName = projectDraft.name.trim();
+    const trimmedRepo = projectDraft.repositoryUrl.trim();
+    const trimmedLocalPath = projectDraft.localPath.trim();
+
+    if (!trimmedName) {
+      setProjectError('Project name is required.');
+      return;
+    }
+
+    if (projectDraft.projectType === 'CODING' && !trimmedRepo && !trimmedLocalPath) {
+      setProjectError('Coding projects require a repository URL or a local path.');
+      return;
+    }
+
+    try {
+      setIsSavingProject(true);
+      setProjectError(null);
+
+      const createdProject = await saveProject({
+        ...projectDraft,
+        name: trimmedName,
+        description: projectDraft.description.trim() || '',
+        projectType: projectDraft.projectType,
+        projectCategory: projectDraft.projectCategory.trim() || '',
+        endDate: projectDraft.endDate.trim() || '',
+        repositoryUrl: trimmedRepo,
+        githubAccount: '',
+        localPath: trimmedLocalPath,
+        branch: projectDraft.branch.trim() || 'main',
+      });
+
+      setProjects((currentProjects) => {
+        const nextProjects = currentProjects.filter((project) => project.id !== createdProject.id);
+        return [...nextProjects, createdProject];
+      });
+
+      setProjectId(Number(createdProject.id ?? 0) || null);
+      setShowProjectCreator(false);
+      setProjectDraft(emptyProjectDraft);
+    } catch (error) {
+      setProjectError(error instanceof Error ? error.message : 'Unable to create project.');
+    } finally {
+      setIsSavingProject(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -64,6 +146,7 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
         description: description.trim() || undefined,
         dueDate: dueDate || undefined,
         notes: notes.trim() || undefined,
+        projectId: projectId != null ? Number(projectId) : null,
         isCompleted: normalizedCompleted,
         isPriority,
         status: normalizedStatus,
@@ -116,6 +199,137 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
               rows={2}
             />
           </div>
+
+          <div className="task-modal-field">
+            <label htmlFor="task-details-project">Project</label>
+            <div className="task-project-inline-row">
+              <select
+                id="task-details-project"
+                aria-label="Task project"
+                value={projectId ?? ''}
+                onChange={(event) => {
+                  const nextValue = event.target.value;
+                  setProjectId(nextValue === '' ? null : Number(nextValue));
+                }}
+                className="task-project-select"
+              >
+                <option value="">No project</option>
+                {projects.map((project) => (
+                  <option key={String(project.id ?? project.name)} value={String(project.id ?? '')}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="task-project-inline-button"
+                onClick={() => setShowProjectCreator((current) => !current)}
+              >
+                {showProjectCreator ? 'Cancel' : '+ New project'}
+              </button>
+            </div>
+          </div>
+
+          {showProjectCreator && (
+            <div className="task-project-creator-panel">
+              <div className="task-modal-field">
+                <label htmlFor="task-project-name">Project name</label>
+                <input
+                  id="task-project-name"
+                  type="text"
+                  value={projectDraft.name}
+                  onChange={(event) => setProjectDraft((current) => ({ ...current, name: event.target.value }))}
+                  placeholder="New project"
+                />
+              </div>
+
+              <div className="task-modal-field">
+                <label htmlFor="task-project-type">Project type</label>
+                <select
+                  id="task-project-type"
+                  value={projectDraft.projectType}
+                  onChange={(event) => setProjectDraft((current) => ({ ...current, projectType: event.target.value as 'NON_CODING' | 'CODING' }))}
+                >
+                  <option value="NON_CODING">Non-coding</option>
+                  <option value="CODING">Coding</option>
+                </select>
+              </div>
+
+              <div className="task-modal-grid">
+                <div className="task-modal-field">
+                  <label htmlFor="task-project-description">Description</label>
+                  <input
+                    id="task-project-description"
+                    type="text"
+                    value={projectDraft.description}
+                    onChange={(event) => setProjectDraft((current) => ({ ...current, description: event.target.value }))}
+                    placeholder="Optional description"
+                  />
+                </div>
+
+                <div className="task-modal-field">
+                  <label htmlFor="task-project-category">Category</label>
+                  <input
+                    id="task-project-category"
+                    type="text"
+                    value={projectDraft.projectCategory}
+                    onChange={(event) => setProjectDraft((current) => ({ ...current, projectCategory: event.target.value }))}
+                    placeholder="General"
+                  />
+                </div>
+              </div>
+
+              {projectDraft.projectType === 'NON_CODING' && (
+                <div className="task-modal-grid">
+                  <div className="task-modal-field">
+                    <label htmlFor="task-project-end-date">End date</label>
+                    <input
+                      id="task-project-end-date"
+                      type="date"
+                      value={projectDraft.endDate}
+                      onChange={(event) => setProjectDraft((current) => ({ ...current, endDate: event.target.value }))}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {projectDraft.projectType === 'CODING' && (
+                <div className="task-modal-grid">
+                  <div className="task-modal-field">
+                    <label htmlFor="task-project-repo">Repository URL</label>
+                    <input
+                      id="task-project-repo"
+                      type="url"
+                      value={projectDraft.repositoryUrl}
+                      onChange={(event) => setProjectDraft((current) => ({ ...current, repositoryUrl: event.target.value }))}
+                      placeholder="https://github.com/..."
+                    />
+                  </div>
+                  <div className="task-modal-field">
+                    <label htmlFor="task-project-path">Local path</label>
+                    <input
+                      id="task-project-path"
+                      type="text"
+                      value={projectDraft.localPath}
+                      onChange={(event) => setProjectDraft((current) => ({ ...current, localPath: event.target.value }))}
+                      placeholder="./src"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {projectError && <p className="task-modal-subtask-error">{projectError}</p>}
+
+              <div className="task-project-creator-actions">
+                <button type="button" className="btn-secondary" onClick={() => setShowProjectCreator(false)}>
+                  Close
+                </button>
+                <button type="button" className="btn-primary" onClick={handleCreateProject} disabled={isSavingProject}>
+                  {isSavingProject ? 'Saving...' : 'Create project'}
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="task-modal-grid">
             <div className="task-modal-field">
