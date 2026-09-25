@@ -77,8 +77,8 @@ function App() {
               <button onClick={() => setView('list')} disabled={view==='list'}>List</button>
               <button onClick={() => setView('kanban')} disabled={view==='kanban'}>Kanban</button>
               <button onClick={() => setView('calendar')} disabled={view==='calendar'}>Calendar</button>
-              <button onClick={() => setView('stats')} disabled={view==='stats'}>Stats</button>
               <button onClick={() => setView('projects')} disabled={view==='projects'}>Projects</button>
+              <button onClick={() => setView('stats')} disabled={view==='stats'}>Stats</button>
             </div>
             <ProfileMenu
               username={currentUsername}
