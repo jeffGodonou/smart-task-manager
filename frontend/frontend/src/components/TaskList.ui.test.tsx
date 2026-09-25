@@ -8,15 +8,63 @@ vi.mock('../api/tasks.ts', () => ({
   updateTask: vi.fn(),
 }));
 
+vi.mock('../api/projects.ts', () => ({
+  loadProjects: vi.fn(),
+  saveProject: vi.fn(),
+}));
+
 import { listTasks, updateTask } from '../api/tasks.ts';
+import { loadProjects } from '../api/projects';
 import type { Task } from '../api/tasks.ts';
 
 const listTasksMock = vi.mocked(listTasks);
 const updateTaskMock = vi.mocked(updateTask);
+const loadProjectsMock = vi.mocked(loadProjects);
 
 describe('TaskList UI edit flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    loadProjectsMock.mockResolvedValue([
+      { id: 10, name: 'Alpha project', projectType: 'NON_CODING' },
+      { id: 11, name: 'Beta project', projectType: 'CODING' },
+    ]);
+  });
+
+  it('lets an existing task be linked to a project from the details modal', async () => {
+    const initialTask: Task = {
+      id: 'task-1',
+      title: 'Linked task',
+      isCompleted: false,
+      status: 'TODO',
+      projectId: null,
+    };
+
+    updateTaskMock.mockResolvedValue({
+      ...initialTask,
+      projectId: 10,
+    });
+    listTasksMock.mockResolvedValue([initialTask]);
+
+    render(<TaskList />);
+
+    await screen.findByText('Linked task');
+    fireEvent.click(screen.getByRole('button', { name: /Open Linked task/i }));
+
+    const projectSelect = await screen.findByLabelText('Task project') as HTMLSelectElement;
+    fireEvent.change(projectSelect, { target: { value: '10' } });
+
+    await waitFor(() => {
+      expect((screen.getByLabelText('Task project') as HTMLSelectElement).value).toBe('10');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await waitFor(() => {
+      expect(updateTaskMock).toHaveBeenCalledWith(
+        'task-1',
+        expect.objectContaining({ projectId: 10 })
+      );
+    });
   });
 
   it('keeps incomplete tasks above completed ones and sorts each group by due date ascending', async () => {
