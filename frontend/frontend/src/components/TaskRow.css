@@ -11,6 +11,8 @@
   transition: background 0.2s ease;
   width: 100%;
   box-sizing: border-box;
+  overflow: visible;
+  position: relative;
 }
 
 .task-row:hover {
@@ -56,7 +58,7 @@
   flex-direction: column;
   justify-content: center;
   gap: 6px;
-  overflow: hidden;
+  overflow: visible;
   height: 100%;
   padding: 2px 0;
 }
@@ -83,6 +85,7 @@
 
 .task-actions-cell {
   justify-content: flex-end;
+  overflow: visible;
 }
 
 .task-title-row {
