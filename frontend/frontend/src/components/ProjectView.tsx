@@ -1,9 +1,9 @@
 import React from 'react';
 import { loadProjects, saveProject, type GitProject } from '../api/projects';
-import { listTasks } from '../api/tasks';
 import './ProjectView.css';
 import TaskEditor from './TaskEditor';
 import { sortTasksByCompletionAndDueDate } from '../utils/taskOrdering';
+import { useTaskStore } from '../store/TaskStore';
 
 const emptyDraft: Omit<GitProject, 'id'> = {
   name: '',
@@ -17,6 +17,9 @@ const emptyDraft: Omit<GitProject, 'id'> = {
 };
 
 export default function ProjectView() {
+  const tasks = useTaskStore((state) => state.tasks);
+  const fetchTasks = useTaskStore((state) => state.fetchTasks);
+
   const [projects, setProjects] = React.useState<GitProject[]>([]);
   const [draft, setDraft] = React.useState<Omit<GitProject, 'id'>>(emptyDraft);
   const [error, setError] = React.useState<string | null>(null);
@@ -40,8 +43,11 @@ export default function ProjectView() {
 
   const refreshTaskCounts = React.useCallback(async () => {
     try {
-      const tasks = sortTasksByCompletionAndDueDate(await listTasks());
-      const progress = tasks.reduce<Record<string, { total: number; completed: number }>>((accumulator, task) => {
+      const freshTasks = useTaskStore.getState().tasks.length > 0
+        ? useTaskStore.getState().tasks
+        : await fetchTasks(true).then(() => useTaskStore.getState().tasks);
+
+      const progress = sortTasksByCompletionAndDueDate(freshTasks).reduce<Record<string, { total: number; completed: number }>>((accumulator, task) => {
         if (!task.projectId) {
           return accumulator;
         }
@@ -62,12 +68,13 @@ export default function ProjectView() {
     } catch {
       setTaskProgress({});
     }
-  }, []);
+  }, [fetchTasks]);
 
   React.useEffect(() => {
+    void fetchTasks(true);
     void refreshProjects();
     void refreshTaskCounts();
-  }, [refreshProjects, refreshTaskCounts]);
+  }, [fetchTasks, refreshProjects, refreshTaskCounts]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

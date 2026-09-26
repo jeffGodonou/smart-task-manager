@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
-import { listTasks, deleteTask, updateTask } from '../api/tasks.ts';
+import { useEffect, useMemo, useState } from 'react';
+import { updateTask } from '../api/tasks.ts';
 import type { Task } from '../api/tasks.ts';
 import TaskRow from './TaskRow.tsx';
 import TaskDetailsModal from './TaskDetailsModal';
 import './TaskList.css';
 import TaskEditor from './TaskEditor.tsx';
 import { sortTasksByCompletionAndDueDate } from '../utils/taskOrdering';
+import { useTaskStore } from '../store/TaskStore';
 
 /**
  * TaskList Component
@@ -22,43 +23,34 @@ type TaskListProps = {
 };
 
 export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProps) {
-  const [tasks, setTasks]     = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
-  const [filter, setFilter]   = useState<'all' | 'active' | 'completed'>('all');
+  const tasks = useTaskStore(state => state.tasks);
+  const loading = useTaskStore(state => state.isLoading);
+  const errorMessage = useTaskStore(state => state.error);
+  const fetchTasks = useTaskStore(state => state.fetchTasks);
+  const removeTask = useTaskStore(state => state.removeTask);
+  const toggleComplete = useTaskStore(state => state.toggleComplete);
+  const upsertTask = useTaskStore(state => state.upsertTask);
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
-    loadTasks();
-  }, [refreshKey]);
+    void fetchTasks();
+  }, [fetchTasks, refreshKey]);
 
-  async function loadTasks() {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await listTasks();
-      setTasks(data);
-      if (onTasksChange) onTasksChange(data);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setError('Failed to load tasks: ' + message);
-    } finally {
-      setLoading(false);
-    }
-  }
+  useEffect(() => {
+    if (onTasksChange) onTasksChange(tasks);
+  }, [onTasksChange, tasks]);
 
   async function handleDelete(task: Task) {
     try {
-      await deleteTask(task.id!);
-      setTasks(prev => prev.filter(t => t.id !== task.id));
+      await removeTask(task.id!);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setError('Failed to delete task: ' + message);
+      console.error('Failed to delete task: ' + message);
     }
   }
 
   async function handleToggleComplete(task: Task) {
-    // When subtasks exist, completion is derived — skip manual toggle.
     if (task.subtasks && task.subtasks.length > 0) return;
     try {
       const nextCompleted = !task.isCompleted;
@@ -67,10 +59,11 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
         isCompleted: nextCompleted,
         status: nextCompleted ? 'DONE' : 'TODO',
       });
-      setTasks(prev => prev.map(t => t.id === task.id ? updated : t));
+      upsertTask(updated);
+      await toggleComplete(task.id!, task.isCompleted ?? false);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setError('Failed to update task: ' + message);
+      console.error('Failed to update task: ' + message);
     }
   }
 
@@ -94,37 +87,19 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     });
   }
 
-  function updateTaskInTree(taskList: Task[], updatedTask: Task): Task[] {
-    return taskList.map(task => {
-      if (task.id === updatedTask.id) {
-        return { ...task, ...updatedTask };
-      }
-
-      if (task.subtasks && task.subtasks.length > 0) {
-        return {
-          ...task,
-          subtasks: updateTaskInTree(task.subtasks, updatedTask),
-        };
-      }
-
-      return task;
-    });
-  }
-
   async function handleSaveTaskDetails(updates: any) {
     if (!selectedTask?.id) {
       return;
     }
     try {
       const updated = await updateTask(selectedTask.id, updates);
-      const nextTasks = updateTaskInTree(tasks, updated);
-      setTasks(nextTasks);
+      upsertTask(updated);
       if (onTasksChange) {
-        onTasksChange(nextTasks);
+        onTasksChange(tasks);
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setError('Failed to save task details: ' + message);
+      console.error('Failed to save task details: ' + message);
       throw err;
     }
   }
@@ -141,25 +116,29 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     );
   }
 
-  if (error) {
+  if (errorMessage) {
     return (
       <div className="task-list-shell">
-        <div className="task-list-error">{error}</div>
+        <div className="task-list-error">{errorMessage}</div>
       </div>
     );
   }
 
-  const flattenedTasks = sortTasksByCompletionAndDueDate(flattenTasks(tasks));
-  const filteredTasks = flattenedTasks.filter(t => {
-    if (filter === 'active')    return !t.isCompleted;
-    if (filter === 'completed') return  t.isCompleted;
+  const flattenedTasks = useMemo(
+    () => sortTasksByCompletionAndDueDate(flattenTasks(tasks)),
+    [tasks],
+  );
+
+  const filteredTasks = useMemo(() => flattenedTasks.filter(t => {
+    if (filter === 'active') return !t.isCompleted;
+    if (filter === 'completed') return t.isCompleted;
     return true;
-  });
+  }), [filter, flattenedTasks]);
 
   return (
     <>
     <TaskEditor
-      onTaskCreated={() => handleSaveTaskDetails}
+      onTaskCreated={() => undefined}
       onClose={() => setSelectedTask(null)}
     />
 

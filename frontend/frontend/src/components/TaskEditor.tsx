@@ -47,6 +47,7 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
   const addTask   = useTaskStore(state => state.addTask);
   const error     = useTaskStore(state => state.error);
   const fetchTasks = useTaskStore(state => state.fetchTasks);
+  const hasLoaded = useTaskStore(state => state.hasLoaded);
   const [projectId, setProjectId] = useState<number | null>(null);
   const [projects, setProjects] = useState<GitProject[]>([]);
   const [showProjectCreator, setShowProjectCreator] = useState(false);
@@ -55,7 +56,10 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
   const [isSavingProject, setIsSavingProject] = useState(false);
 
   useEffect(() => {
-    void fetchTasks();
+    if (!hasLoaded) {
+      void fetchTasks();
+    }
+
     void loadProjects()
       .then((loadedProjects) => setProjects(loadedProjects))
       .catch(() => setProjects([]));
@@ -68,7 +72,7 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
     const rawValue = typeof initialProjectId === 'string' ? initialProjectId.trim() : String(initialProjectId).trim();
     const normalizedProjectId = rawValue ? Number(rawValue) : null;
     setProjectId(Number.isFinite(normalizedProjectId) ? normalizedProjectId : null);
-  }, [fetchTasks, initialProjectId]);
+  }, [fetchTasks, hasLoaded, initialProjectId]);
 
   const {
     register,
@@ -92,7 +96,6 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
     try {
       await addTask(normalizedTask);
       reset();
-      await fetchTasks();
       onTaskCreated?.();
       onClose?.();
     } catch {
