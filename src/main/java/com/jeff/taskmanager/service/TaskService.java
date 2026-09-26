@@ -165,6 +165,7 @@ public class TaskService {
             }
 
             subTask.setOwner(task.getOwner());
+            subTask.setProject(task.getProject());
             subTask.setPriority(subTask.getPriority() == null || subTask.getPriority().isBlank() ? "Medium" : subTask.getPriority());
             subTask.setDueDate(subTask.getDueDate() == null ? task.getDueDate() : subTask.getDueDate());
             subTask.setNotes(subTask.getNotes() == null ? null : subTask.getNotes().trim());
