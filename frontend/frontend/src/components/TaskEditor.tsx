@@ -161,34 +161,6 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
       {(error || projectError) && <p className="task-editor-error">{error ?? projectError}</p>}
 
       <div className="task-editor-fields">
-        <div className="task-editor-field task-editor-project-field">
-          <label htmlFor="task-project">Project</label>
-          <div className="task-editor-project-row">
-            <select
-              id="task-project"
-              className="task-editor-select"
-              value={projectId ?? ''}
-              onChange={(event) => {
-                const nextValue = event.target.value;
-                setProjectId(nextValue === '' ? null : Number(nextValue));
-              }}
-            >
-              <option value="">No project</option>
-              {projects.map((project) => (
-                <option key={String(project.id ?? project.name)} value={String(project.id ?? '')}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              className="task-editor-inline-button"
-              onClick={() => setShowProjectCreator((current) => !current)}
-            >
-              {showProjectCreator ? 'Cancel' : '+ New project'}
-            </button>
-          </div>
-        </div>
 
         <div className="task-editor-field">
           <label htmlFor="title">Title</label>
@@ -226,6 +198,35 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
           {errors.dueDate && (
             <span className="field-error">{errors.dueDate.message}</span>
           )}
+        </div>
+
+        <div className="task-editor-field task-editor-project-field">
+          <label htmlFor="task-project">Project</label>
+          <div className="task-editor-project-row">
+            <select
+              id="task-project"
+              className="task-editor-select"
+              value={projectId ?? ''}
+              onChange={(event) => {
+                const nextValue = event.target.value;
+                setProjectId(nextValue === '' ? null : Number(nextValue));
+              }}
+            >
+              <option value="">No project</option>
+              {projects.map((project) => (
+                <option key={String(project.id ?? project.name)} value={String(project.id ?? '')}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="task-editor-inline-button"
+              onClick={() => setShowProjectCreator((current) => !current)}
+            >
+              {showProjectCreator ? 'Cancel' : '+ New project'}
+            </button>
+          </div>
         </div>
 
         <div className="task-editor-field task-editor-submit">
