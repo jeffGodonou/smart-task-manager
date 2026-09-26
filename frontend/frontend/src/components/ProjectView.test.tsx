@@ -180,6 +180,20 @@ describe('ProjectView', () => {
     });
   });
 
+  it('hides the project selector when creating a task from a project modal', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '42', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main' },
+    ]);
+
+    render(<ProjectView />);
+
+    const projectTaskButton = await screen.findByRole('button', { name: /create task for backend api/i });
+    fireEvent.click(projectTaskButton);
+
+    expect(await screen.findByText('Add a new task')).toBeTruthy();
+    expect(screen.queryByLabelText('Project')).toBeNull();
+  });
+
   it('opens the task modal for a project row even when the project id is a non-string value', async () => {
     vi.mocked(projectApi.loadProjects).mockResolvedValue([
       { id: 42 as unknown as string, name: 'Numeric project', repositoryUrl: 'https://github.com/acme/project.git', branch: 'main' },
