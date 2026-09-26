@@ -27,16 +27,17 @@
 }
 
 .task-editor-fields {
-  display: grid;
-  grid-template-columns: 1.6fr 2fr 2fr 1.2fr auto;
-  gap: 14px;
-  align-items: end;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .task-editor-field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
 }
 
 .task-editor-project-field {
@@ -50,25 +51,36 @@
 }
 
 .task-editor-field input,
-.task-editor-field select {
+.task-editor-field select,
+.task-editor-field textarea {
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   color: #1A1A2E;
   background: #FFFFFF;
   border: 1px solid #D1D5DB;
-  border-radius: 8px;
-  padding: 8px 12px;
+  border-radius: 10px;
+  padding: 10px 12px;
   width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
+  resize: vertical;
 }
 
-.task-editor-field input::placeholder {
+.task-editor-field textarea {
+  min-height: 110px;
+  line-height: 1.5;
+}
+
+.task-editor-field input::placeholder,
+.task-editor-field textarea::placeholder {
   color: #9CA3AF;
 }
 
 .task-editor-field input:focus,
-.task-editor-field select:focus {
+.task-editor-field select:focus,
+.task-editor-field textarea:focus {
   border-color: #1F4E79;
   box-shadow: 0 0 0 3px rgba(31,78,121,0.1);
 }
@@ -116,7 +128,11 @@
 }
 
 .task-editor-submit {
-  justify-content: flex-end;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 160px;
+  margin-left: auto;
 }
 
 .field-error {
@@ -127,7 +143,12 @@
 
 /* ─── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .task-editor-fields {
+  .task-editor-project-creator {
     grid-template-columns: 1fr;
+  }
+
+  .task-editor-submit {
+    width: 100%;
+    margin-left: 0;
   }
 }

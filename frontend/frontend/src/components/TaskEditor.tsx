@@ -178,9 +178,9 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
 
         <div className="task-editor-field">
           <label htmlFor="description">Description</label>
-          <input
+          <textarea
             id="description"
-            type="text"
+            rows={4}
             placeholder="Optional description..."
             {...register('description')}
           />
