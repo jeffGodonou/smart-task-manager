@@ -129,4 +129,28 @@ class TaskServiceProjectTest {
 
         assertEquals("Project does not belong to this user.", ex.getMessage());
     }
+
+    @Test
+    void addTask_propagatesProjectToSubtasks() {
+        InMemoryUserRepository userRepository = new InMemoryUserRepository();
+        User user = userRepository.save(new User("alice", "password"));
+        InMemoryProjectRepository projectRepository = new InMemoryProjectRepository();
+        Project project = new Project();
+        project.setName("Sprint project");
+        project.setOwner(user);
+        projectRepository.save(project);
+
+        TaskService service = new TaskService(new InMemoryTaskRepository(), userRepository, projectRepository);
+        Task task = new Task("Ship feature", "Finish work", LocalDate.now(), false);
+        task.setProjectId(project.getId());
+        task.setSubtasks(List.of(new Task("Subtask 1", "Child work", LocalDate.now(), false)));
+
+        Task saved = service.addTask(task, "alice");
+
+        assertNotNull(saved.getProject());
+        assertEquals(project.getId(), saved.getProject().getId());
+        assertEquals(1, saved.getSubtasks().size());
+        assertNotNull(saved.getSubtasks().get(0).getProject());
+        assertEquals(project.getId(), saved.getSubtasks().get(0).getProject().getId());
+    }
 }
