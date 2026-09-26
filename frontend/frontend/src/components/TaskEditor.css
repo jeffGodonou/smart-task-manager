@@ -1,10 +1,18 @@
 /* ─── Task Editor ───────────────────────────────────────────────────────── */
 .task-editor {
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 12px;
-  padding: 20px 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.task-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .task-editor-section-label {
@@ -12,8 +20,30 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #9CA3AF;
-  margin-bottom: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.task-editor-close-button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: 8px;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.task-editor-close-button:hover {
+  background: var(--bg);
+  border-color: var(--border);
+  color: var(--text);
 }
 
 .task-editor-error {
@@ -29,7 +59,7 @@
 .task-editor-fields {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .task-editor-row {
@@ -62,7 +92,7 @@
 .task-editor-field label {
   font-size: 12px;
   font-weight: 500;
-  color: #6B7280;
+  color: var(--text-muted);
   text-align: left;
   align-self: flex-start;
 }
@@ -70,23 +100,23 @@
 .task-editor-field input,
 .task-editor-field select,
 .task-editor-field textarea {
-  font-family: inherit;
-  font-size: 14px;
-  color: #1A1A2E;
-  background: #FFFFFF;
-  border: 1px solid #D1D5DB;
-  border-radius: 10px;
-  padding: 10px 12px;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
   width: 100%;
-  min-height: 44px;
+  min-height: 38px;
   box-sizing: border-box;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   resize: vertical;
 }
 
 .task-editor-field textarea {
-  min-height: 78px;
+  min-height: 82px;
   line-height: 1.5;
 }
 
@@ -98,8 +128,8 @@
 .task-editor-field input:focus,
 .task-editor-field select:focus,
 .task-editor-field textarea:focus {
-  border-color: #1F4E79;
-  box-shadow: 0 0 0 3px rgba(31,78,121,0.1);
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.08);
 }
 
 .task-editor-project-row {
@@ -151,6 +181,31 @@
   min-width: 160px;
   margin-left: auto;
   margin-top: 4px;
+}
+
+.task-editor .btn-primary {
+  background: var(--navy);
+  border: none;
+  border-radius: var(--radius);
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  box-shadow: none;
+  transition: background 0.15s ease;
+}
+
+.task-editor .btn-primary:hover {
+  background: var(--navy-hover);
+  transform: none;
+  box-shadow: none;
+}
+
+.task-editor .btn-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 .field-error {

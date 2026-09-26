@@ -150,10 +150,10 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
   return (
     <form className="task-editor" onSubmit={handleSubmit(onSubmit)}>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-        <p className="task-editor-section-label" style={{ margin: 0 }}>Add a new task</p>
+      <div className="task-editor-header">
+        <p className="task-editor-section-label">Add a new task</p>
         {showCloseButton && onClose && (
-          <button type="button" onClick={onClose} aria-label="Close task form" style={{ border: 'none', background: 'transparent', fontSize: '1.25rem', cursor: 'pointer' }}>
+          <button type="button" onClick={onClose} aria-label="Close task form" className="task-editor-close-button">
             ×
           </button>
         )}
