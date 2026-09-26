@@ -34,7 +34,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Data Migration Service")
 public class DataMigrationServiceTest {
     private EntityManager em;
+    @SuppressWarnings("unused")
     private UserRepository userRepository;
+    @SuppressWarnings("unused")
     private TaskRepository taskRepository;
     private User testUser;
     private static int testCounter = 0;
