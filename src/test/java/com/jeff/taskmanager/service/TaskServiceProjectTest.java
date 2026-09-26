@@ -78,6 +78,14 @@ class TaskServiceProjectTest {
         public Optional<Project> findById(Long id) {
             return Optional.ofNullable(store.get(id));
         }
+
+        @Override
+        public Optional<Project> findByIdAndOwnerUsername(Long id, String username) {
+            return Optional.ofNullable(store.get(id))
+                    .filter(project -> project.getOwner() != null)
+                    .filter(project -> project.getOwner().getUsername() != null)
+                    .filter(project -> project.getOwner().getUsername().equalsIgnoreCase(username));
+        }
     }
 
     @Test
