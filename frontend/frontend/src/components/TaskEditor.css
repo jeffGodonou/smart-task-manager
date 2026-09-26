@@ -29,15 +29,30 @@
 .task-editor-fields {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+}
+
+.task-editor-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.task-editor-row-compact {
+  align-items: flex-start;
 }
 
 .task-editor-field {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 6px;
   width: 100%;
   min-width: 0;
+}
+
+.task-editor-field-inline-date {
+  flex: 0 0 220px;
 }
 
 .task-editor-project-field {
@@ -48,6 +63,8 @@
   font-size: 12px;
   font-weight: 500;
   color: #6B7280;
+  text-align: left;
+  align-self: flex-start;
 }
 
 .task-editor-field input,
@@ -69,7 +86,7 @@
 }
 
 .task-editor-field textarea {
-  min-height: 110px;
+  min-height: 78px;
   line-height: 1.5;
 }
 
@@ -128,11 +145,12 @@
 }
 
 .task-editor-submit {
-  display: inline-flex;
-  justify-content: center;
+  display: flex;
+  justify-content: flex-end;
   align-items: center;
   min-width: 160px;
   margin-left: auto;
+  margin-top: 4px;
 }
 
 .field-error {
@@ -143,6 +161,15 @@
 
 /* ─── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  .task-editor-row {
+    flex-direction: column;
+  }
+
+  .task-editor-field-inline-date {
+    flex-basis: auto;
+    width: 100%;
+  }
+
   .task-editor-project-creator {
     grid-template-columns: 1fr;
   }
@@ -150,5 +177,6 @@
   .task-editor-submit {
     width: 100%;
     margin-left: 0;
+    justify-content: flex-end;
   }
 }

@@ -163,41 +163,43 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
 
       <div className="task-editor-fields">
 
-        <div className="task-editor-field">
-          <label htmlFor="title">Title</label>
-          <input
-            id="title"
-            type="text"
-            placeholder="Task title..."
-            {...register('title')}
-          />
-          {errors.title && (
-            <span className="field-error">{errors.title.message}</span>
-          )}
+        <div className="task-editor-row task-editor-row-compact">
+          <div className="task-editor-field">
+            <label htmlFor="title">Title</label>
+            <input
+              id="title"
+              type="text"
+              placeholder="Task title..."
+              {...register('title')}
+            />
+            {errors.title && (
+              <span className="field-error">{errors.title.message}</span>
+            )}
+          </div>
+
+          <div className="task-editor-field task-editor-field-inline-date">
+            <label htmlFor="dueDate">Due date</label>
+            <input
+              id="dueDate"
+              type="date"
+              {...register('dueDate')}
+            />
+            {errors.dueDate && (
+              <span className="field-error">{errors.dueDate.message}</span>
+            )}
+          </div>
         </div>
 
         <div className="task-editor-field">
           <label htmlFor="description">Description</label>
           <textarea
             id="description"
-            rows={4}
+            rows={2}
             placeholder="Optional description..."
             {...register('description')}
           />
           {errors.description && (
             <span className="field-error">{errors.description.message}</span>
-          )}
-        </div>
-
-        <div className="task-editor-field">
-          <label htmlFor="dueDate">Due date</label>
-          <input
-            id="dueDate"
-            type="date"
-            {...register('dueDate')}
-          />
-          {errors.dueDate && (
-            <span className="field-error">{errors.dueDate.message}</span>
           )}
         </div>
 
