@@ -168,7 +168,7 @@ export default function ProjectView() {
       <form onSubmit={handleSubmit} className="task-editor-fields project-view-form" style={{ gridTemplateColumns: projectGridTemplate }}>
         {editingProjectId !== null && (
           <div className="task-editor-field" style={{ gridColumn: '1 / -1', marginBottom: '8px' }}>
-            <button type="button" className="task-editor-submit" onClick={cancelEdit}>Cancel edit</button>
+            <button type="button" className="btn-secondary" onClick={cancelEdit}>Cancel edit</button>
           </div>
         )}
         <div className="task-editor-field">
@@ -290,7 +290,7 @@ export default function ProjectView() {
 
         <button
           type="submit"
-          className="task-editor-submit"
+          className="btn-primary task-editor-submit"
           disabled={saving}
           style={{ whiteSpace: 'nowrap' }}
         >

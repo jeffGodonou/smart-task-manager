@@ -47,9 +47,38 @@
   display: grid;
   gap: 12px;
   align-items: end;
+  padding: 8px 0 0;
+}
+
+.project-view-form .task-editor-field {
+  min-width: 0;
+}
+
+.project-view-form .task-editor-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted, #6b7280);
+}
+
+.project-view-form .task-editor-input {
+  min-height: 38px;
+  border-radius: var(--radius, 8px);
+  border: 1px solid var(--border, #d1d5db);
+  background: var(--surface, #ffffff);
+  color: var(--text, #1a1a2e);
+  box-shadow: none;
 }
 
 .project-view-form .task-editor-submit {
+  white-space: nowrap;
+  min-width: 148px;
+  height: 38px;
+  align-self: end;
+}
+
+.project-view-form .btn-secondary {
+  height: 38px;
+  padding: 0 14px;
   white-space: nowrap;
 }
 
