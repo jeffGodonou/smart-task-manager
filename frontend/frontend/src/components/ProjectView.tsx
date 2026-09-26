@@ -4,6 +4,7 @@ import './ProjectView.css';
 import TaskEditor from './TaskEditor';
 import { sortTasksByCompletionAndDueDate } from '../utils/taskOrdering';
 import { useTaskStore } from '../store/TaskStore';
+import { buildProjectProgress } from '../utils/taskTree';
 
 const emptyDraft: Omit<GitProject, 'id'> = {
   name: '',
@@ -47,22 +48,7 @@ export default function ProjectView() {
         ? useTaskStore.getState().tasks
         : await fetchTasks(true).then(() => useTaskStore.getState().tasks);
 
-      const progress = sortTasksByCompletionAndDueDate(freshTasks).reduce<Record<string, { total: number; completed: number }>>((accumulator, task) => {
-        if (!task.projectId) {
-          return accumulator;
-        }
-
-        const key = String(task.projectId);
-        const current = accumulator[key] ?? { total: 0, completed: 0 };
-
-        current.total += 1;
-        if (task.isCompleted || task.status === 'DONE') {
-          current.completed += 1;
-        }
-
-        accumulator[key] = current;
-        return accumulator;
-      }, {});
+      const progress = buildProjectProgress(sortTasksByCompletionAndDueDate(freshTasks));
 
       setTaskProgress(progress);
     } catch {

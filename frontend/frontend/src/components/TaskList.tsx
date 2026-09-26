@@ -7,6 +7,7 @@ import './TaskList.css';
 import TaskEditor from './TaskEditor.tsx';
 import { sortTasksByCompletionAndDueDate } from '../utils/taskOrdering';
 import { useTaskStore } from '../store/TaskStore';
+import { flattenTaskTree } from '../utils/taskTree';
 
 /**
  * TaskList Component
@@ -67,26 +68,6 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     }
   }
 
-  function flattenTasks(taskList: Task[]): Task[] {
-    return taskList.flatMap(task => {
-      const currentTask: Task = { ...task, isSubtask: Boolean(task.parentTaskId || task.isSubtask) };
-      const subtasks = (task.subtasks ?? []).map(subtask => ({
-        ...subtask,
-        parentTaskId: task.id,
-        isSubtask: true,
-      }));
-
-      return [currentTask, ...subtasks.flatMap(subtask => {
-        const nested = (subtask.subtasks ?? []).map(child => ({
-          ...child,
-          parentTaskId: subtask.id,
-          isSubtask: true,
-        }));
-        return [subtask, ...nested];
-      })];
-    });
-  }
-
   async function handleSaveTaskDetails(updates: any) {
     if (!selectedTask?.id) {
       return;
@@ -125,7 +106,7 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
   }
 
   const flattenedTasks = useMemo(
-    () => sortTasksByCompletionAndDueDate(flattenTasks(tasks)),
+    () => sortTasksByCompletionAndDueDate(flattenTaskTree(tasks)),
     [tasks],
   );
 
