@@ -2,48 +2,55 @@ import { create } from 'zustand';
 import { listTasks, createTask, deleteTask, updateTask, type Task } from '../api/tasks';
 
 type TaskStore = {
-    tasks:Task[];
+    tasks: Task[];
     isLoading: boolean;
     error: string | null;
+    hasLoaded: boolean;
 
-    fetchTasks: () => Promise<void>;
+    fetchTasks: (force?: boolean) => Promise<void>;
     addTask: (task: Task) => Promise<void>;
     removeTask: (id: string) => Promise<void>;
     toggleComplete: (id: string, current: boolean) => Promise<void>;
+    upsertTask: (updatedTask: Task) => void;
 };
 
-export const useTaskStore = create<TaskStore> ((set) => ({
+export const useTaskStore = create<TaskStore> ((set, get) => ({
     tasks: [],
     isLoading: false,
     error: null,
+    hasLoaded: false,
 
-    fetchTasks: async () => {
+    fetchTasks: async (force = false) => {
+        if (!force && get().hasLoaded) {
+            return;
+        }
+
         set({ isLoading: true, error: null });
         try {
             const tasks = await listTasks();
-            set({tasks});
+            set({ tasks, hasLoaded: true });
         } catch (error) {
-            set({ error: 'Failed to load tasks'});
+            set({ error: 'Failed to load tasks' });
         } finally {
-            set ({ isLoading: false});
+            set({ isLoading: false });
         }
     },
 
     addTask: async (task) => {
         set({ error: null });
-        try{
+        try {
             const created = await createTask(task);
-             set(state => ({ tasks: [...state.tasks, created] }));
+            set(state => ({ tasks: [...state.tasks, created], hasLoaded: true }));
         } catch (error) {
-            set({ error: 'Failed to create task'});
+            set({ error: 'Failed to create task' });
             throw error;
         }
     },
 
     removeTask: async (id) => {
-        try{
+        try {
             await deleteTask(id);
-            set(state => ({ tasks: state.tasks.filter(t => t.id !== id)}));
+            set(state => ({ tasks: state.tasks.filter(t => t.id !== id) }));
         } catch {
             set({ error: 'Failed to delete task' });
         }
@@ -52,11 +59,32 @@ export const useTaskStore = create<TaskStore> ((set) => ({
     toggleComplete: async (id, current) => {
         try {
             const updated = await updateTask(id, { isCompleted: !current });
-            set (state => ({
-                tasks: state.tasks.map(t => t.id === id ? updated: t),
+            set(state => ({
+                tasks: state.tasks.map(t => t.id === id ? updated : t),
             }));
         } catch {
             set({ error: 'Failed to update task' });
         }
-    }
+    },
+
+    upsertTask: (updatedTask) => {
+        const replaceInTree = (taskList: Task[]): Task[] => taskList.map(task => {
+            if (task.id === updatedTask.id) {
+                return { ...task, ...updatedTask };
+            }
+
+            if (task.subtasks && task.subtasks.length > 0) {
+                return {
+                    ...task,
+                    subtasks: replaceInTree(task.subtasks),
+                };
+            }
+
+            return task;
+        });
+
+        set(state => ({
+            tasks: replaceInTree(state.tasks),
+        }));
+    },
 }))
