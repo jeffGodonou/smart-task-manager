@@ -177,7 +177,7 @@
 .task-editor-submit {
   display: flex;
   justify-content: flex-end;
-  align-items: center;
+  align-items: flex-end;
   min-width: 160px;
   margin-left: auto;
   margin-top: 4px;
