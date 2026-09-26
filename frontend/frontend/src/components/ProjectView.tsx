@@ -163,15 +163,6 @@ export default function ProjectView() {
     <section className="project-view">
       <div className="project-view-header">
         <h2 className="project-view-title">Project view</h2>
-        <button
-          type="button"
-          className="project-view-header-button"
-          aria-label="Create task"
-          onClick={() => handleCreateTaskForProject()}
-        >
-          <span aria-hidden="true">＋</span>
-          <span>Task</span>
-        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="task-editor-fields project-view-form" style={{ gridTemplateColumns: projectGridTemplate }}>
