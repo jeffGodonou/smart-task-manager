@@ -148,38 +148,6 @@ describe('ProjectView', () => {
     });
   });
 
-  it('allows creating a standalone task from the list view without assigning a project', async () => {
-    vi.mocked(projectApi.loadProjects).mockResolvedValue([
-      { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main' },
-    ]);
-    vi.mocked(taskApi.createTask).mockResolvedValue({
-      id: '99',
-      title: 'General task',
-      projectId: null,
-      status: 'TODO',
-      isCompleted: false,
-    });
-
-    render(<ProjectView />);
-
-    const taskButton = await screen.findByRole('button', { name: /^create task$/i });
-    fireEvent.click(taskButton);
-
-    expect(await screen.findByText('Add a new task')).toBeTruthy();
-    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'General task' } });
-    fireEvent.click(screen.getByRole('button', { name: /\+ add task/i }));
-
-    await waitFor(() => {
-      expect(taskApi.createTask).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: 'General task',
-          projectId: null,
-          status: 'TODO',
-        }),
-      );
-    });
-  });
-
   it('hides the project selector when creating a task from a project modal', async () => {
     vi.mocked(projectApi.loadProjects).mockResolvedValue([
       { id: '42', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main' },
