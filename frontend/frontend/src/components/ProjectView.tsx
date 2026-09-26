@@ -315,6 +315,7 @@ export default function ProjectView() {
             <TaskEditor
               initialProjectId={taskEditorProject?.id ?? null}
               showCloseButton={true}
+              isProjectContext={true}
               onTaskCreated={() => {
                 void refreshTaskCounts();
                 setShowTaskEditor(false);
