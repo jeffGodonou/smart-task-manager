@@ -85,6 +85,17 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     }
   }
 
+  const flattenedTasks = useMemo(
+    () => sortTasksByCompletionAndDueDate(flattenTaskTree(tasks)),
+    [tasks],
+  );
+
+  const filteredTasks = useMemo(() => flattenedTasks.filter(t => {
+    if (filter === 'active') return !t.isCompleted;
+    if (filter === 'completed') return t.isCompleted;
+    return true;
+  }), [filter, flattenedTasks]);
+
   if (loading) {
     return (
       <div className="task-list-shell">
@@ -104,17 +115,6 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
       </div>
     );
   }
-
-  const flattenedTasks = useMemo(
-    () => sortTasksByCompletionAndDueDate(flattenTaskTree(tasks)),
-    [tasks],
-  );
-
-  const filteredTasks = useMemo(() => flattenedTasks.filter(t => {
-    if (filter === 'active') return !t.isCompleted;
-    if (filter === 'completed') return t.isCompleted;
-    return true;
-  }), [filter, flattenedTasks]);
 
   return (
     <>
