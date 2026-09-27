@@ -24,8 +24,10 @@ export function flattenTaskTree(taskList: Task[]): Task[] {
   return flattened;
 }
 
-export function buildProjectProgress(taskList: Task[]): Record<string, { total: number; completed: number }> {
-  return taskList.reduce<Record<string, { total: number; completed: number }>>((accumulator, task) => {
+export type ProjectProgress = Record<string, { total: number; completed: number }>;
+
+export function buildProjectProgress(taskList: Task[]): ProjectProgress {
+  return taskList.reduce<ProjectProgress>((accumulator, task) => {
     if (!task.projectId) {
       return accumulator;
     }
