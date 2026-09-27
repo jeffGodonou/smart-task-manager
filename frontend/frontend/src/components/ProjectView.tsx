@@ -2,9 +2,9 @@ import React from 'react';
 import { loadProjects, saveProject, type GitProject } from '../api/projects';
 import './ProjectView.css';
 import TaskEditor from './TaskEditor';
-import { sortTasksByCompletionAndDueDate } from '../utils/taskOrdering';
+//import { sortTasksByCompletionAndDueDate } from '../utils/taskOrdering';
 import { useTaskStore } from '../store/TaskStore';
-import { buildProjectProgress } from '../utils/taskTree';
+//import { buildProjectProgress } from '../utils/taskTree';
 
 const emptyDraft: Omit<GitProject, 'id'> = {
   name: '',
@@ -18,7 +18,7 @@ const emptyDraft: Omit<GitProject, 'id'> = {
 };
 
 export default function ProjectView() {
-  const tasks = useTaskStore((state) => state.tasks);
+  // const tasks = useTaskStore((state) => state.tasks);
   const projectProgress = useTaskStore((state) => state.projectProgress);
   const fetchTasks = useTaskStore((state) => state.fetchTasks);
 
