@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import { listTasks, createTask, deleteTask, updateTask, type Task } from '../api/tasks';
+import { buildProjectProgress, type ProjectProgress } from '../utils/taskTree';
 
 type TaskStore = {
     tasks: Task[];
+    projectProgress: ProjectProgress;
     isLoading: boolean;
     error: string | null;
     hasLoaded: boolean;
@@ -16,6 +18,7 @@ type TaskStore = {
 
 export const useTaskStore = create<TaskStore> ((set, get) => ({
     tasks: [],
+    projectProgress: {},
     isLoading: false,
     error: null,
     hasLoaded: false,
@@ -28,7 +31,7 @@ export const useTaskStore = create<TaskStore> ((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             const tasks = await listTasks();
-            set({ tasks, hasLoaded: true });
+            set({ tasks, projectProgress: buildProjectProgress(tasks), hasLoaded: true });
         } catch (error) {
             set({ error: 'Failed to load tasks' });
         } finally {
@@ -40,7 +43,11 @@ export const useTaskStore = create<TaskStore> ((set, get) => ({
         set({ error: null });
         try {
             const created = await createTask(task);
-            set(state => ({ tasks: [...state.tasks, created], hasLoaded: true }));
+            set(state => ({
+                tasks: [...state.tasks, created],
+                projectProgress: buildProjectProgress([...state.tasks, created]),
+                hasLoaded: true,
+            }));
         } catch (error) {
             set({ error: 'Failed to create task' });
             throw error;
@@ -50,7 +57,13 @@ export const useTaskStore = create<TaskStore> ((set, get) => ({
     removeTask: async (id) => {
         try {
             await deleteTask(id);
-            set(state => ({ tasks: state.tasks.filter(t => t.id !== id) }));
+            set(state => {
+                const nextTasks = state.tasks.filter(t => t.id !== id);
+                return {
+                    tasks: nextTasks,
+                    projectProgress: buildProjectProgress(nextTasks),
+                };
+            });
         } catch {
             set({ error: 'Failed to delete task' });
         }
@@ -59,9 +72,13 @@ export const useTaskStore = create<TaskStore> ((set, get) => ({
     toggleComplete: async (id, current) => {
         try {
             const updated = await updateTask(id, { isCompleted: !current });
-            set(state => ({
-                tasks: state.tasks.map(t => t.id === id ? updated : t),
-            }));
+            set(state => {
+                const nextTasks = state.tasks.map(t => t.id === id ? updated : t);
+                return {
+                    tasks: nextTasks,
+                    projectProgress: buildProjectProgress(nextTasks),
+                };
+            });
         } catch {
             set({ error: 'Failed to update task' });
         }
@@ -83,8 +100,12 @@ export const useTaskStore = create<TaskStore> ((set, get) => ({
             return task;
         });
 
-        set(state => ({
-            tasks: replaceInTree(state.tasks),
-        }));
+        set(state => {
+            const nextTasks = replaceInTree(state.tasks);
+            return {
+                tasks: nextTasks,
+                projectProgress: buildProjectProgress(nextTasks),
+            };
+        });
     },
 }))
