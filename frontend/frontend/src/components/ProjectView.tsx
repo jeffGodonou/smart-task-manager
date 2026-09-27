@@ -19,6 +19,7 @@ const emptyDraft: Omit<GitProject, 'id'> = {
 
 export default function ProjectView() {
   const tasks = useTaskStore((state) => state.tasks);
+  const projectProgress = useTaskStore((state) => state.projectProgress);
   const fetchTasks = useTaskStore((state) => state.fetchTasks);
 
   const [projects, setProjects] = React.useState<GitProject[]>([]);
@@ -28,7 +29,6 @@ export default function ProjectView() {
   const [loading, setLoading] = React.useState(true);
   const [showTaskEditor, setShowTaskEditor] = React.useState(false);
   const [taskEditorProject, setTaskEditorProject] = React.useState<GitProject | null>(null);
-  const [taskProgress, setTaskProgress] = React.useState<Record<string, { total: number; completed: number }>>({});
   const [editingProjectId, setEditingProjectId] = React.useState<string | number | null>(null);
 
   const refreshProjects = React.useCallback(async () => {
@@ -42,25 +42,10 @@ export default function ProjectView() {
     }
   }, []);
 
-  const refreshTaskCounts = React.useCallback(async () => {
-    try {
-      const freshTasks = useTaskStore.getState().tasks.length > 0
-        ? useTaskStore.getState().tasks
-        : await fetchTasks(true).then(() => useTaskStore.getState().tasks);
-
-      const progress = buildProjectProgress(sortTasksByCompletionAndDueDate(freshTasks));
-
-      setTaskProgress(progress);
-    } catch {
-      setTaskProgress({});
-    }
-  }, [fetchTasks]);
-
   React.useEffect(() => {
     void fetchTasks(true);
     void refreshProjects();
-    void refreshTaskCounts();
-  }, [fetchTasks, refreshProjects, refreshTaskCounts]);
+  }, [fetchTasks, refreshProjects]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -301,7 +286,6 @@ export default function ProjectView() {
               showCloseButton={true}
               isProjectContext={true}
               onTaskCreated={() => {
-                void refreshTaskCounts();
                 setShowTaskEditor(false);
                 setTaskEditorProject(null);
               }}
@@ -342,9 +326,9 @@ export default function ProjectView() {
               {visibleProjects.map((project) => {
                 const key = project.id ?? project.name;
                 const isCodingProject = project.projectType === 'CODING';
-                const projectProgress = taskProgress[String(project.id ?? '')] ?? { total: 0, completed: 0 };
-                const totalTasks = projectProgress.total;
-                const completedTasks = projectProgress.completed;
+                const projectStats = projectProgress[String(project.id ?? '')] ?? { total: 0, completed: 0 };
+                const totalTasks = projectStats.total;
+                const completedTasks = projectStats.completed;
                 const percentage = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
                 const statusText = totalTasks === 0 ? 'No tasks' : percentage === 100 ? 'Complete' : percentage > 0 ? 'In progress' : 'Not started';
                 const statusTone = totalTasks === 0 ? 'neutral' : percentage === 100 ? 'complete' : percentage > 0 ? 'in-progress' : 'not-started';
