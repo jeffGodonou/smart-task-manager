@@ -1,6 +1,6 @@
 import { clearToken, getAuthHeaders } from './auth';
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+const apiBaseUrl = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 const base = `${apiBaseUrl}/api/projects`;
 
 export type ProjectType = 'CODING' | 'NON_CODING';

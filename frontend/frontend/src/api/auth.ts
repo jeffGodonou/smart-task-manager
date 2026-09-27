@@ -1,6 +1,6 @@
 const tokenStorageKey = 'smart-task-manager-token';
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+const apiBaseUrl = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {

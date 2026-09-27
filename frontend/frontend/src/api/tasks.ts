@@ -1,6 +1,6 @@
 import { getAuthHeaders } from './auth';
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+const apiBaseUrl = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 const base = `${apiBaseUrl}/api/tasks`;
 
 export interface Task {
