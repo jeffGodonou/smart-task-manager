@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import TaskList from './TaskList';
 
 vi.mock('../api/tasks.ts', () => ({
@@ -15,6 +15,7 @@ vi.mock('../api/projects.ts', () => ({
 
 import { listTasks, updateTask } from '../api/tasks.ts';
 import { loadProjects } from '../api/projects';
+import { useTaskStore } from '../store/TaskStore';
 import type { Task } from '../api/tasks.ts';
 
 const listTasksMock = vi.mocked(listTasks);
@@ -24,10 +25,21 @@ const loadProjectsMock = vi.mocked(loadProjects);
 describe('TaskList UI edit flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useTaskStore.setState({
+      tasks: [],
+      projectProgress: {},
+      isLoading: false,
+      error: null,
+      hasLoaded: false,
+    });
     loadProjectsMock.mockResolvedValue([
       { id: 10, name: 'Alpha project', projectType: 'NON_CODING' },
       { id: 11, name: 'Beta project', projectType: 'CODING' },
     ]);
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it('lets an existing task be linked to a project from the details modal', async () => {
@@ -85,6 +97,32 @@ describe('TaskList UI edit flow', () => {
     expect(taskTitles.indexOf('First open task')).toBeLessThan(taskTitles.indexOf('Second open task'));
     expect(taskTitles.indexOf('Second open task')).toBeLessThan(taskTitles.indexOf('Early done task'));
     expect(taskTitles.indexOf('Early done task')).toBeLessThan(taskTitles.indexOf('Late done task'));
+  });
+
+  it('shows 10 tasks per page and paginates the rest', async () => {
+    const tasks: Task[] = Array.from({ length: 15 }, (_, index) => ({
+      id: `task-${index + 1}`,
+      title: `Task ${index + 1}`,
+      isCompleted: index % 2 === 0,
+      status: index % 2 === 0 ? 'DONE' : 'TODO',
+      dueDate: `2026-09-${String((index % 28) + 1).padStart(2, '0')}`,
+    }));
+
+    listTasksMock.mockResolvedValue(tasks);
+
+    render(<TaskList />);
+
+    expect(await screen.findByText('Task 1')).toBeTruthy();
+    expect(screen.getByText('Page 1 of 2')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /next page/i })).toBeTruthy();
+    expect(screen.queryByText('Task 11')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /next page/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Page 2 of 2')).toBeTruthy();
+    });
+    expect(screen.getByText('Task 11')).toBeTruthy();
   });
 
   it('transitions parent task from IN_PROGRESS to DONE after completing remaining subtask', async () => {
