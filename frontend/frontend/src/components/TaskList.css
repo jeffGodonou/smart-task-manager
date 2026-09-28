@@ -47,6 +47,45 @@
   color: #9CA3AF;
 }
 
+.task-list-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 16px 4px;
+}
+
+.task-page-button {
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.task-page-button:hover:not(:disabled) {
+  background: #F9FAFB;
+  border-color: #9CA3AF;
+}
+
+.task-page-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.task-page-indicator {
+  min-width: 110px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+}
+
 /* ─── Table ─────────────────────────────────────────────────────────────── */
 .task-list {
   background: #FFFFFF;

@@ -23,6 +23,8 @@ type TaskListProps = {
   refreshKey?: number;
 };
 
+const TASKS_PER_PAGE = 10;
+
 export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProps) {
   const tasks = useTaskStore(state => state.tasks);
   const loading = useTaskStore(state => state.isLoading);
@@ -32,6 +34,7 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
   const toggleComplete = useTaskStore(state => state.toggleComplete);
   const upsertTask = useTaskStore(state => state.upsertTask);
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
@@ -95,6 +98,24 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     if (filter === 'completed') return t.isCompleted;
     return true;
   }), [filter, flattenedTasks]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredTasks.length / TASKS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedTasks = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * TASKS_PER_PAGE;
+    return filteredTasks.slice(startIndex, startIndex + TASKS_PER_PAGE);
+  }, [filteredTasks, safeCurrentPage]);
 
   if (loading) {
     return (
@@ -162,7 +183,7 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
           </div>
 
           {/* Rows */}
-          {filteredTasks.map(task => (
+          {paginatedTasks.map(task => (
             <TaskRow
               key={task.id}
               task={task}
@@ -171,6 +192,34 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
               onOpen={setSelectedTask}
             />
           ))}
+        </div>
+      )}
+
+      {filteredTasks.length > 0 && totalPages > 1 && (
+        <div className="task-list-pagination" aria-label="Task pagination">
+          <button
+            type="button"
+            className="task-page-button"
+            onClick={() => setCurrentPage(value => Math.max(1, value - 1))}
+            disabled={safeCurrentPage === 1}
+            aria-label="Previous page"
+          >
+            Previous page
+          </button>
+
+          <span className="task-page-indicator" aria-live="polite">
+            Page {safeCurrentPage} of {totalPages}
+          </span>
+
+          <button
+            type="button"
+            className="task-page-button"
+            onClick={() => setCurrentPage(value => Math.min(totalPages, value + 1))}
+            disabled={safeCurrentPage === totalPages}
+            aria-label="Next page"
+          >
+            Next page
+          </button>
         </div>
       )}
 
