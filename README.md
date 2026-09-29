@@ -1,111 +1,149 @@
 # Smart Task Manager
- 
-A task management REST API built with Java and Spring Boot, following a clean layered architecture with JPA persistence, TDD practices, and an automated CI/CD pipeline via GitHub Actions.
- 
+
+Smart Task Manager is a full-stack productivity app for organizing projects and tasks. It combines a Java + Spring Boot backend with a React + Vite frontend, supporting task management, project tracking, list filtering, and paginated views.
+
 ---
- 
+
 ## Tech Stack
- 
-- **Language:** Java 25.0
-- **Framework:** Spring Boot
-- **Build tool:** Maven
-- **Persistence:** JPA / Hibernate · H2 (in-memory for dev)
-- **Testing:** JUnit 5 / Mockito · TDD
-- **CI/CD:** GitHub Actions
+
+- Java 25
+- Spring Boot
+- Maven / Maven Wrapper
+- JPA / Hibernate
+- H2 for local development
+- PostgreSQL-ready configuration for production
+- React 19
+- Vite
+- TypeScript
+- Vitest for frontend tests
+
 ---
- 
-## Architecture
- 
-The project follows a standard layered architecture:
- 
+
+## Features
+
+- Project management with coding and non-coding project types
+- Task CRUD workflows
+- Task list filtering: All, Active, Completed
+- Pagination in the task list view with 10 tasks per page
+- Task detail modal editor
+- Project progress tracking
+- Docker-ready deployment setup
+
+---
+
+## Project Structure
+
 ```text
-src/
-└── main/java/com/jeff/taskmanager
-
-    ├── util/        # Domain utilities
-
-    ├── api/         # REST controllers — handles HTTP requests and responses
-    ├── service/     # Business logic layer
-    ├── repository/  # Data access layer (JPA repositories)
-    └── model/       # Domain entities
+smart-task-manager/
+├── src/                     # Spring Boot backend
+├── frontend/frontend/       # React frontend app
+├── Dockerfile               # Container build config
+├── pom.xml                  # Maven backend config
+├── mvnw / mvnw.cmd          # Maven wrapper
+├── README.md                # Project overview
+├── ROADMAP.md               # Planned work
+├── render.yaml              # Deployment config
+├── data/                    # Local app data
+└── target/                  # Build artifacts
 ```
- 
+
 ---
- 
+
 ## Getting Started
- 
+
 ### Prerequisites
- 
+
 - Java 25+
-- Maven (or use the included `mvnw` wrapper)
-### Run locally
- 
+- Node.js 18+
+- npm
+- Maven or the included Maven wrapper
+
+### Run the backend
+
 ```bash
-# Clone the repo
 git clone https://github.com/jeffGodonou/smart-task-manager.git
 cd smart-task-manager
- 
-# Build and run
-./mvnw clean package
-java -jar target/smart-task-manager-1.0-SNAPSHOT.jar
+./mvnw clean spring-boot:run
 ```
- 
-The API will be available at `http://localhost:8080`
- 
-### Run tests
- 
+
+The API runs on:
+
+```text
+http://localhost:8080
+```
+
+### Run the frontend
+
+```bash
+cd frontend/frontend
+npm install
+npm run dev
+```
+
+The frontend runs on:
+
+```text
+http://localhost:5173
+```
+
+---
+
+## Testing
+
+### Backend tests
+
 ```bash
 ./mvnw test
 ```
 
-## Persistence and Supabase
+### Frontend tests
 
-For local development, the app can still use an H2 file database. For a durable deployed setup, use a shared PostgreSQL database such as Supabase.
+```bash
+cd frontend/frontend
+npm test
+```
 
-### Recommended production variables
-
-- `DATABASE_URL`: `jdbc:postgresql://<host>:5432/postgres?sslmode=require`
-- `DB_USERNAME`: your Supabase database user
-- `DB_PASSWORD`: your Supabase database password
-- `JWT_SECRET`: a stable long secret for signing tokens
-
-The app now checks these environment variables first and automatically switches Hibernate to the PostgreSQL dialect and driver when `DATABASE_URL` is present.
-
-### Safety notes for Supabase
-
-- Never commit the real database password or JWT secret to Git.
-- Use Supabase project secrets or Render environment variables instead of hardcoding them.
-- Keep SSL enabled (`sslmode=require`) for hosted services.
-- Restrict database access to the app and rotate credentials periodically.
-- Use Supabase Row Level Security (RLS) if you later expose the database directly to the frontend.
-- Keep the JWT secret stable across deploys so existing sessions do not become invalid unexpectedly.
-
-Without a durable database and a stable secret, user data and login tokens can disappear or break after restarts or redeploys.
- 
 ---
- 
-## API Endpoints
- 
-| Method | Endpoint      | Description       |
-|--------|---------------|-------------------|
-| GET    | `/tasks`      | Get all tasks     |
-| GET    | `/tasks/{id}` | Get a task by ID  |
-| POST   | `/tasks`      | Create a new task |
-| PUT    | `/tasks/{id}` | Update a task     |
-| DELETE | `/tasks/{id}` | Delete a task     |
- 
+
+## Database Configuration
+
+For local development, the app can use an H2 file database. For a durable setup, it supports PostgreSQL via environment variables such as:
+
+- `DATABASE_URL`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+- `JWT_SECRET`
+
+When `DATABASE_URL` is present, Hibernate is switched to the PostgreSQL dialect automatically.
+
+### Safety notes
+
+- Do not commit real secrets to Git.
+- Prefer Render, Supabase, or hosting environment variables for production values.
+- Keep SSL enabled for remote databases.
+- Rotate credentials periodically.
+
 ---
- 
-## Roadmap
- 
-See [ROADMAP.md](./ROADMAP.md) for planned features and milestones, including:
- 
-- React frontend with Kanban and calendar views
-- OAuth2 / JWT authentication
-- Integration and E2E tests
+
+## API Overview
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/tasks` | Get all tasks |
+| GET | `/tasks/{id}` | Get a task by ID |
+| POST | `/tasks` | Create a task |
+| PUT | `/tasks/{id}` | Update a task |
+| DELETE | `/tasks/{id}` | Delete a task |
+
 ---
- 
+
+## Notes
+
+The list view now paginates at 10 tasks per page, making large task collections easier to navigate without overwhelming the UI.
+
+---
+
 ## Author
- 
+
 **Jeff Godonou** — [github.com/jeffGodonou](https://github.com/jeffGodonou)
- 
+
