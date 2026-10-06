@@ -16,6 +16,7 @@ import './CalendarView.css';
 
 import { createTask, listTasks, updateTask } from '../api/tasks';
 import type { Task } from '../api/tasks';
+import { parseCalendarCsvImport } from '../utils/csvImport';
 import { isTaskUrgent } from '../utils/taskUrgency';
 
 const locales = { 'en-US': enUS };
@@ -175,6 +176,8 @@ export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
   const [tasks, setTasks]   = React.useState<Task[]>([]);
   const [events, setEvents] = React.useState<CalendarEvent[]>([]);
   const [error, setError]   = React.useState<string | null>(null);
+  const [importMessage, setImportMessage] = React.useState<string | null>(null);
+  const [importingCsv, setImportingCsv] = React.useState(false);
   const [modal, setModal]   = React.useState<{
     mode: 'edit' | 'create';
     date: string;
@@ -236,6 +239,45 @@ export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
     }
   }
 
+  async function handleCsvImport(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setImportingCsv(true);
+      setError(null);
+      setImportMessage(null);
+
+      const text = await file.text();
+      const rows = parseCalendarCsvImport(text);
+
+      if (rows.length === 0) {
+        throw new Error('No valid task rows were found in this CSV file.');
+      }
+
+      const createdTasks: Task[] = [];
+      for (const row of rows) {
+        const created = await createTask({
+          title: row.title,
+          description: row.description ?? '',
+          dueDate: row.dueDate,
+          status: row.status ?? 'TODO',
+        });
+        createdTasks.push(created);
+      }
+
+      const nextTasks = [...tasks, ...createdTasks];
+      setTasks(nextTasks);
+      setEvents(tasksToEvents(nextTasks));
+      setImportMessage(`Imported ${createdTasks.length} event${createdTasks.length === 1 ? '' : 's'} from ${file.name}.`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to import CSV.');
+    } finally {
+      setImportingCsv(false);
+      event.target.value = '';
+    }
+  }
+
   return (
     <div className="calendar-view">
 
@@ -243,8 +285,19 @@ export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
         <div className="calendar-error">{error}</div>
       )}
 
-      <div className="calendar-hint">
-        Click a date to create a task · Click an event to edit its due date
+      {importMessage && (
+        <div className="calendar-success">{importMessage}</div>
+      )}
+
+      <div className="calendar-controls">
+        <div className="calendar-hint">
+          Click a date to create a task · Click an event to edit its due date
+        </div>
+
+        <label className="calendar-import-button">
+          <input type="file" accept=".csv,text/csv" onChange={handleCsvImport} hidden />
+          {importingCsv ? 'Importing…' : 'Import CSV'}
+        </label>
       </div>
 
       <div className="calendar-container">
