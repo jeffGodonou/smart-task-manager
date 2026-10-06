@@ -15,10 +15,47 @@
   font-size: 13px;
 }
 
+.calendar-success {
+  background: #EAF7EE;
+  color: #246B3A;
+  border: 1px solid #BDE2C7;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+.calendar-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
 .calendar-hint {
   font-size: 12px;
   color: #9CA3AF;
   text-align: right;
+  flex: 1;
+}
+
+.calendar-import-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #1F4E79;
+  color: white;
+  border: 1px solid #1F4E79;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.calendar-import-button:hover {
+  background: #183F63;
+  border-color: #183F63;
 }
 
 .calendar-container {
