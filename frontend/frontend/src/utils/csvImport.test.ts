@@ -48,4 +48,35 @@ describe('parseCalendarCsvImport', () => {
       },
     ]);
   });
+
+  it('handles rehearsal-style weekly rows with date ranges and grouped notes', () => {
+    const csv = [
+      'LES MISÉRABLES — REHEARSAL CALENDAR',
+      'WEEK,DATES,GROUPE SCENES,SOLO / NOTES / ADDITIONAL Rehearsal',
+      'W01,"May 25 – May 31, 2026",Prologue,,—',
+      'W03,"Jun 08 – Jun 14, 2026",Innkeeper\'s song,"Inkeeper\'s song - solo Thenardier",—',
+      'W05,"Jun 22 – Jun 28, 2026",People Song,"I Dreamed A Dream - solo Fantine",—',
+    ].join('\n');
+
+    expect(parseCalendarCsvImport(csv)).toEqual([
+      {
+        title: 'W01 — Prologue',
+        dueDate: '2026-05-25',
+        description: '',
+        status: 'TODO',
+      },
+      {
+        title: 'W03 — Innkeeper\'s song · Inkeeper\'s song - solo Thenardier',
+        dueDate: '2026-06-08',
+        description: '',
+        status: 'TODO',
+      },
+      {
+        title: 'W05 — People Song · I Dreamed A Dream - solo Fantine',
+        dueDate: '2026-06-22',
+        description: '',
+        status: 'TODO',
+      },
+    ]);
+  });
 });
