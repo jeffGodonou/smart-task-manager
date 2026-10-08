@@ -16,7 +16,7 @@ import './CalendarView.css';
 
 import { createTask, listTasks, updateTask } from '../api/tasks';
 import type { Task } from '../api/tasks';
-import { parseCalendarCsvImport } from '../utils/csvImport';
+import { parseCalendarCsvImport, type CalendarCsvTask } from '../utils/csvImport';
 import { isTaskUrgent } from '../utils/taskUrgency';
 
 const locales = { 'en-US': enUS };
@@ -178,6 +178,7 @@ export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
   const [error, setError]   = React.useState<string | null>(null);
   const [importMessage, setImportMessage] = React.useState<string | null>(null);
   const [importingCsv, setImportingCsv] = React.useState(false);
+  const [csvImportPreview, setCsvImportPreview] = React.useState<{ fileName: string; rows: CalendarCsvTask[] } | null>(null);
   const [modal, setModal]   = React.useState<{
     mode: 'edit' | 'create';
     date: string;
@@ -244,7 +245,6 @@ export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
     if (!file) return;
 
     try {
-      setImportingCsv(true);
       setError(null);
       setImportMessage(null);
 
@@ -255,8 +255,23 @@ export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
         throw new Error('No valid task rows were found in this CSV file.');
       }
 
+      setCsvImportPreview({ fileName: file.name, rows });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to import CSV.');
+    } finally {
+      event.target.value = '';
+    }
+  }
+
+  async function confirmCsvImport() {
+    if (!csvImportPreview) return;
+
+    try {
+      setImportingCsv(true);
+      setError(null);
+
       const createdTasks: Task[] = [];
-      for (const row of rows) {
+      for (const row of csvImportPreview.rows) {
         const created = await createTask({
           title: row.title,
           description: row.description ?? '',
@@ -269,12 +284,12 @@ export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
       const nextTasks = [...tasks, ...createdTasks];
       setTasks(nextTasks);
       setEvents(tasksToEvents(nextTasks));
-      setImportMessage(`Imported ${createdTasks.length} event${createdTasks.length === 1 ? '' : 's'} from ${file.name}.`);
+      setImportMessage(`Imported ${createdTasks.length} event${createdTasks.length === 1 ? '' : 's'} from ${csvImportPreview.fileName}.`);
+      setCsvImportPreview(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to import CSV.');
     } finally {
       setImportingCsv(false);
-      event.target.value = '';
     }
   }
 
@@ -336,6 +351,42 @@ export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
           onConfirm={handleModalConfirm}
           onCancel={() => setModal(null)}
         />
+      )}
+
+      {csvImportPreview && (
+        <div className="calendar-modal-overlay" onClick={() => setCsvImportPreview(null)}>
+          <div className="calendar-modal calendar-import-preview" onClick={e => e.stopPropagation()}>
+            <div className="calendar-modal-header">
+              <h2 className="calendar-modal-title">Review CSV import</h2>
+              <button className="calendar-modal-close" onClick={() => setCsvImportPreview(null)}>✕</button>
+            </div>
+
+            <div className="calendar-modal-body">
+              <p className="calendar-import-preview-summary">
+                {csvImportPreview.fileName} · {csvImportPreview.rows.length} event{csvImportPreview.rows.length === 1 ? '' : 's'} found
+              </p>
+
+              <div className="calendar-import-preview-list">
+                {csvImportPreview.rows.map((row, index) => (
+                  <div key={`${row.title}-${row.dueDate ?? 'no-date'}-${index}`} className="calendar-import-preview-item">
+                    <div className="calendar-import-preview-row-title">{row.title}</div>
+                    <div className="calendar-import-preview-row-meta">
+                      {row.dueDate ? row.dueDate : 'No date'}
+                      {row.description ? ` · ${row.description}` : ''}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="calendar-modal-footer">
+              <button className="btn-secondary" onClick={() => setCsvImportPreview(null)}>Cancel</button>
+              <button className="btn-primary" onClick={confirmCsvImport} disabled={importingCsv}>
+                {importingCsv ? 'Importing…' : 'Import selected tasks'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -353,6 +353,45 @@
   border-top: 1px solid #E5E7EB;
 }
 
+.calendar-import-preview {
+  width: min(560px, calc(100vw - 32px));
+}
+
+.calendar-import-preview-summary {
+  margin: 0;
+  color: #6B7280;
+  font-size: 12px;
+}
+
+.calendar-import-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.calendar-import-preview-item {
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #F9FAFB;
+}
+
+.calendar-import-preview-row-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1A1A2E;
+  margin-bottom: 4px;
+}
+
+.calendar-import-preview-row-meta {
+  font-size: 11px;
+  color: #6B7280;
+  line-height: 1.4;
+}
+
 /* ─── Shared buttons ────────────────────────────────────────────────────── */
 .btn-primary {
   background: #1F4E79;
