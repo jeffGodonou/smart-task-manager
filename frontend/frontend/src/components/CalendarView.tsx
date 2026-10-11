@@ -16,6 +16,7 @@ import './CalendarView.css';
 
 import { createTask, listTasks, updateTask } from '../api/tasks';
 import type { Task } from '../api/tasks';
+import { useTaskStore } from '../store/TaskStore';
 import { parseCalendarCsvImport, type CalendarCsvTask } from '../utils/csvImport';
 import { isTaskUrgent } from '../utils/taskUrgency';
 
@@ -284,6 +285,7 @@ export default function CalendarView({ refreshKey = 0 }: CalendarViewProps) {
       const nextTasks = [...tasks, ...createdTasks];
       setTasks(nextTasks);
       setEvents(tasksToEvents(nextTasks));
+      await useTaskStore.getState().fetchTasks(true);
       setImportMessage(`Imported ${createdTasks.length} event${createdTasks.length === 1 ? '' : 's'} from ${csvImportPreview.fileName}.`);
       setCsvImportPreview(null);
     } catch (e) {
