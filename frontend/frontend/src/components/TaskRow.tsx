@@ -47,10 +47,10 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
   const hasSubtasks = totalCount > 0;
   const normalizedStatus: Exclude<Task['status'], undefined> = task.status ?? (task.isCompleted ? 'DONE' : 'TODO');
   const displayStatus = normalizedStatus === 'IN_PROGRESS'
-    ? 'In Progress'
+    ? 'In progress'
     : normalizedStatus === 'DONE'
       ? 'Done'
-      : 'To do';
+      : 'Not started';
 
   return (
     <div
