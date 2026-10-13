@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import TaskList from './TaskList';
+import TaskEditor from './TaskEditor';
 
 vi.mock('../api/tasks.ts', () => ({
   listTasks: vi.fn(),
@@ -40,6 +41,42 @@ describe('TaskList UI edit flow', () => {
 
   afterEach(() => {
     cleanup();
+  });
+
+  it('lets a new task be created with an explicit status selection', async () => {
+    const addTaskMock = vi.fn().mockResolvedValue({
+      id: 'task-2',
+      title: 'New task',
+      status: 'IN_PROGRESS',
+      isCompleted: false,
+    });
+
+    useTaskStore.setState({
+      tasks: [],
+      projectProgress: {},
+      isLoading: false,
+      error: null,
+      hasLoaded: true,
+      addTask: addTaskMock,
+      fetchTasks: vi.fn(),
+      removeTask: vi.fn(),
+      toggleComplete: vi.fn(),
+      upsertTask: vi.fn(),
+    });
+
+    render(<TaskEditor />);
+
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'New task' } });
+    fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'IN_PROGRESS' } });
+    fireEvent.click(screen.getByRole('button', { name: '+ Add task' }));
+
+    await waitFor(() => {
+      expect(addTaskMock).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'New task',
+        status: 'IN_PROGRESS',
+        isCompleted: false,
+      }));
+    });
   });
 
   it('lets an existing task be linked to a project from the details modal', async () => {
