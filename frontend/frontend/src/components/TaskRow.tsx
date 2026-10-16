@@ -8,6 +8,8 @@ interface TaskRowProps {
   onToggle: (task: Task) => void;
   onDelete: (task: Task) => void;
   onOpen: (task: Task) => void;
+  isSelected: boolean;
+  onSelect: (task: Task, selected: boolean) => void;
 }
 
 /**
@@ -19,7 +21,7 @@ interface TaskRowProps {
  * - Trigger callbacks (toggle complete, delete)
  * - Show tooltips on hover with 3-second auto-hide
  */
-export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowProps) {
+export default function TaskRow({ task, onToggle, onDelete, onOpen, isSelected, onSelect }: TaskRowProps) {
   const [openTooltip, setOpenTooltip] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,6 +59,14 @@ export default function TaskRow({ task, onToggle, onDelete, onOpen }: TaskRowPro
       className={`task-row ${isPriority ? 'task-row--priority' : ''} ${isUrgent ? 'task-row--urgent' : ''} ${isSubtask ? 'task-row--subtask' : ''}`}
       data-completed={task.isCompleted}
     >
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={(event) => onSelect(task, event.target.checked)}
+        className="task-selection-checkbox"
+        aria-label={`Select ${task.title}`}
+      />
+
       <input
         type="checkbox"
         checked={task.isCompleted || false}

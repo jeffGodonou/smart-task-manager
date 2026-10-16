@@ -97,7 +97,7 @@
 
 .task-list-header {
   display: grid;
-  grid-template-columns: 20px minmax(0, 2.1fr) minmax(0, 2.2fr) minmax(0, 1.1fr) minmax(90px, 1fr) 110px;
+  grid-template-columns: 20px 20px minmax(0, 2.1fr) minmax(0, 2.2fr) minmax(0, 1.1fr) minmax(90px, 1fr) 110px;
   background: #F9FAFB;
   border-bottom: 1px solid #E5E7EB;
   padding: 0 16px;
@@ -116,6 +116,20 @@
 .task-list-header-spacer {
   display: block;
   width: 100%;
+}
+
+.task-select-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.task-select-all input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
 }
 
 /* ─── States ────────────────────────────────────────────────────────────── */

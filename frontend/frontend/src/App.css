@@ -377,7 +377,7 @@ select:focus {
 
 .task-list-header {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 100px 90px 100px;
+  grid-template-columns: 20px 20px minmax(0, 2fr) minmax(0, 1.5fr) minmax(0, 1fr) 90px 100px;
   background: #F9FAFB;
   border-bottom: 1px solid var(--border);
   padding: 0 16px;
@@ -394,7 +394,7 @@ select:focus {
 
 .task-row {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 100px 90px 100px;
+  grid-template-columns: 20px 20px minmax(0, 2fr) minmax(0, 1.5fr) minmax(0, 1fr) 90px 100px;
   align-items: center;
   padding: 0 16px;
   border-bottom: 1px solid #F3F4F6;
