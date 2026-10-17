@@ -37,6 +37,8 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [bulkActionError, setBulkActionError] = useState<string | null>(null);
 
   useEffect(() => {
     void fetchTasks();
@@ -154,6 +156,59 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     });
   };
 
+  async function handleCompleteSelected() {
+    const selectedTasks = flattenedTasks.filter(task => task.id && selectedTaskIds.has(task.id));
+    const tasksToComplete = selectedTasks.filter(task =>
+      !task.isCompleted && (!task.subtasks || task.subtasks.length === 0)
+    );
+    const skippedParentCount = selectedTasks.filter(task =>
+      !task.isCompleted && Boolean(task.subtasks?.length)
+    ).length;
+
+    setIsBulkUpdating(true);
+    setBulkActionError(null);
+
+    try {
+      const results = await Promise.allSettled(tasksToComplete.map(task =>
+        updateTask(task.id!, { isCompleted: true, status: 'DONE' })
+      ));
+      const failedTaskIds = new Set<string>();
+      let completedCount = 0;
+
+      results.forEach((result, index) => {
+        const task = tasksToComplete[index];
+        if (result.status === 'fulfilled') {
+          upsertTask(result.value);
+          completedCount += 1;
+        } else {
+          failedTaskIds.add(task.id!);
+          console.error(`Failed to complete task "${task.title}": ${String(result.reason)}`);
+        }
+      });
+
+      const failedCount = failedTaskIds.size;
+      setSelectedTaskIds(current => new Set(
+        [...current].filter(id => failedTaskIds.has(id) || (
+          skippedParentCount > 0 &&
+          selectedTasks.some(task => task.id === id && !task.isCompleted && Boolean(task.subtasks?.length))
+        ))
+      ));
+
+      const messages = [];
+      if (failedCount > 0) {
+        messages.push(`${failedCount} ${failedCount === 1 ? 'task could' : 'tasks could'} not be updated.`);
+      }
+      if (skippedParentCount > 0) {
+        messages.push(`${skippedParentCount} ${skippedParentCount === 1 ? 'parent task was' : 'parent tasks were'} skipped because they have subtasks.`);
+      }
+      if (messages.length > 0) {
+        setBulkActionError(`Completed ${completedCount} tasks. ${messages.join(' ')}`);
+      }
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="task-list-shell">
@@ -196,10 +251,24 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
             </button>
           ))}
         </div>
-        <span className="task-count">
-          {filteredTasks.length} {filteredTasks.length === 1 ? 'task' : 'tasks'}
-        </span>
+        <div className="task-list-toolbar-actions">
+          {selectedTaskIds.size > 0 && (
+            <button
+              type="button"
+              className="task-bulk-action"
+              onClick={() => void handleCompleteSelected()}
+              disabled={isBulkUpdating}
+            >
+              {isBulkUpdating ? 'Updating…' : `Mark ${selectedTaskIds.size} selected complete`}
+            </button>
+          )}
+          <span className="task-count">
+            {filteredTasks.length} {filteredTasks.length === 1 ? 'task' : 'tasks'}
+          </span>
+        </div>
       </div>
+
+      {bulkActionError && <div className="task-bulk-action-error" role="status">{bulkActionError}</div>}
 
       {filteredTasks.length === 0 ? (
         <div className="task-list-empty">

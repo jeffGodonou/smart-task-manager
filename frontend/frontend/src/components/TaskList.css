@@ -13,6 +13,43 @@
   margin-bottom: 12px;
 }
 
+.task-list-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.task-bulk-action {
+  border: 1px solid #1F4E79;
+  border-radius: 8px;
+  padding: 7px 12px;
+  background: #1F4E79;
+  color: #FFFFFF;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.task-bulk-action:hover:not(:disabled) {
+  background: #173B5C;
+}
+
+.task-bulk-action:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.task-bulk-action-error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #F0A0A0;
+  border-radius: 8px;
+  background: #FCEBEB;
+  color: #A32D2D;
+  font-size: 12px;
+}
+
 .task-filter-tabs {
   display: flex;
   gap: 4px;

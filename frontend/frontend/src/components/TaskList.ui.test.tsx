@@ -22,6 +22,7 @@ import type { Task } from '../api/tasks.ts';
 const listTasksMock = vi.mocked(listTasks);
 const updateTaskMock = vi.mocked(updateTask);
 const loadProjectsMock = vi.mocked(loadProjects);
+const taskStoreActions = useTaskStore.getState();
 
 describe('TaskList UI edit flow', () => {
   beforeEach(() => {
@@ -32,6 +33,11 @@ describe('TaskList UI edit flow', () => {
       isLoading: false,
       error: null,
       hasLoaded: false,
+      fetchTasks: taskStoreActions.fetchTasks,
+      addTask: taskStoreActions.addTask,
+      removeTask: taskStoreActions.removeTask,
+      toggleComplete: taskStoreActions.toggleComplete,
+      upsertTask: taskStoreActions.upsertTask,
     });
     loadProjectsMock.mockResolvedValue([
       { id: 10, name: 'Alpha project', projectType: 'NON_CODING' },
@@ -160,6 +166,40 @@ describe('TaskList UI edit flow', () => {
       expect(screen.getByText('Page 2 of 2')).toBeTruthy();
     });
     expect(screen.getByText('Task 11')).toBeTruthy();
+  });
+
+  it('marks multiple selected tasks complete in one bulk action', async () => {
+    const tasks: Task[] = [
+      { id: 'task-1', title: 'First task', isCompleted: false, status: 'TODO' },
+      { id: 'task-2', title: 'Second task', isCompleted: false, status: 'TODO' },
+    ];
+    listTasksMock.mockResolvedValue(tasks);
+    updateTaskMock.mockImplementation(async (id, updates) => ({
+      ...tasks.find(task => task.id === id)!,
+      ...updates,
+    }));
+
+    render(<TaskList />);
+
+    await screen.findByText('First task');
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Select First task' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Select Second task' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mark 2 selected complete' }));
+
+    await waitFor(() => {
+      expect(updateTaskMock).toHaveBeenCalledTimes(2);
+    });
+    expect(updateTaskMock).toHaveBeenCalledWith('task-1', {
+      isCompleted: true,
+      status: 'DONE',
+    });
+    expect(updateTaskMock).toHaveBeenCalledWith('task-2', {
+      isCompleted: true,
+      status: 'DONE',
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /selected complete/i })).toBeNull();
+    });
   });
 
   it('transitions parent task from IN_PROGRESS to DONE after completing remaining subtask', async () => {
