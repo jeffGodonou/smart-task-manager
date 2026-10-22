@@ -36,6 +36,9 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [bulkActionError, setBulkActionError] = useState<string | null>(null);
 
   useEffect(() => {
     void fetchTasks();
@@ -117,6 +120,95 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
     return filteredTasks.slice(startIndex, startIndex + TASKS_PER_PAGE);
   }, [filteredTasks, safeCurrentPage]);
 
+  const paginatedTaskIds = useMemo(
+    () => paginatedTasks.flatMap(task => task.id ? [task.id] : []),
+    [paginatedTasks],
+  );
+  const selectedPageTaskCount = paginatedTaskIds.filter(id => selectedTaskIds.has(id)).length;
+  const allPageTasksSelected = paginatedTaskIds.length > 0 && selectedPageTaskCount === paginatedTaskIds.length;
+
+  useEffect(() => {
+    setSelectedTaskIds(current => {
+      const visibleTaskIds = new Set(flattenedTasks.flatMap(task => task.id ? [task.id] : []));
+      const next = new Set([...current].filter(id => visibleTaskIds.has(id)));
+      return next.size === current.size ? current : next;
+    });
+  }, [flattenedTasks]);
+
+  const handleSelectTask = (task: Task, selected: boolean) => {
+    if (!task.id) return;
+    setSelectedTaskIds(current => {
+      const next = new Set(current);
+      if (selected) next.add(task.id!);
+      else next.delete(task.id!);
+      return next;
+    });
+  };
+
+  const handleSelectAll = (selected: boolean) => {
+    setSelectedTaskIds(current => {
+      const next = new Set(current);
+      paginatedTaskIds.forEach(id => {
+        if (selected) next.add(id);
+        else next.delete(id);
+      });
+      return next;
+    });
+  };
+
+  async function handleCompleteSelected() {
+    const selectedTasks = flattenedTasks.filter(task => task.id && selectedTaskIds.has(task.id));
+    const tasksToComplete = selectedTasks.filter(task =>
+      !task.isCompleted && (!task.subtasks || task.subtasks.length === 0)
+    );
+    const skippedParentCount = selectedTasks.filter(task =>
+      !task.isCompleted && Boolean(task.subtasks?.length)
+    ).length;
+
+    setIsBulkUpdating(true);
+    setBulkActionError(null);
+
+    try {
+      const results = await Promise.allSettled(tasksToComplete.map(task =>
+        updateTask(task.id!, { isCompleted: true, status: 'DONE' })
+      ));
+      const failedTaskIds = new Set<string>();
+      let completedCount = 0;
+
+      results.forEach((result, index) => {
+        const task = tasksToComplete[index];
+        if (result.status === 'fulfilled') {
+          upsertTask(result.value);
+          completedCount += 1;
+        } else {
+          failedTaskIds.add(task.id!);
+          console.error(`Failed to complete task "${task.title}": ${String(result.reason)}`);
+        }
+      });
+
+      const failedCount = failedTaskIds.size;
+      setSelectedTaskIds(current => new Set(
+        [...current].filter(id => failedTaskIds.has(id) || (
+          skippedParentCount > 0 &&
+          selectedTasks.some(task => task.id === id && !task.isCompleted && Boolean(task.subtasks?.length))
+        ))
+      ));
+
+      const messages = [];
+      if (failedCount > 0) {
+        messages.push(`${failedCount} ${failedCount === 1 ? 'task could' : 'tasks could'} not be updated.`);
+      }
+      if (skippedParentCount > 0) {
+        messages.push(`${skippedParentCount} ${skippedParentCount === 1 ? 'parent task was' : 'parent tasks were'} skipped because they have subtasks.`);
+      }
+      if (messages.length > 0) {
+        setBulkActionError(`Completed ${completedCount} tasks. ${messages.join(' ')}`);
+      }
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="task-list-shell">
@@ -159,10 +251,24 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
             </button>
           ))}
         </div>
-        <span className="task-count">
-          {filteredTasks.length} {filteredTasks.length === 1 ? 'task' : 'tasks'}
-        </span>
+        <div className="task-list-toolbar-actions">
+          {selectedTaskIds.size > 0 && (
+            <button
+              type="button"
+              className="task-bulk-action"
+              onClick={() => void handleCompleteSelected()}
+              disabled={isBulkUpdating}
+            >
+              {isBulkUpdating ? 'Updating…' : `Mark ${selectedTaskIds.size} selected complete`}
+            </button>
+          )}
+          <span className="task-count">
+            {filteredTasks.length} {filteredTasks.length === 1 ? 'task' : 'tasks'}
+          </span>
+        </div>
       </div>
+
+      {bulkActionError && <div className="task-bulk-action-error" role="status">{bulkActionError}</div>}
 
       {filteredTasks.length === 0 ? (
         <div className="task-list-empty">
@@ -174,6 +280,17 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
         <div className="task-list">
           {/* Table header */}
           <div className="task-list-header">
+            <label className="task-select-all">
+              <input
+                type="checkbox"
+                checked={allPageTasksSelected}
+                ref={(element) => {
+                  if (element) element.indeterminate = selectedPageTaskCount > 0 && !allPageTasksSelected;
+                }}
+                onChange={(event) => handleSelectAll(event.target.checked)}
+                aria-label="Select all tasks on this page"
+              />
+            </label>
             <span className="task-list-header-spacer" aria-hidden="true" />
             <span>Title</span>
             <span>Description</span>
@@ -190,6 +307,8 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
               onToggle={handleToggleComplete}
               onDelete={handleDelete}
               onOpen={setSelectedTask}
+              isSelected={Boolean(task.id && selectedTaskIds.has(task.id))}
+              onSelect={handleSelectTask}
             />
           ))}
         </div>

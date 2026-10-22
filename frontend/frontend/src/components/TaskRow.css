@@ -1,6 +1,6 @@
 .task-row {
   display: grid;
-  grid-template-columns: 20px minmax(0, 2.1fr) minmax(0, 2.2fr) minmax(0, 1.1fr) minmax(90px, 1fr) 110px;
+  grid-template-columns: 20px 20px minmax(0, 2.1fr) minmax(0, 2.2fr) minmax(0, 1.1fr) minmax(90px, 1fr) 110px;
   align-items: center;
   justify-items: stretch;
   gap: 12px;
@@ -46,6 +46,15 @@
 .task-checkbox {
   width: 20px;
   height: 20px;
+  margin: 0 auto;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: block;
+}
+
+.task-selection-checkbox {
+  width: 16px;
+  height: 16px;
   margin: 0 auto;
   cursor: pointer;
   flex-shrink: 0;

@@ -15,10 +15,47 @@
   font-size: 13px;
 }
 
+.calendar-success {
+  background: #EAF7EE;
+  color: #246B3A;
+  border: 1px solid #BDE2C7;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+.calendar-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
 .calendar-hint {
   font-size: 12px;
   color: #9CA3AF;
   text-align: right;
+  flex: 1;
+}
+
+.calendar-import-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #1F4E79;
+  color: white;
+  border: 1px solid #1F4E79;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.calendar-import-button:hover {
+  background: #183F63;
+  border-color: #183F63;
 }
 
 .calendar-container {
@@ -314,6 +351,45 @@
   gap: 8px;
   padding: 14px 20px 18px;
   border-top: 1px solid #E5E7EB;
+}
+
+.calendar-import-preview {
+  width: min(560px, calc(100vw - 32px));
+}
+
+.calendar-import-preview-summary {
+  margin: 0;
+  color: #6B7280;
+  font-size: 12px;
+}
+
+.calendar-import-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.calendar-import-preview-item {
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #F9FAFB;
+}
+
+.calendar-import-preview-row-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1A1A2E;
+  margin-bottom: 4px;
+}
+
+.calendar-import-preview-row-meta {
+  font-size: 11px;
+  color: #6B7280;
+  line-height: 1.4;
 }
 
 /* ─── Shared buttons ────────────────────────────────────────────────────── */

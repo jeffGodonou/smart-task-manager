@@ -32,6 +32,7 @@ export const taskSchema = z.object({
             message: 'Due date cannot be in the past',
         })
         .optional(),
+    status: z.enum(['TODO', 'IN_PROGRESS', 'DONE']).optional(),
 })
 
 export type TaskFormData = z.infer<typeof taskSchema>;

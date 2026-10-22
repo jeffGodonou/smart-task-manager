@@ -75,16 +75,23 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
     formState: { errors, isSubmitting },
   } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      dueDate: '',
+      status: 'TODO',
+    },
   });
 
   const onSubmit = async (data: TaskFormData) => {
+    const selectedStatus = data.status ?? 'TODO';
     const normalizedTask = {
       title: data.title.trim(),
       description: data.description?.trim() || undefined,
       dueDate: data.dueDate || undefined,
       projectId: projectId ?? null,
-      isCompleted: false,
-      status: 'TODO' as const,
+      isCompleted: selectedStatus === 'DONE',
+      status: selectedStatus,
     };
 
     try {
@@ -185,6 +192,15 @@ export default function TaskEditor({ onTaskCreated, onClose, initialProjectId = 
               <span className="field-error">{errors.dueDate.message}</span>
             )}
           </div>
+        </div>
+
+        <div className="task-editor-field">
+          <label htmlFor="status">Status</label>
+          <select id="status" {...register('status')}>
+            <option value="TODO">Not started</option>
+            <option value="IN_PROGRESS">In progress</option>
+            <option value="DONE">Done</option>
+          </select>
         </div>
 
         <div className="task-editor-field">

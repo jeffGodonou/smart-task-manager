@@ -354,7 +354,7 @@ export default function TaskDetailsModal({ task, onClose, onSave }: TaskDetailsM
                 }}
                 disabled={hasSubtasks || isCompleted}
               >
-                <option value="TODO">To do</option>
+                <option value="TODO">Not started</option>
                 <option value="IN_PROGRESS">In progress</option>
                 <option value="DONE">Done</option>
               </select>
