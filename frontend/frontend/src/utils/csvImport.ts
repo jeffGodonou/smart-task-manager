@@ -33,6 +33,7 @@ const parseCsvRecords = (rawCsv: string): string[][] => {
   let currentCell = '';
   let inQuotes = false;
 
+  // While quoted, commas and line breaks belong to the cell; doubled quotes are decoded as one quote.
   for (let index = 0; index < rawCsv.length; index += 1) {
     const character = rawCsv[index];
 
@@ -94,6 +95,7 @@ const parseDateValue = (value: string): string | undefined => {
     return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   }
 
+  // Calendar exports may put a whole week in one cell; use the range's first date.
   const rangeMatch = trimmed.match(/([A-Za-z]{3,9})\s+(\d{1,2})(?:\s*[-–]\s*[A-Za-z]{3,9}\s+\d{1,2})?,?\s*(\d{4})?/i);
   if (rangeMatch) {
     const monthName = rangeMatch[1].toLowerCase();
@@ -161,6 +163,7 @@ export function parseCalendarCsvImport(rawCsv: string): CalendarCsvTask[] {
   const rows = parseCsvRecords(rawCsv).filter((row) => row.some((cell) => cell.trim().length > 0));
   if (rows.length === 0) return [];
 
+  // Prefer calendar-style week rows when they contain a date, so calendar metadata isn't imported as tasks.
   const weekRows = rows.filter(
     (row) => hasWeekLikeRow(row) && row.slice(1).some((cell) => !!parseDateValue(cell)) && !isCalendarHeaderText(row[0] ?? '')
   );
@@ -186,6 +189,7 @@ export function parseCalendarCsvImport(rawCsv: string): CalendarCsvTask[] {
   const hasHeaders = firstRow.some((cell) => /title|date|when|week|task|name|notes|description/i.test(cell));
 
   if (hasHeaders) {
+    // Infer title, date, and description from each row instead of relying on fixed column positions.
     return rows.slice(1)
       .map((row) => {
         const titleIndex = row.findIndex((cell) => cell.trim().length > 0 && !isCalendarHeaderText(cell) && !parseDateValue(cell) && !/^status$/i.test(cell));
@@ -202,6 +206,7 @@ export function parseCalendarCsvImport(rawCsv: string): CalendarCsvTask[] {
       .filter((task): task is CalendarCsvTask => task !== null);
   }
 
+  // For a plain CSV, use the first cell as the task title and retain other non-date cells as details.
   return rows
     .map((row) => {
       const titleValue = row[0] || '';
