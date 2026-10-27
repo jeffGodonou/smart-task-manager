@@ -12,6 +12,7 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -243,7 +244,7 @@ public class App extends Application {
         root.getStyleClass().add("theme-" + theme);
     }
 
-    private Scene createScene(Node root, double width, double height) {
+    private Scene createScene(Parent root, double width, double height) {
         Scene scene = new Scene(root, width, height);
         var stylesheet = getClass().getResource("/com/jeff/taskmanager/styles.css");
         if (stylesheet == null) {
