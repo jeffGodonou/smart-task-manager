@@ -18,6 +18,7 @@ const themeStorageKey = 'smart-task-manager-theme';
 
 function getStoredTheme(): ThemeName {
   const storedTheme = localStorage.getItem(themeStorageKey);
+  // Ignore stale or unsupported values so the app always starts with a known theme.
   return storedTheme === 'light'
     || storedTheme === 'dark'
     || storedTheme === 'blue'
@@ -37,10 +38,12 @@ function App() {
   const [theme, setTheme] = React.useState<ThemeName>(() => getStoredTheme());
 
   React.useEffect(() => {
+    // Keep the document theme and saved preference in sync with React state.
     document.documentElement.dataset.theme = theme;
     localStorage.setItem(themeStorageKey, theme);
   }, [theme]);
 
+  // Render only the selected workspace view while preserving shared task refresh state.
   const renderedView = view === 'list'
              ? <TaskList onTasksChange={setTasks} refreshKey={tasksRefreshKey} />
              : view === 'kanban'
@@ -56,6 +59,7 @@ function App() {
     return <AuthForm onAuthenticated={(username) => {
       setIsAuthenticated(true);
       setCurrentUsername(username ?? null);
+      // Show the welcome message only for a newly authenticated session.
       setWelcomeUser(username ?? null);
     }} />;
   }
