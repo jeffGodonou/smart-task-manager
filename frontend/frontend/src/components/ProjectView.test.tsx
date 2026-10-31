@@ -1,3 +1,5 @@
+// Tests for ProjectView (project list, type filtering, status column, per-project
+// task modal) and for TaskEditor's project-linking behavior.
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ProjectView from './ProjectView';
@@ -5,6 +7,8 @@ import TaskEditor from './TaskEditor';
 import * as projectApi from '../api/projects';
 import * as taskApi from '../api/tasks';
 
+// Replace the API layer with mocks so tests never hit the real backend.
+// vi.mock calls are hoisted, so the factories must be self-contained.
 vi.mock('../api/projects', () => ({
   loadProjects: vi.fn(),
   loadProject: vi.fn().mockResolvedValue({ id: '1', name: 'Backend API' }),
@@ -20,6 +24,7 @@ vi.mock('../api/tasks', () => ({
 }));
 
 describe('ProjectView', () => {
+  // Reset mock call history and unmount rendered components between tests.
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -36,6 +41,7 @@ describe('ProjectView', () => {
 
     render(<ProjectView />);
 
+    // findBy* waits for the asynchronous project load to complete.
     expect(await screen.findByRole('table')).toBeTruthy();
     expect(screen.getByText('Backend API')).toBeTruthy();
     expect(screen.getByText('Local docs')).toBeTruthy();
@@ -54,8 +60,10 @@ describe('ProjectView', () => {
 
     render(<ProjectView />);
 
+    // The form defaults to NON_CODING...
     expect((screen.getByLabelText('Project type') as HTMLSelectElement).value).toBe('NON_CODING');
 
+    // ...but the user can switch back to CODING, which enables the repository URL field.
     fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
     expect((screen.getByLabelText('Project type') as HTMLSelectElement).value).toBe('CODING');
 
@@ -83,6 +91,7 @@ describe('ProjectView', () => {
 
     render(<ProjectView />);
 
+    // The list is filtered by the type selector, which defaults to NON_CODING.
     expect(await screen.findByText('Theatre production')).toBeTruthy();
     expect(screen.getByText('Launch plan')).toBeTruthy();
     expect(screen.queryByText('Backend API')).toBeNull();
@@ -111,11 +120,13 @@ describe('ProjectView', () => {
     fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
 
     expect(await screen.findByText('Status')).toBeTruthy();
+    // One of the two tasks is DONE, so advancement should read 50%.
     expect(screen.getByText('50%')).toBeTruthy();
     expect(screen.getByText(/in progress|complete|started/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /edit backend api/i })).toBeTruthy();
   });
 
+  // This test renders TaskEditor on its own (not inside ProjectView).
   it('lets a task be linked to an existing project', async () => {
     vi.mocked(projectApi.loadProjects).mockResolvedValue([
       { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main', projectType: 'CODING' },
@@ -133,6 +144,7 @@ describe('ProjectView', () => {
 
     expect(await screen.findByLabelText('Project')).toBeTruthy();
 
+    // Select values are strings; TaskEditor converts the chosen id to a number.
     fireEvent.change(screen.getByLabelText('Project'), { target: { value: '1' } });
     fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Project-linked task' } });
     fireEvent.click(screen.getByRole('button', { name: /\+ add task/i }));
@@ -148,6 +160,8 @@ describe('ProjectView', () => {
     });
   });
 
+  // When the modal is opened from a project row, the project is already known,
+  // so the form should not ask for it again.
   it('hides the project selector when creating a task from a project modal', async () => {
     vi.mocked(projectApi.loadProjects).mockResolvedValue([
       { id: '42', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main' },
@@ -163,6 +177,8 @@ describe('ProjectView', () => {
   });
 
   it('opens the task modal for a project row even when the project id is a non-string value', async () => {
+    // The backend can return numeric ids even though the TS type says string;
+    // the cast simulates that mismatch.
     vi.mocked(projectApi.loadProjects).mockResolvedValue([
       { id: 42 as unknown as string, name: 'Numeric project', repositoryUrl: 'https://github.com/acme/project.git', branch: 'main' },
     ]);
@@ -175,6 +191,7 @@ describe('ProjectView', () => {
     expect(await screen.findByText('Add a new task')).toBeTruthy();
   });
 
+  // The modal must convert the project's string id to a number in the create payload.
   it('sends a numeric projectId when creating a task from a project modal', async () => {
     vi.mocked(projectApi.loadProjects).mockResolvedValue([
       { id: '42', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main' },
