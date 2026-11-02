@@ -1,11 +1,13 @@
-// Tests for ProjectView (project list, type filtering, status column, per-project
-// task modal) and for TaskEditor's project-linking behavior.
+// Tests for ProjectView (project list, type filtering, status column, form
+// validation, edit flow, per-project task modal) and for TaskEditor (project
+// linking, validation, close button, inline project creator).
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ProjectView from './ProjectView';
 import TaskEditor from './TaskEditor';
 import * as projectApi from '../api/projects';
 import * as taskApi from '../api/tasks';
+import { useTaskStore } from '../store/TaskStore';
 
 // Replace the API layer with mocks so tests never hit the real backend.
 // vi.mock calls are hoisted, so the factories must be self-contained.
@@ -27,6 +29,12 @@ describe('ProjectView', () => {
   // Reset mock call history and unmount rendered components between tests.
   beforeEach(() => {
     vi.clearAllMocks();
+    // The zustand store is module-level and shared across tests; reset it and
+    // re-establish the default listTasks implementation (clearAllMocks keeps
+    // implementations, so an override in one test would otherwise leak into
+    // the next).
+    useTaskStore.setState({ tasks: [], projectProgress: {}, isLoading: false, error: null, hasLoaded: false });
+    vi.mocked(taskApi.listTasks).mockResolvedValue([]);
   });
 
   afterEach(() => {
