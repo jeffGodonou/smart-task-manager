@@ -1,221 +1,239 @@
 package com.jeff.taskmanager;
 
-import java.time.LocalDate;
+import com.jeff.taskmanager.model.Project;
 import com.jeff.taskmanager.model.Task;
+import com.jeff.taskmanager.model.User;
+import com.jeff.taskmanager.repository.ProjectRepository;
+import com.jeff.taskmanager.repository.UserRepository;
 import com.jeff.taskmanager.service.TaskService;
-
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 
-/**
- * JavaFX application entry point for the desktop task manager UI.
- *
- * <p>This class builds a styled task creation form and task table,
- * and delegates persistence to {@link com.jeff.taskmanager.service.TaskService}.</p>
- */
-public class App extends Application {
+import java.util.List;
+import java.time.YearMonth;
+import java.util.prefs.Preferences;
 
-    @SuppressWarnings("unchecked")
+/**
+ * JavaFX application entry point and coordinator for the desktop task manager.
+ */
+public class App extends Application implements TaskViews.TaskActions {
+    private static final List<String> THEMES = List.of("blue", "light", "dark", "forest", "gray");
+    private static final int LIST_TAB = 0;
+    private static final int KANBAN_TAB = 1;
+    private static final int CALENDAR_TAB = 2;
+    private static final int PROJECTS_TAB = 3;
+    private static final int STATS_TAB = 4;
+
+    private final TaskService taskService = new TaskService();
+    private final ProjectRepository projectRepository = new ProjectRepository();
+    private final UserRepository userRepository = new UserRepository();
+    private final Preferences preferences = Preferences.userNodeForPackage(App.class);
+
+    private Stage stage;
+    private String currentUsername;
+    private String theme;
+    private YearMonth calendarMonth = YearMonth.now();
+    private TabPane tabs;
+    private BorderPane appRoot;
+    private List<Task> tasks = List.of();
+    private List<Project> projects = List.of();
+
     @Override
     public void start(Stage primaryStage) {
+        stage = primaryStage;
+        theme = preferences.get("theme", "blue");
+        if (!THEMES.contains(theme)) {
+            theme = "blue";
+        }
+        stage.setTitle("Smart Task Manager");
+        showAuthentication();
+    }
 
-        TaskService taskService = new TaskService();
+    private void showAuthentication() {
+        AuthenticationView view = new AuthenticationView(userRepository, theme, this::onAuthenticated);
+        stage.setScene(createScene(view, 520, 440));
+        stage.setMinWidth(420);
+        stage.setMinHeight(380);
+        stage.show();
+    }
 
-        // ── Header bar ──────────────────────────────────────────────────────
-        Label appTitle = new Label("Smart Task Manager");
-        appTitle.getStyleClass().add("header-label");
+    private void onAuthenticated(String username, boolean showWelcome) {
+        currentUsername = username;
+        buildWorkspace(showWelcome);
+    }
 
-        HBox headerBar = new HBox(appTitle);
-        headerBar.getStyleClass().add("header-bar");
-        headerBar.setAlignment(Pos.CENTER_LEFT);
+    private void buildWorkspace(boolean showWelcome) {
+        tabs = createTabs();
 
-        // ── Form section label ───────────────────────────────────────────────
-        Label formSectionLabel = new Label("ADD A NEW TASK");
-        formSectionLabel.getStyleClass().add("section-label");
+        Label brand = new Label("Smart Task Manager");
+        brand.getStyleClass().add("header-label");
+        Label username = new Label(currentUsername);
+        username.getStyleClass().add("header-username");
+        ComboBox<String> themePicker = new ComboBox<>(FXCollections.observableArrayList(THEMES));
+        themePicker.setValue(theme);
+        themePicker.setPromptText("Theme");
+        themePicker.setOnAction(event -> changeTheme(themePicker.getValue()));
 
-        // ── Title field ──────────────────────────────────────────────────────
-        Label titleLabel = new Label("Title");
-        titleLabel.getStyleClass().add("form-label");
-        TextField titleField = new TextField();
-        titleField.setPromptText("Task title...");
-        titleField.setPrefWidth(200);
-
-        VBox titleBox = new VBox(4, titleLabel, titleField);
-
-        // ── Due date field ───────────────────────────────────────────────────
-        Label dateLabel = new Label("Due date");
-        dateLabel.getStyleClass().add("form-label");
-        DatePicker datePicker = new DatePicker();
-        datePicker.setPromptText("Pick a date");
-        datePicker.setPrefWidth(150);
-
-        VBox dateBox = new VBox(4, dateLabel, datePicker);
-
-        // ── Priority field ───────────────────────────────────────────────────
-        Label priorityLabel = new Label("Priority");
-        priorityLabel.getStyleClass().add("form-label");
-        ChoiceBox<String> priorityField = new ChoiceBox<>();
-        priorityField.getItems().addAll("Low", "Medium", "High");
-        priorityField.setValue("Medium");
-        priorityField.setPrefWidth(120);
-
-        VBox priorityBox = new VBox(4, priorityLabel, priorityField);
-
-        // ── Add button ───────────────────────────────────────────────────────
-        Button addButton = new Button("Add task");
-        addButton.getStyleClass().add("btn-primary");
-        VBox addButtonBox = new VBox(addButton);
-        addButtonBox.setAlignment(Pos.BOTTOM_LEFT);
-
-        HBox topFormRow = new HBox(12, titleBox, dateBox, priorityBox, addButtonBox);
-        topFormRow.setAlignment(Pos.BOTTOM_LEFT);
-
-        // ── Description field ────────────────────────────────────────────────
-        Label descLabel = new Label("Description");
-        descLabel.getStyleClass().add("form-label");
-        TextField descriptionField = new TextField();
-        descriptionField.setPromptText("Optional description...");
-        descriptionField.setPrefWidth(500);
-        HBox.setHgrow(descriptionField, Priority.ALWAYS);
-
-        VBox descBox = new VBox(4, descLabel, descriptionField);
-
-        // ── Form area container ──────────────────────────────────────────────
-        VBox formArea = new VBox(10, formSectionLabel, topFormRow, descBox);
-        formArea.getStyleClass().add("form-area");
-
-        // ── TableView ────────────────────────────────────────────────────────
-        TableView<Task> tableView = new TableView<>();
-        tableView.getStyleClass().add("table-view");
-        tableView.setPlaceholder(new Label("No tasks yet — add one above."));
-        tableView.getItems().addAll(taskService.listTasks(""));
-        VBox.setVgrow(tableView, Priority.ALWAYS);
-
-        TableColumn<Task, String> titleColumn = new TableColumn<>("Title");
-        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-        titleColumn.setPrefWidth(200);
-
-        TableColumn<Task, String> descriptionColumn = new TableColumn<>("Description");
-        descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-        descriptionColumn.setPrefWidth(180);
-
-        TableColumn<Task, LocalDate> dueDateColumn = new TableColumn<>("Due date");
-        dueDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
-        dueDateColumn.setPrefWidth(110);
-
-        TableColumn<Task, Boolean> completedColumn = new TableColumn<>("Completed");
-        completedColumn.setCellValueFactory(new PropertyValueFactory<>("completed"));
-        completedColumn.setPrefWidth(90);
-
-        // Priority column with coloured badge labels
-        TableColumn<Task, String> priorityColumn = new TableColumn<>("Priority");
-        priorityColumn.setCellValueFactory(new PropertyValueFactory<>("priority"));
-        priorityColumn.setPrefWidth(100);
-        priorityColumn.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
-            private final ChoiceBox<String> priorityBox = new ChoiceBox<>();
-            {
-                priorityBox.getItems().addAll("Low", "Medium", "High");
-                priorityBox.setOnAction(event -> {
-                    Task task = getTableView().getItems().get(getIndex());
-                    task.setPriority(priorityBox.getValue());
-                    taskService.updateTaskPriority(task.getTitle(), task.getPriority());
-                });
-            }
-
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                } else {
-                    priorityBox.setValue(item);
-                    // Apply style class based on value
-                    priorityBox.getStyleClass().removeAll("badge-high", "badge-medium", "badge-low");
-                    switch (item) {
-                        case "High"   -> priorityBox.getStyleClass().add("badge-high");
-                        case "Medium" -> priorityBox.getStyleClass().add("badge-medium");
-                        default       -> priorityBox.getStyleClass().add("badge-low");
-                    }
-                    setGraphic(priorityBox);
-                }
-            }
+        Button profile = new Button("Profile");
+        profile.setOnAction(event -> editProfile());
+        Button logout = new Button("Log out");
+        logout.setOnAction(event -> {
+            currentUsername = null;
+            showAuthentication();
         });
 
-        // Actions column with styled delete button
-        TableColumn<Task, Void> actionsColumn = new TableColumn<>("Actions");
-        actionsColumn.setPrefWidth(90);
-        actionsColumn.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
-            private final Button deleteButton = new Button("Delete");
-            {
-                deleteButton.getStyleClass().add("btn-danger");
-                deleteButton.setOnAction(event -> {
-                    Task task = getTableView().getItems().get(getIndex());
-                    getTableView().getItems().remove(task);
-                    taskService.deleteTask(task);
-                });
-            }
+        HBox header = new HBox(12, brand, username, themePicker, profile, logout);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setPadding(new Insets(12, 20, 12, 20));
+        header.getStyleClass().add("header-bar");
+        HBox.setHgrow(brand, Priority.ALWAYS);
 
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : deleteButton);
-            }
-        });
+        appRoot = new BorderPane();
+        appRoot.setTop(header);
+        appRoot.setCenter(tabs);
+        appRoot.getStyleClass().add("root");
+        applyTheme(appRoot);
+        if (showWelcome) {
+            Label welcome = new Label("Welcome, " + currentUsername + "!");
+            welcome.getStyleClass().add("welcome-message");
+            appRoot.setBottom(welcome);
+            BorderPane.setMargin(welcome, new Insets(8, 20, 12, 20));
+        }
 
-        tableView.getColumns().addAll(
-            titleColumn, descriptionColumn, dueDateColumn,
-            completedColumn, priorityColumn, actionsColumn
-        );
+        stage.setScene(createScene(appRoot, 1120, 740));
+        stage.setMinWidth(760);
+        stage.setMinHeight(540);
+        stage.show();
+        refreshWorkspace();
+    }
 
-        // ── Add task action ──────────────────────────────────────────────────
-        addButton.setOnAction(action -> {
-            String taskTitle = titleField.getText().trim();
-            LocalDate dueDate = datePicker.getValue();
-            String taskDescription = descriptionField.getText().trim();
-            String priority = priorityField.getValue();
+    private TabPane createTabs() {
+        TabPane pane = new TabPane(
+                new Tab("List"),
+                new Tab("Kanban"),
+                new Tab("Calendar"),
+                new Tab("Projects"),
+                new Tab("Stats"));
+        pane.getTabs().forEach(tab -> tab.setClosable(false));
+        return pane;
+    }
 
-            if (taskTitle.isEmpty()) return;
+    private void refreshWorkspace() {
+        tasks = taskService.listTasks(currentUsername);
+        projects = projectRepository.findByOwnerUsername(currentUsername);
+        tabs.getTabs().get(LIST_TAB).setContent(
+                TaskViews.taskList(tasks, projects, this, this::showError));
+        tabs.getTabs().get(KANBAN_TAB).setContent(TaskViews.kanban(tasks, this));
+        tabs.getTabs().get(CALENDAR_TAB).setContent(TaskViews.calendar(
+                tasks,
+                calendarMonth,
+                month -> {
+                    calendarMonth = month;
+                    refreshWorkspace();
+                },
+                this::edit));
+        tabs.getTabs().get(PROJECTS_TAB).setContent(new ProjectManagementView(
+                projects, currentUsername, projectRepository, userRepository, this::refreshWorkspace));
+        tabs.getTabs().get(STATS_TAB).setContent(TaskViews.statistics(tasks));
+    }
 
-            Task task = new Task(taskTitle, taskDescription, dueDate, false);
-            task.setPriority(priority);
+    private void changeTheme(String selectedTheme) {
+        if (!THEMES.contains(selectedTheme)) {
+            return;
+        }
+        theme = selectedTheme;
+        preferences.put("theme", theme);
+        applyTheme(appRoot);
+    }
 
-            taskService.addTask(task, "");
-            tableView.getItems().add(task);
+    private void applyTheme(Node root) {
+        root.getStyleClass().removeIf(style -> style.startsWith("theme-"));
+        root.getStyleClass().add("theme-" + theme);
+    }
 
-            titleField.clear();
-            descriptionField.clear();
-            datePicker.setValue(null);
-            priorityField.setValue("Medium");
-        });
+    private Scene createScene(Parent root, double width, double height) {
+        Scene scene = new Scene(root, width, height);
+        var stylesheet = getClass().getResource("/com/jeff/taskmanager/styles.css");
+        if (stylesheet == null) {
+            throw new IllegalStateException("The application stylesheet is missing.");
+        }
+        scene.getStylesheets().add(stylesheet.toExternalForm());
+        return scene;
+    }
 
-        // ── Root layout ──────────────────────────────────────────────────────
-        VBox root = new VBox(0, headerBar, formArea, tableView);
-        VBox.setMargin(tableView, new Insets(16, 20, 16, 20));
+    @Override
+    public void create(Task task) {
+        try {
+            taskService.addTask(task, currentUsername);
+            refreshWorkspace();
+        } catch (RuntimeException exception) {
+            showError("Unable to save task: " + exception.getMessage());
+        }
+    }
 
-        Scene scene = new Scene(root, 960, 560);
-        scene.getStylesheets().add(
-            getClass().getResource("/com/jeff/taskmanager/styles.css").toExternalForm()
-        );
+    @Override
+    public void update(Task task, Runnable change) {
+        try {
+            change.run();
+            taskService.updateTask(task.getId(), task, currentUsername);
+            refreshWorkspace();
+        } catch (RuntimeException exception) {
+            showError("Unable to update task: " + exception.getMessage());
+        }
+    }
 
-        primaryStage.setTitle("Smart Task Manager");
-        primaryStage.setScene(scene);
-        primaryStage.setMinWidth(700);
-        primaryStage.setMinHeight(450);
-        primaryStage.show();
+    @Override
+    public void edit(Task task) {
+        if (task != null) {
+            TaskViews.editTask(task, projects, this::update, this::showError);
+        }
+    }
+
+    @Override
+    public void delete(Task task) {
+        if (task == null) {
+            return;
+        }
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
+                "Delete \"" + task.getTitle() + "\"?", ButtonType.CANCEL, ButtonType.OK);
+        confirmation.setHeaderText("Delete task");
+        if (confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+            taskService.deleteTaskById(task.getId(), currentUsername);
+            refreshWorkspace();
+        }
+    }
+
+    private void editProfile() {
+        User user = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new IllegalStateException("User account no longer exists."));
+        ProfileEditor.show(user, userRepository, this::onProfileUpdated, this::showError);
+    }
+
+    private void onProfileUpdated(User user) {
+        currentUsername = user.getUsername();
+        buildWorkspace(false);
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+        alert.setHeaderText("Smart Task Manager");
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {

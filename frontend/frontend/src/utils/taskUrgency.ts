@@ -8,6 +8,7 @@ export function isUrgentDueDate(dueDate?: string, thresholdDays = 2): boolean {
   if (!dueDate) return false;
 
   const today = new Date();
+  // Compare calendar dates, not the current time of day, against the date-only deadline.
   const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const deadline = new Date(`${dueDate}T00:00:00`);
 
@@ -17,10 +18,12 @@ export function isUrgentDueDate(dueDate?: string, thresholdDays = 2): boolean {
 
   const msPerDay = 24 * 60 * 60 * 1000;
   const daysUntilDue = Math.floor((deadline.getTime() - startOfToday.getTime()) / msPerDay);
+  // Past-due dates are urgent too because their day count is negative.
   return daysUntilDue <= thresholdDays;
 }
 
 export function isTaskUrgent(task: UrgencyTask, thresholdDays = 2): boolean {
+  // Completed tasks are never considered urgent, even if their due date has passed.
   const isDone = task.status === 'DONE' || Boolean(task.isCompleted);
   return !isDone && isUrgentDueDate(task.dueDate, thresholdDays);
 }
