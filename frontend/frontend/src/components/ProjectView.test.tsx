@@ -231,4 +231,275 @@ describe('ProjectView', () => {
       );
     });
   });
+
+  it('requires a project name before saving', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([]);
+
+    render(<ProjectView />);
+
+    // Submit with the name field left empty.
+    fireEvent.click(screen.getByRole('button', { name: /add project/i }));
+
+    expect(await screen.findByText('Project name is required.')).toBeTruthy();
+    expect(projectApi.saveProject).not.toHaveBeenCalled();
+  });
+
+  it('requires a repository URL or a local path for coding projects', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([]);
+
+    render(<ProjectView />);
+
+    // A coding project with a name but no repository URL or local path is invalid.
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+    fireEvent.change(screen.getByLabelText('Project name'), { target: { value: 'Backend API' } });
+    fireEvent.click(screen.getByRole('button', { name: /add project/i }));
+
+    expect(await screen.findByText('Coding projects require a repository URL or a local path.')).toBeTruthy();
+    expect(projectApi.saveProject).not.toHaveBeenCalled();
+  });
+
+  it('shows an empty state when no projects match the active type', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([]);
+
+    render(<ProjectView />);
+
+    expect(await screen.findByRole('heading', { name: /no non-coding projects yet/i })).toBeTruthy();
+
+    // The empty state follows the active type filter.
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+    expect(screen.getByRole('heading', { name: /no coding projects yet/i })).toBeTruthy();
+  });
+
+  it('switches the table columns based on the active project type', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main', projectType: 'CODING' },
+      { id: '2', name: 'Theatre production', description: 'Prepare the fall show.', projectType: 'NON_CODING', projectCategory: 'Theatre', endDate: '2026-10-15' },
+    ]);
+
+    render(<ProjectView />);
+
+    // Non-coding columns are shown by default. Column headers are queried by
+    // role because some names (e.g. "End date", "Branch") also appear as form labels.
+    expect(await screen.findByRole('columnheader', { name: 'Details' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Category / Timeline' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'End date' })).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+
+    expect(screen.getByRole('columnheader', { name: 'Repository / Path' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'GitHub' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Branch' })).toBeTruthy();
+  });
+
+  it('creates a non-coding project with category and end date', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([]);
+    vi.mocked(projectApi.saveProject).mockResolvedValue({
+      id: '7',
+      name: 'Theatre production',
+      description: 'Prepare the fall show.',
+      projectType: 'NON_CODING',
+      projectCategory: 'Theatre',
+      endDate: '2026-10-15',
+    });
+
+    render(<ProjectView />);
+
+    fireEvent.change(screen.getByLabelText('Project name'), { target: { value: 'Theatre production' } });
+    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Prepare the fall show.' } });
+    fireEvent.change(screen.getByLabelText('Project category'), { target: { value: 'Theatre' } });
+    fireEvent.change(screen.getByLabelText('End date'), { target: { value: '2026-10-15' } });
+    fireEvent.click(screen.getByRole('button', { name: /add project/i }));
+
+    await waitFor(() => {
+      expect(projectApi.saveProject).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Theatre production',
+          projectType: 'NON_CODING',
+          projectCategory: 'Theatre',
+          endDate: '2026-10-15',
+        }),
+      );
+    });
+
+    // The new project appears in the (non-coding) list.
+    expect(await screen.findByText('Theatre production')).toBeTruthy();
+  });
+
+  it('populates the form for editing and saves changes to the project', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main', projectType: 'CODING' },
+    ]);
+    vi.mocked(projectApi.saveProject).mockResolvedValue({
+      id: '1',
+      name: 'Backend API v2',
+      repositoryUrl: 'https://github.com/acme/backend.git',
+      branch: 'main',
+      projectType: 'CODING',
+    });
+
+    render(<ProjectView />);
+
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+    fireEvent.click(await screen.findByRole('button', { name: /edit backend api/i }));
+
+    // The form is pre-filled with the project's values and the submit button
+    // switches to "Save changes".
+    expect((screen.getByLabelText('Project name') as HTMLInputElement).value).toBe('Backend API');
+    expect((screen.getByLabelText('Git repository URL') as HTMLInputElement).value).toBe('https://github.com/acme/backend.git');
+
+    fireEvent.change(screen.getByLabelText('Project name'), { target: { value: 'Backend API v2' } });
+    fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+    // The existing project id is sent so the backend updates instead of creating.
+    await waitFor(() => {
+      expect(projectApi.saveProject).toHaveBeenCalledWith(
+        expect.objectContaining({ id: '1', name: 'Backend API v2' }),
+      );
+    });
+
+    // The form returns to "add" mode after a successful save.
+    expect(screen.getByRole('button', { name: /add project/i })).toBeTruthy();
+
+    // The updated project replaces the old one in the list (the draft reset
+    // switched the filter back to NON_CODING, so switch to CODING again).
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+    expect(await screen.findByText('Backend API v2')).toBeTruthy();
+    expect(screen.queryByText('Backend API')).toBeNull();
+  });
+
+  it('cancels editing and restores the empty form', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main', projectType: 'CODING' },
+    ]);
+
+    render(<ProjectView />);
+
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+    fireEvent.click(await screen.findByRole('button', { name: /edit backend api/i }));
+    expect((screen.getByLabelText('Project name') as HTMLInputElement).value).toBe('Backend API');
+
+    fireEvent.click(screen.getByRole('button', { name: /cancel edit/i }));
+
+    // The draft is cleared and the form returns to "add" mode.
+    expect((screen.getByLabelText('Project name') as HTMLInputElement).value).toBe('');
+    expect(screen.getByRole('button', { name: /add project/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /cancel edit/i })).toBeNull();
+  });
+
+  it('shows an error message when saving a project fails', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([]);
+    vi.mocked(projectApi.saveProject).mockRejectedValue(new Error('Server unavailable'));
+
+    render(<ProjectView />);
+
+    fireEvent.change(screen.getByLabelText('Project name'), { target: { value: 'Theatre production' } });
+    fireEvent.click(screen.getByRole('button', { name: /add project/i }));
+
+    // The rejection message from the API is surfaced to the user.
+    expect(await screen.findByText('Server unavailable')).toBeTruthy();
+  });
+
+  it('shows "No tasks" for a project without tasks', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main', projectType: 'CODING' },
+    ]);
+    vi.mocked(taskApi.listTasks).mockResolvedValue([]);
+
+    render(<ProjectView />);
+
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+
+    expect(await screen.findByText('No tasks')).toBeTruthy();
+    expect(screen.getByText('0%')).toBeTruthy();
+    expect(screen.getByText('0/0 done')).toBeTruthy();
+  });
+
+  it('shows "Complete" when all project tasks are done', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '1', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main', projectType: 'CODING' },
+    ]);
+    vi.mocked(taskApi.listTasks).mockResolvedValue([
+      { id: 'a', title: 'Setup', projectId: '1', status: 'DONE', isCompleted: true },
+      { id: 'b', title: 'Ship', projectId: '1', status: 'DONE', isCompleted: true },
+    ]);
+
+    render(<ProjectView />);
+
+    fireEvent.change(screen.getByLabelText('Project type'), { target: { value: 'CODING' } });
+
+    expect(await screen.findByText('100%')).toBeTruthy();
+    expect(screen.getByText('Complete')).toBeTruthy();
+    expect(screen.getByText('2/2 done')).toBeTruthy();
+  });
+
+  it('closes the task modal when the close button is clicked', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([
+      { id: '42', name: 'Backend API', repositoryUrl: 'https://github.com/acme/backend.git', branch: 'main' },
+    ]);
+
+    render(<ProjectView />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /create task for backend api/i }));
+    expect(await screen.findByText('Add a new task')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /close task form/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Add a new task')).toBeNull();
+    });
+  });
+
+  // The tests below render TaskEditor on its own (not inside ProjectView).
+
+  it('requires a title before creating a task', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([]);
+
+    render(<TaskEditor />);
+
+    fireEvent.click(screen.getByRole('button', { name: /\+ add task/i }));
+
+    // The zod schema blocks submission and surfaces the field error.
+    expect(await screen.findByText('Title is required')).toBeTruthy();
+    expect(taskApi.createTask).not.toHaveBeenCalled();
+  });
+
+  it('calls onClose when the close button is clicked', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([]);
+    const onClose = vi.fn();
+
+    render(<TaskEditor showCloseButton={true} onClose={onClose} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /close task form/i }));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('creates a project from the task form and selects it', async () => {
+    vi.mocked(projectApi.loadProjects).mockResolvedValue([]);
+    vi.mocked(projectApi.saveProject).mockResolvedValue({
+      id: '5',
+      name: 'Launch plan',
+      projectType: 'NON_CODING',
+    });
+
+    render(<TaskEditor />);
+
+    // Open the inline project creator next to the project selector.
+    fireEvent.click(screen.getByRole('button', { name: /\+ new project/i }));
+
+    fireEvent.change(screen.getByLabelText('Project name'), { target: { value: 'Launch plan' } });
+    fireEvent.click(screen.getByRole('button', { name: /create project/i }));
+
+    await waitFor(() => {
+      expect(projectApi.saveProject).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'Launch plan', projectType: 'NON_CODING' }),
+      );
+    });
+
+    // The creator closes and the new project becomes the selected option.
+    await waitFor(() => {
+      expect((screen.getByLabelText('Project') as HTMLSelectElement).value).toBe('5');
+    });
+    expect(screen.queryByRole('button', { name: /create project/i })).toBeNull();
+  });
 });
