@@ -58,17 +58,24 @@ export default function TaskList({ onTasksChange, refreshKey = 0 }: TaskListProp
   }
 
   async function handleToggleComplete(task: Task) {
+    // Parent tasks can't be toggled directly — their completion is derived from their subtasks
     if (task.subtasks && task.subtasks.length > 0) return;
     try {
+      // Flip the current completion state
       const nextCompleted = !task.isCompleted;
+      // Persist the toggle, keeping `status` in sync with `isCompleted`
+      // (DONE when completed, TODO when reopened)
       const updated = await updateTask(task.id!, {
         ...task,
         isCompleted: nextCompleted,
         status: nextCompleted ? 'DONE' : 'TODO',
       });
+      // Replace the stale task in the store with the server's authoritative version
       upsertTask(updated);
+      // Sync the store's own toggle bookkeeping (e.g. parent completion rollups)
       await toggleComplete(task.id!, task.isCompleted ?? false);
     } catch (err) {
+      // Surface failures in the console; the store state is left untouched
       const message = err instanceof Error ? err.message : String(err);
       console.error('Failed to update task: ' + message);
     }
